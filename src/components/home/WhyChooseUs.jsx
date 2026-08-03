@@ -1,0 +1,41 @@
+import React from 'react';
+import SectionHeading from '../ui/SectionHeading';
+import RevealOnScroll from '../ui/RevealOnScroll';
+import { features } from '../../data/homeData';
+import * as Icons from 'lucide-react';
+
+export default function WhyChooseUs() {
+  return (
+    <section className="py-16 md:py-24 bg-ivory">
+      <div className="max-w-7xl mx-auto px-6 md:px-10">
+        <RevealOnScroll>
+          <SectionHeading 
+            title="Why Choose Us" 
+            subtitle="Excellence in every detail" 
+          />
+        </RevealOnScroll>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center mt-12">
+          {features.map((feature, idx) => {
+            const Icon = Icons[feature.icon];
+            return (
+              <RevealOnScroll key={feature.id} delay={idx * 0.1}>
+                <div className="flex flex-col items-center">
+                  <div className="w-16 h-16 rounded-full bg-amber/10 flex items-center justify-center mb-4 transition-transform duration-300 hover:scale-110">
+                    {Icon && <Icon className="text-amber w-7 h-7" />}
+                  </div>
+                  <h3 className="font-serif text-lg md:text-xl text-charcoal mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 max-w-[200px] leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
+              </RevealOnScroll>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #F8F5F0;
+  --color-ivory: #FDFBF7;
+  --color-charcoal: #1F2937;
+  --color-navy: #2C3E50;
+  --color-navy-dark: #1A2632;
+  --color-amber: #C89B6D;
+  --color-amber-dark: #B08552;
+  --color-amber-light: #DCB98C;
+  --color-sage: #8A9A8C;
+  --color-sage-light: #A8B5A9;
+  --color-sage-dark: #6E7C70;
+  --color-blush: #E8C4C4;
+
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-cream text-charcoal font-sans antialiased overflow-x-hidden;
+  }
+}
