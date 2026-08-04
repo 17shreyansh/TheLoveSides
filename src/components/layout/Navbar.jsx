@@ -7,7 +7,7 @@ import Button from '../ui/Button';
 import MobileMenu from './MobileMenu';
 import clsx from 'clsx';
 import Badge from '../ui/Badge';
-import LogoImage from '../../assets/images/LogoTransparent.png';
+import LogoImage from '../../assets/images/LogoProcessed.png';
 
 export default function Navbar() {
   const isScrolled = useScrollHeader(20);

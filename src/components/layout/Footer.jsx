@@ -1,7 +1,7 @@
 import React from 'react';
 import { footerLinks } from '../../data/homeData';
 import NewsletterCTA from './NewsletterCTA';
-import LogoImage from '../../assets/images/LogoTransparent.png';
+import LogoImage from '../../assets/images/LogoProcessed.png';
 
 export default function Footer() {
   return (
@@ -12,7 +12,7 @@ export default function Footer() {
           {/* Brand Col */}
           <div className="md:col-span-1 flex flex-col items-start">
             <a href="/" className="mb-6 inline-block">
-              <img src={LogoImage} alt="THELOVESIDES" className="h-10 md:h-12 object-contain" />
+              <img src={LogoImage} alt="THELOVESIDES" className="h-10 md:h-12 object-contain brightness-0 invert" />
             </a>
             <p className="text-ivory/60 text-sm leading-relaxed max-w-xs">
               Premium window treatments with expert installation since 2014.
