@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, ShoppingBag } from 'lucide-react';
-import { useScrollHeader } from '../../hooks/useScrollHeader';
+import React, { useState, useEffect, useRef } from 'react';
+import { Menu, ShoppingBag, Search, User } from 'lucide-react';
+import { useScrollDirection } from '../../hooks/useScrollDirection';
 import { useCart } from '../../context/CartContext';
 import { navLinks } from '../../data/homeData';
-import Button from '../ui/Button';
 import MobileMenu from './MobileMenu';
 import clsx from 'clsx';
 import Badge from '../ui/Badge';
-import LogoImage from '../../assets/images/LogoProcessed.png';
+import NavbarRibbon from './NavbarRibbon';
 
 export default function Navbar() {
-  const isScrolled = useScrollHeader(20);
+  const { hideNavbar, scrollY } = useScrollDirection();
   const { state } = useCart();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isBouncing, setIsBouncing] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchInputRef = useRef(null);
 
-  // Trigger bounce animation when totalCount changes
   useEffect(() => {
     if (state.totalCount > 0) {
       setIsBouncing(true);
@@ -24,66 +24,103 @@ export default function Navbar() {
     }
   }, [state.totalCount]);
 
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
+
   return (
     <>
-      <header 
-        className={clsx(
-          'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-          isScrolled ? 'bg-cream/90 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'
-        )}
-      >
-        <div className="max-w-7xl mx-auto px-6 md:px-10 flex items-center justify-between">
-          {/* Logo */}
-          <a href="/" className="flex-shrink-0 flex items-center">
-            <img 
-              src={LogoImage} 
-              alt="THELOVESIDES" 
-              className="h-10 md:h-12 object-contain scale-[1.5] origin-left" 
-            />
-          </a>
+      <header className={clsx(
+        'fixed top-0 left-0 right-0 z-50 flex flex-col bg-cream transition-transform duration-300 ease-in-out w-full',
+        hideNavbar ? '-translate-y-full' : 'translate-y-0',
+        scrollY > 20 && 'shadow-md'
+      )}>
+        {/* ROW 1: Ribbon */}
+        <NavbarRibbon isVisible={scrollY === 0} />
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-8">
+        {/* ROW 2: Main Header */}
+        <div className="w-full py-4 border-b border-charcoal/10 relative">
+          <div className="max-w-7xl mx-auto px-6 md:px-10 flex items-center justify-between">
+            {/* LEFT: Search / Mobile Menu */}
+            <div className="flex items-center gap-4">
+              <button 
+                className="md:hidden p-1 -ml-1 text-charcoal hover:text-amber transition-colors focus:outline-none"
+                onClick={() => setIsMobileMenuOpen(true)}
+                aria-label="Open menu"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+              
+              <div className="flex items-center">
+                <button 
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  className="p-1 text-charcoal hover:text-amber transition-colors focus:outline-none"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5 md:w-6 md:h-6" />
+                </button>
+                <div 
+                  className={clsx(
+                    "overflow-hidden transition-all duration-300 ease-in-out flex items-center",
+                    isSearchOpen ? "w-32 sm:w-48 ml-2 opacity-100" : "w-0 opacity-0"
+                  )}
+                >
+                  <input 
+                    ref={searchInputRef}
+                    type="text" 
+                    placeholder="Search for..."
+                    className="w-full bg-transparent border-b border-charcoal/30 pb-1 text-sm text-charcoal focus:outline-none focus:border-amber transition-colors placeholder:text-charcoal/40"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* CENTER: Brand Wordmark */}
+            <a href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
+              <span className="font-serif text-xl sm:text-2xl md:text-3xl tracking-[0.2em] text-charcoal uppercase text-center">
+                THELOVESIDES
+              </span>
+            </a>
+
+            {/* RIGHT: User & Cart */}
+            <div className="flex items-center gap-3 md:gap-5">
+              <button 
+                className="p-1 text-charcoal hover:text-amber transition-colors focus:outline-none hidden sm:block"
+                aria-label="Account"
+              >
+                <User className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+              
+              <button 
+                className="relative p-1 text-charcoal hover:text-amber transition-colors focus:outline-none"
+                aria-label="View Cart"
+              >
+                <ShoppingBag className="w-5 h-5 md:w-6 md:h-6" />
+                {state.totalCount > 0 && (
+                  <Badge className={clsx(isBouncing && 'animate-bounce')}>
+                    {state.totalCount}
+                  </Badge>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ROW 3: Categories (Desktop Only) */}
+        <div className="hidden md:flex w-full py-3 border-b border-charcoal/10 bg-cream">
+          <nav className="max-w-7xl mx-auto px-6 md:px-10 flex justify-center gap-10 w-full">
             {navLinks.map((link) => (
               <a 
                 key={link.title} 
                 href={link.href}
-                className="text-sm font-medium tracking-wide text-charcoal hover:text-amber relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[2px] after:bg-amber hover:after:w-full after:transition-all after:duration-300"
+                className="text-sm font-medium tracking-wider uppercase text-charcoal hover:text-amber relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[2px] after:bg-amber hover:after:w-full after:transition-all after:duration-300"
               >
                 {link.title}
               </a>
             ))}
           </nav>
-
-          {/* Actions */}
-          <div className="flex items-center gap-4 md:gap-6">
-            <button 
-              className="relative p-2 text-charcoal hover:text-amber transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber rounded-full"
-              aria-label="View Cart"
-            >
-              <ShoppingBag className="w-5 h-5 md:w-6 md:h-6" />
-              {state.totalCount > 0 && (
-                <Badge className={clsx(isBouncing && 'animate-bounce')}>
-                  {state.totalCount}
-                </Badge>
-              )}
-            </button>
-            
-            <div className="hidden lg:block">
-              <Button variant="dark">
-                Book Consultation
-              </Button>
-            </div>
-
-            {/* Mobile Menu Toggle */}
-            <button 
-              className="lg:hidden p-2 -mr-2 text-charcoal hover:text-amber transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber rounded-md"
-              onClick={() => setIsMobileMenuOpen(true)}
-              aria-label="Open menu"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-          </div>
         </div>
       </header>
       

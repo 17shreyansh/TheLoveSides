@@ -2,7 +2,6 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { navLinks } from '../../data/homeData';
-import Button from '../ui/Button';
 
 export default function MobileMenu({ isOpen, onClose }) {
   // Prevent body scroll when menu is open
@@ -39,11 +38,11 @@ export default function MobileMenu({ isOpen, onClose }) {
             onClick={onClose}
           />
           <motion.div
-            initial={{ x: '100%' }}
+            initial={{ x: '-100%' }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
+            exit={{ x: '-100%' }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="fixed top-0 right-0 bottom-0 w-4/5 max-w-sm bg-cream z-[70] shadow-2xl flex flex-col p-6"
+            className="fixed top-0 left-0 bottom-0 w-4/5 max-w-sm bg-cream z-[70] shadow-2xl flex flex-col p-6 border-r border-charcoal/10"
           >
             <div className="flex justify-end mb-8">
               <button 
@@ -60,19 +59,13 @@ export default function MobileMenu({ isOpen, onClose }) {
                 <a 
                   key={link.title} 
                   href={link.href} 
-                  className="hover:text-amber transition-colors w-fit"
+                  className="hover:text-amber transition-colors w-fit tracking-wide uppercase text-sm"
                   onClick={onClose}
                 >
                   {link.title}
                 </a>
               ))}
             </nav>
-            
-            <div className="mt-auto pt-8 border-t border-charcoal/10">
-              <Button variant="dark" className="w-full" onClick={onClose}>
-                Book Consultation
-              </Button>
-            </div>
           </motion.div>
         </>
       )}

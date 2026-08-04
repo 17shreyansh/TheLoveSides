@@ -28,14 +28,14 @@ export default function Hero() {
         <img
           src={HeroImage}
           alt=""
-          className="w-full h-full object-cover object-[center_15%]"
+          className="w-full h-full object-cover object-[center_5%]"
         />
         {/* Overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-r from-navy-dark/90 via-navy-dark/60 to-transparent"></div>
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-10 mt-20">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-10 mt-32 md:mt-40">
         <motion.div
           className="max-w-xl"
           variants={containerVariants}

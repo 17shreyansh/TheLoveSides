@@ -170,12 +170,19 @@ export const stats = [
   { id: 3, value: 12, label: 'Years of Excellence' }
 ];
 
+export const promoOffers = [
+  "Free Delivery on Orders Above ₹2999",
+  "Flat 20% Off on First Order | Use Code LOVE20",
+  "Premium Custom Fitting Included on All Orders",
+  "New Arrivals: Explore Our Summer Collection"
+];
+
 export const navLinks = [
   { title: 'Curtains', href: '#' },
-  { title: 'Blinds', href: '#' },
-  { title: 'Fabrics', href: '#' },
-  { title: 'Rooms', href: '#' },
-  { title: 'About', href: '#' },
+  { title: 'Sofa Covers', href: '#' },
+  { title: 'Marble', href: '#' },
+  { title: 'Accessories', href: '#' },
+  { title: 'Clothing', href: '#' },
 ];
 
 export const footerLinks = [
