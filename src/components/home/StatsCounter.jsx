@@ -7,16 +7,16 @@ export default function StatsCounter() {
   return (
     <section className="bg-ivory py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12 text-center divide-y md:divide-y-0 md:divide-x divide-charcoal/10">
+        <div className="grid grid-cols-3 gap-2 md:gap-12 text-center divide-x divide-charcoal/10">
           {stats.map((stat, idx) => (
-            <RevealOnScroll key={stat.id} delay={idx * 0.1} className={idx !== 0 ? 'pt-10 md:pt-0' : ''}>
-              <div className="flex flex-col items-center">
+            <RevealOnScroll key={stat.id} delay={idx * 0.1}>
+              <div className="flex flex-col items-center px-1 md:px-4">
                 <AnimatedCounter 
                   target={stat.value} 
                   suffix="+" 
-                  className="text-4xl md:text-5xl lg:text-6xl font-serif text-charcoal mb-3"
+                  className="text-xl sm:text-2xl md:text-5xl lg:text-6xl font-serif text-charcoal mb-1 md:mb-3"
                 />
-                <span className="text-gray-500 text-sm md:text-base tracking-wide font-medium">
+                <span className="text-gray-500 text-[10px] sm:text-xs md:text-base tracking-wide font-medium">
                   {stat.label}
                 </span>
               </div>

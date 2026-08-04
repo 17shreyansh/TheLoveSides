@@ -44,9 +44,9 @@ export default function Hero() {
         >
           <motion.h1 
             variants={itemVariants}
-            className="text-5xl md:text-6xl lg:text-7xl font-serif leading-[1.05] text-ivory mb-6"
+            className="text-4xl md:text-6xl lg:text-7xl font-serif leading-[1.1] md:leading-[1.05] text-ivory mb-6"
           >
-            Curtains & Timeless Charm
+            Curtains & Quiet Luxury
           </motion.h1>
           
           <motion.p 

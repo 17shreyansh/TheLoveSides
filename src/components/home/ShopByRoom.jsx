@@ -14,12 +14,12 @@ export default function ShopByRoom() {
           />
         </RevealOnScroll>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-2 gap-4 md:gap-8">
           {rooms.map((room, idx) => (
             <RevealOnScroll key={room.id} delay={idx * 0.1}>
               <a 
                 href={`#${room.title.toLowerCase().replace(' ', '-')}`}
-                className="group relative block aspect-[16/10] rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300"
+                className="group relative block aspect-[16/10] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300"
               >
                 <img 
                   src={room.image} 
@@ -27,11 +27,11 @@ export default function ShopByRoom() {
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                <div className="absolute bottom-8 left-8">
-                  <h3 className="font-serif text-2xl md:text-3xl text-white mb-2">
+                <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 md:bottom-8 md:left-8 pr-3">
+                  <h3 className="font-serif text-base sm:text-lg md:text-3xl text-white mb-1 md:mb-2">
                     {room.title}
                   </h3>
-                  <span className="text-sm text-white/80 underline-offset-4 group-hover:underline transition-all">
+                  <span className="text-[10px] sm:text-xs md:text-sm text-white/80 underline-offset-4 group-hover:underline transition-all block truncate">
                     Explore Collection
                   </span>
                 </div>
