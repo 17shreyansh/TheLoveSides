@@ -78,8 +78,14 @@ export default function Navbar() {
             </div>
 
             {/* CENTER: Brand Wordmark */}
-            <a href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
-              <span className="font-serif text-xl sm:text-2xl md:text-3xl tracking-[0.2em] text-charcoal uppercase text-center">
+            <a 
+              href="/" 
+              className={clsx(
+                "absolute left-1/2 -translate-x-1/2 flex items-center justify-center transition-opacity duration-300",
+                isSearchOpen ? "opacity-0 sm:opacity-100 pointer-events-none sm:pointer-events-auto" : "opacity-100"
+              )}
+            >
+              <span className="font-serif text-lg sm:text-2xl md:text-3xl tracking-[0.1em] sm:tracking-[0.2em] text-charcoal uppercase text-center whitespace-nowrap">
                 THELOVESIDES
               </span>
             </a>
