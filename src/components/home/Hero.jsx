@@ -28,7 +28,7 @@ export default function Hero() {
         <img
           src={HeroImage}
           alt=""
-          className="w-full h-full object-cover object-[center_5%]"
+          className="w-full h-full object-cover object-[85%_center] md:object-[center_5%]"
         />
         {/* Overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-r from-navy-dark/90 via-navy-dark/60 to-transparent"></div>
@@ -44,16 +44,23 @@ export default function Hero() {
         >
           <motion.h1 
             variants={itemVariants}
-            className="text-4xl md:text-6xl lg:text-7xl font-serif leading-[1.1] md:leading-[1.05] text-ivory mb-6"
+            className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif leading-[1.2] md:leading-[1.05] text-ivory mb-4 md:mb-6"
           >
-            Curtains & Quiet Luxury
+            Curtains & <br className="md:hidden" /> Quiet Luxury
           </motion.h1>
           
           <motion.p 
             variants={itemVariants}
-            className="text-lg md:text-xl text-ivory/80 font-sans mb-10 leading-relaxed"
+            className="hidden md:block text-lg md:text-xl text-ivory/80 font-sans mb-10 leading-relaxed"
           >
             Shop our exclusive collection of premium curtains and blinds. Discover high-quality fabrics, custom sizing, and effortless style to elevate any room.
+          </motion.p>
+          
+          <motion.p 
+            variants={itemVariants}
+            className="md:hidden text-base text-ivory/80 font-sans mb-8 leading-relaxed"
+          >
+            Premium fabrics and custom sizing to effortlessly elevate your space.
           </motion.p>
           
           <motion.div 
@@ -68,7 +75,7 @@ export default function Hero() {
             </Button>
           </motion.div>
 
-          <motion.div variants={itemVariants}>
+          <motion.div variants={itemVariants} className="mt-16 md:mt-4">
             <TrustBadges />
           </motion.div>
           
