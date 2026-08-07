@@ -17,7 +17,7 @@ export default function FeatureCollection() {
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           
-          <RevealOnScroll className="order-2 lg:order-1">
+          <RevealOnScroll>
             <div className="rounded-2xl overflow-hidden shadow-lg">
               <img 
                 src={VelvetBlue} 
@@ -27,7 +27,7 @@ export default function FeatureCollection() {
             </div>
           </RevealOnScroll>
 
-          <RevealOnScroll className="order-1 lg:order-2" delay={0.2}>
+          <RevealOnScroll delay={0.2}>
             <h2 className="text-3xl md:text-4xl font-serif text-charcoal mb-6 leading-tight">
               Signature Velvet Collection
             </h2>

@@ -6,7 +6,6 @@ import { navLinks } from '../../data/homeData';
 import MobileMenu from './MobileMenu';
 import clsx from 'clsx';
 import Badge from '../ui/Badge';
-import NavbarRibbon from './NavbarRibbon';
 
 export default function Navbar() {
   const { hideNavbar, scrollY } = useScrollDirection();
@@ -37,9 +36,6 @@ export default function Navbar() {
         hideNavbar ? '-translate-y-full' : 'translate-y-0',
         scrollY > 20 && 'shadow-md'
       )}>
-        {/* ROW 1: Ribbon */}
-        <NavbarRibbon isVisible={scrollY === 0} />
-
         {/* ROW 2: Main Header */}
         <div className="w-full py-4 border-b border-charcoal/10 relative">
           <div className="max-w-7xl mx-auto px-6 md:px-10 flex items-center justify-between">

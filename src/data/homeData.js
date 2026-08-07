@@ -178,6 +178,8 @@ export const promoOffers = [
 ];
 
 export const navLinks = [
+  { title: 'Arrivals', href: '#' },
+  { title: 'Best Seller', href: '#' },
   { title: 'Curtains', href: '#' },
   { title: 'Sofa Covers', href: '#' },
   { title: 'Marble', href: '#' },
@@ -194,4 +196,13 @@ export const footerLinks = [
     title: 'Support',
     links: ['Contact Us', 'Measurement Guide', 'Installation', 'Warranty']
   }
+];
+
+export const socialPosts = [
+  sheerCurtainsImg,
+  premiumLinenImg,
+  'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=800&q=80',
+  blackoutCurtainsImg,
+  velvetBlackoutImg,
+  'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=80',
 ];

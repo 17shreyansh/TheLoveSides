@@ -1,24 +1,53 @@
-import React, { useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
 import SectionHeading from '../ui/SectionHeading';
 import RevealOnScroll from '../ui/RevealOnScroll';
 import { categories } from '../../data/homeData';
 
 export default function CategoryShowcase() {
   const scrollContainerRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
-  const scroll = (direction) => {
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    const container = scrollContainerRef.current;
+    const itemWidth = container.scrollWidth / categories.length;
+    const newIndex = Math.round(container.scrollLeft / itemWidth);
+    if (newIndex >= 0 && newIndex < categories.length) {
+      setActiveIndex(newIndex);
+    }
+  };
+
+  useEffect(() => {
+    if (isHovered) return;
+    
+    const interval = setInterval(() => {
+      if (scrollContainerRef.current) {
+        const container = scrollContainerRef.current;
+        const itemWidth = container.scrollWidth / categories.length;
+        
+        // If we've reached the last item, go back to start
+        if (activeIndex >= categories.length - 1 || container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+          container.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          container.scrollBy({ left: itemWidth, behavior: 'smooth' });
+        }
+      }
+    }, 3500);
+
+    return () => clearInterval(interval);
+  }, [activeIndex, isHovered]);
+
+  const scrollTo = (index) => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 260 + 16; // width of card + gap
-      scrollContainerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
+      const container = scrollContainerRef.current;
+      const itemWidth = container.scrollWidth / categories.length;
+      container.scrollTo({ left: itemWidth * index, behavior: 'smooth' });
     }
   };
 
   return (
-    <section className="py-16 md:py-24 bg-cream">
+    <section className="py-16 md:py-24 bg-cream overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <RevealOnScroll>
           <SectionHeading 
@@ -27,18 +56,15 @@ export default function CategoryShowcase() {
           />
         </RevealOnScroll>
 
-        <div className="relative">
-          <button 
-            onClick={() => scroll('left')}
-            className="md:hidden absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center bg-white/90 text-navy-dark rounded-full shadow-lg focus:outline-none"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft className="w-6 h-6 -ml-0.5" />
-          </button>
-
+        <div className="relative mt-8">
           <div 
             ref={scrollContainerRef}
-            className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory pb-4 md:pb-0 relative" 
+            onScroll={handleScroll}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onTouchStart={() => setIsHovered(true)}
+            onTouchEnd={() => setIsHovered(false)}
+            className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory pb-6 relative scroll-smooth" 
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
           <style>{`
@@ -47,22 +73,26 @@ export default function CategoryShowcase() {
             }
           `}</style>
           {categories.map((category, idx) => (
-            <div key={category.id} className="w-[65vw] max-w-[260px] sm:w-[300px] md:w-auto flex-shrink-0 snap-start md:snap-align-none">
+            <div key={category.id} className="w-[75vw] sm:w-[320px] lg:w-[350px] flex-shrink-0 snap-center md:snap-start">
               <RevealOnScroll delay={idx * 0.1}>
                 <a 
                   href={`#${category.title.toLowerCase().replace(' ', '-')}`}
-                  className="group relative block aspect-[3/4] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300"
+                  className="group relative block aspect-[4/5] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer shadow-sm md:hover:shadow-2xl transition-all duration-500"
                 >
                   <img 
                     src={category.image} 
                     alt={category.title} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 right-4">
-                    <h3 className="font-serif text-base sm:text-lg md:text-2xl text-white leading-tight">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10 opacity-70 md:group-hover:opacity-90 transition-opacity duration-500"></div>
+                  
+                  <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                    <h3 className="font-serif text-lg md:text-2xl text-white mb-2 md:transform md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-500">
                       {category.title}
                     </h3>
+                    <p className="text-white/90 font-sans text-xs md:text-sm font-semibold tracking-wider uppercase md:opacity-0 md:group-hover:opacity-100 transition-all duration-500 flex items-center gap-2">
+                      Shop Now <span className="text-lg leading-none">→</span>
+                    </p>
                   </div>
                 </a>
               </RevealOnScroll>
@@ -70,13 +100,17 @@ export default function CategoryShowcase() {
           ))}
           </div>
 
-          <button 
-            onClick={() => scroll('right')}
-            className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center bg-white/90 text-navy-dark rounded-full shadow-lg focus:outline-none"
-            aria-label="Scroll right"
-          >
-            <ChevronRight className="w-6 h-6 ml-0.5" />
-          </button>
+          {/* Pagination Dots */}
+          <div className="flex justify-center items-center gap-2 md:gap-3 mt-6 md:mt-10">
+            {categories.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => scrollTo(idx)}
+                className={`h-2 rounded-full transition-all duration-500 ${activeIndex === idx ? 'bg-amber w-8 md:w-10' : 'bg-charcoal/20 hover:bg-amber/50 w-2 md:w-2'}`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
