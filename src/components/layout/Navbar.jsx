@@ -4,6 +4,7 @@ import { useScrollDirection } from '../../hooks/useScrollDirection';
 import { useCart } from '../../context/CartContext';
 import { navLinks } from '../../data/homeData';
 import MobileMenu from './MobileMenu';
+import NavbarRibbon from './NavbarRibbon';
 import clsx from 'clsx';
 import Badge from '../ui/Badge';
 
@@ -36,13 +37,16 @@ export default function Navbar() {
         hideNavbar ? '-translate-y-full' : 'translate-y-0',
         scrollY > 20 && 'shadow-md'
       )}>
+        {/* ROW 1: Ribbon */}
+        <NavbarRibbon isVisible={true} />
+        
         {/* ROW 2: Main Header */}
         <div className="w-full py-4 border-b border-charcoal/10 relative">
           <div className="max-w-7xl mx-auto px-6 md:px-10 flex items-center justify-between">
             {/* LEFT: Search / Mobile Menu */}
             <div className="flex items-center gap-4">
               <button 
-                className="md:hidden p-1 -ml-1 text-charcoal hover:text-amber transition-colors focus:outline-none"
+                className="md:hidden p-1 -ml-1 text-charcoal hover:text-rose transition-colors focus:outline-none"
                 onClick={() => setIsMobileMenuOpen(true)}
                 aria-label="Open menu"
               >
@@ -52,7 +56,7 @@ export default function Navbar() {
               <div className="flex items-center">
                 <button 
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  className="p-1 text-charcoal hover:text-amber transition-colors focus:outline-none"
+                  className="p-1 text-charcoal hover:text-rose transition-colors focus:outline-none"
                   aria-label="Search"
                 >
                   <Search className="w-5 h-5 md:w-6 md:h-6" />
@@ -67,7 +71,7 @@ export default function Navbar() {
                     ref={searchInputRef}
                     type="text" 
                     placeholder="Search for..."
-                    className="w-full bg-transparent border-b border-charcoal/30 pb-1 text-sm text-charcoal focus:outline-none focus:border-amber transition-colors placeholder:text-charcoal/40"
+                    className="w-full bg-transparent border-b border-charcoal/30 pb-1 text-sm text-charcoal focus:outline-none focus:border-rose transition-colors placeholder:text-charcoal/40"
                   />
                 </div>
               </div>
@@ -89,14 +93,14 @@ export default function Navbar() {
             {/* RIGHT: User & Cart */}
             <div className="flex items-center gap-3 md:gap-5">
               <button 
-                className="p-1 text-charcoal hover:text-amber transition-colors focus:outline-none hidden sm:block"
+                className="p-1 text-charcoal hover:text-rose transition-colors focus:outline-none hidden sm:block"
                 aria-label="Account"
               >
                 <User className="w-5 h-5 md:w-6 md:h-6" />
               </button>
               
               <button 
-                className="relative p-1 text-charcoal hover:text-amber transition-colors focus:outline-none"
+                className="relative p-1 text-charcoal hover:text-rose transition-colors focus:outline-none"
                 aria-label="View Cart"
               >
                 <ShoppingBag className="w-5 h-5 md:w-6 md:h-6" />
@@ -117,7 +121,7 @@ export default function Navbar() {
               <a 
                 key={link.title} 
                 href={link.href}
-                className="text-sm font-medium tracking-wider uppercase text-charcoal hover:text-amber relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[2px] after:bg-amber hover:after:w-full after:transition-all after:duration-300"
+                className="text-sm font-medium tracking-wider uppercase text-charcoal hover:text-rose relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[2px] after:bg-rose hover:after:w-full after:transition-all after:duration-300"
               >
                 {link.title}
               </a>

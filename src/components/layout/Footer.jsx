@@ -5,7 +5,7 @@ import LogoImage from '../../assets/images/LogoProcessed.png';
 
 export default function Footer() {
   return (
-    <footer className="bg-navy-dark text-ivory pt-16 pb-8">
+    <footer className="bg-hero-dark text-ivory pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-ivory/10">
           
@@ -23,7 +23,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram" 
-                className="text-ivory/60 hover:text-amber transition-colors"
+                className="text-ivory/60 hover:text-hero-amber transition-colors"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
@@ -31,7 +31,7 @@ export default function Footer() {
                   <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
                 </svg>
               </a>
-              <a href="#" aria-label="Facebook" className="text-ivory/60 hover:text-amber transition-colors">
+              <a href="#" aria-label="Facebook" className="text-ivory/60 hover:text-hero-amber transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
                 </svg>
@@ -47,7 +47,7 @@ export default function Footer() {
                 <ul className="space-y-2">
                   {section.links.map((link) => (
                     <li key={link}>
-                      <a href="#" className="text-ivory/70 hover:text-amber text-sm block transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber rounded px-1 -ml-1">
+                      <a href="#" className="text-ivory/70 hover:text-hero-amber text-sm block transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-hero-amber rounded px-1 -ml-1">
                         {link}
                       </a>
                     </li>
@@ -74,7 +74,7 @@ export default function Footer() {
               href="https://www.affobe.com/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="text-ivory font-semibold tracking-widest hover:text-amber transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber rounded px-1 -ml-1"
+              className="text-ivory font-semibold tracking-widest hover:text-hero-amber transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-hero-amber rounded px-1 -ml-1"
             >
               AFFOBE
             </a>

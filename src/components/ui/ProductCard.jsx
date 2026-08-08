@@ -28,11 +28,11 @@ export default function ProductCard({ product }) {
       </Link>
       <div className="flex flex-col flex-grow w-1/2 sm:w-full p-4 sm:p-6 justify-between">
         <div>
-          <Link to={`/product/${product.id}`} className="hover:text-amber transition-colors">
+          <Link to={`/product/${product.id}`} className="hover:text-rose transition-colors">
             <h3 className="font-serif text-base sm:text-lg md:text-xl text-charcoal mb-1 sm:mb-2 line-clamp-2 sm:line-clamp-1 leading-snug">{product.name}</h3>
           </Link>
           <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-3 sm:mb-6 gap-1 sm:gap-0">
-            <span className="font-sans font-medium text-sm sm:text-lg text-charcoal">${product.price}</span>
+            <span className="font-sans font-medium text-sm sm:text-lg text-charcoal">₹{product.price}</span>
             <div className="scale-[0.70] origin-left sm:scale-100 sm:origin-center">
               <StarRating value={product.rating} />
             </div>
@@ -52,7 +52,7 @@ export default function ProductCard({ product }) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="block text-amber-light"
+                  className="block text-rose-light"
                 >
                   Added ✓
                 </motion.span>

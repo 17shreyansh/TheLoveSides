@@ -53,7 +53,7 @@ export default function SocialFeed() {
               href="#" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-navy-dark text-white font-sans font-medium hover:bg-navy hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white font-sans font-medium hover:shadow-lg hover:-translate-y-1 hover:opacity-90 transition-all duration-300 group"
             >
               <InstagramIcon className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" strokeWidth={2} />
               <span>Follow Us</span>

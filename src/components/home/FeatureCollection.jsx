@@ -38,8 +38,8 @@ export default function FeatureCollection() {
             <ul className="space-y-4 mb-10">
               {checklist.map((item, idx) => (
                 <li key={idx} className="flex items-center gap-4 text-gray-700">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber/20 flex items-center justify-center">
-                    <Check className="w-4 h-4 text-amber-dark" />
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-rose/10 flex items-center justify-center">
+                    <Check className="w-4 h-4 text-rose" />
                   </span>
                   <span className="font-medium font-sans">{item}</span>
                 </li>

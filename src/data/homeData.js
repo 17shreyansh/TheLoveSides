@@ -171,7 +171,7 @@ export const stats = [
 ];
 
 export const promoOffers = [
-  "Free Delivery on Orders Above ₹2999",
+  "Free Delivery on Orders Above ₹1999",
   "Flat 20% Off on First Order | Use Code LOVE20",
   "Premium Custom Fitting Included on All Orders",
   "New Arrivals: Explore Our Summer Collection"

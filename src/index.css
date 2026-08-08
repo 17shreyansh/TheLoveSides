@@ -1,20 +1,28 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #F8F5F0;
-  --color-ivory: #FDFBF7;
-  --color-charcoal: #1F2937;
-  --color-navy: #2C3E50;
-  --color-navy-dark: #1A2632;
-  --color-amber: #C89B6D;
-  --color-amber-dark: #B08552;
-  --color-amber-light: #DCB98C;
-  --color-sage: #8A9A8C;
+  --color-cream: #FFFDF9;
+  --color-ivory: #FAF3F4;
+  --color-charcoal: #3D2B2B;
+  --color-navy: #7A1838;
+  --color-navy-dark: #7A1838;
+  --color-burgundy: #7A1838;
+  --color-amber: #C83F68;
+  --color-amber-dark: #7A1838;
+  --color-amber-light: #EFA6B8;
+  --color-rose: #C83F68;
+  --color-rose-dark: #7A1838;
+  --color-rose-light: #EFA6B8;
+  --color-gold: #C9A44C;
+  --color-blush: #F7D6DF;
+  --color-sage: #7E9B82;
   --color-sage-light: #A8B5A9;
   --color-sage-dark: #6E7C70;
-  --color-blush: #E8C4C4;
+  --color-hero-dark: #1A2632;
+  --color-hero-amber: #C89B6D;
+  --color-hero-amber-dark: #B08552;
 
-  --font-serif: "Playfair Display", serif;
+  --font-serif: "Cormorant Garamond", serif;
   --font-sans: "Inter", sans-serif;
 }
 
@@ -30,6 +38,6 @@
     @apply bg-gray-300 opacity-100 transition-all duration-300;
   }
   .swiper-pagination-bullet-active {
-    @apply !bg-amber !w-6 !rounded-full;
+    @apply !bg-rose !w-6 !rounded-full;
   }
 }

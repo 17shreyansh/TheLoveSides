@@ -106,7 +106,7 @@ export default function CategoryShowcase() {
               <button
                 key={idx}
                 onClick={() => scrollTo(idx)}
-                className={`h-2 rounded-full transition-all duration-500 ${activeIndex === idx ? 'bg-amber w-8 md:w-10' : 'bg-charcoal/20 hover:bg-amber/50 w-2 md:w-2'}`}
+                className={`h-2 rounded-full transition-all duration-500 ${activeIndex === idx ? 'bg-rose w-8 md:w-10' : 'bg-charcoal/20 hover:bg-rose/50 w-2 md:w-2'}`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
             ))}

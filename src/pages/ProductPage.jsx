@@ -71,7 +71,7 @@ export default function ProductPage() {
                   <button 
                     key={index} 
                     onClick={() => setActiveImageIndex(index)}
-                    className={`aspect-[4/5] rounded-lg overflow-hidden cursor-pointer border-2 focus:outline-none ${index === activeImageIndex ? 'border-amber opacity-100 shadow-md' : 'border-transparent opacity-50 hover:opacity-100'} transition-all duration-300`}
+                    className={`aspect-[4/5] rounded-lg overflow-hidden cursor-pointer border-2 focus:outline-none ${index === activeImageIndex ? 'border-rose opacity-100 shadow-md' : 'border-transparent opacity-50 hover:opacity-100'} transition-all duration-300`}
                   >
                     <img src={product.image} alt={`thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                   </button>
@@ -104,7 +104,7 @@ export default function ProductPage() {
                 <button 
                   key={index} 
                   onClick={() => setActiveImageIndex(index)}
-                  className={`aspect-square rounded-xl overflow-hidden cursor-pointer border-2 focus:outline-none ${index === activeImageIndex ? 'border-amber opacity-100 shadow-md' : 'border-transparent opacity-50 hover:opacity-100'} transition-all duration-300`}
+                  className={`aspect-square rounded-xl overflow-hidden cursor-pointer border-2 focus:outline-none ${index === activeImageIndex ? 'border-rose opacity-100 shadow-md' : 'border-transparent opacity-50 hover:opacity-100'} transition-all duration-300`}
                 >
                   <img src={product.image} alt={`thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                 </button>
@@ -119,7 +119,7 @@ export default function ProductPage() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="w-full lg:w-7/12 flex flex-col pb-10 lg:pl-8"
           >
-            <span className="text-amber-dark font-sans font-semibold tracking-wider text-xs uppercase mb-3">
+            <span className="text-rose font-sans font-semibold tracking-wider text-xs uppercase mb-3">
               Bespoke Window Treatments
             </span>
             <h1 className="text-3xl md:text-5xl font-serif text-charcoal mb-4 leading-tight">
@@ -128,10 +128,10 @@ export default function ProductPage() {
             
             <div className="flex items-center gap-4 mb-4">
               <span className="text-3xl font-sans font-medium text-red-700">
-                ${product.price}
+                ₹{product.price}
               </span>
               <span className="text-xl font-sans text-gray-400 line-through">
-                ${(product.price * 1.4).toFixed(0)}
+                ₹{(product.price * 1.4).toFixed(0)}
               </span>
               <div className="flex items-center gap-2 border-l border-gray-300 pl-4 ml-2">
                 <StarRating value={product.rating} />
@@ -166,8 +166,8 @@ export default function ProductPage() {
                       onClick={() => setSelectedSize(size)}
                       className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all ${
                         selectedSize === size 
-                          ? 'border-navy-dark bg-navy-dark text-white shadow-md' 
-                          : 'border-charcoal/20 text-charcoal hover:border-navy-dark'
+                          ? 'border-burgundy bg-burgundy text-white shadow-md' 
+                          : 'border-charcoal/20 text-charcoal hover:border-burgundy'
                       }`}
                     >
                       {size}
@@ -187,7 +187,7 @@ export default function ProductPage() {
                       key={color.name}
                       onClick={() => setSelectedColor(color.name)}
                       className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                        selectedColor === color.name ? 'ring-2 ring-offset-2 ring-amber' : 'ring-1 ring-gray-200 hover:ring-amber/50'
+                        selectedColor === color.name ? 'ring-2 ring-offset-2 ring-rose' : 'ring-1 ring-gray-200 hover:ring-rose/50'
                       }`}
                     >
                       <span 
@@ -205,14 +205,14 @@ export default function ProductPage() {
                 <div className="flex items-center border border-charcoal/20 rounded-xl w-32 bg-white">
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-12 flex items-center justify-center text-charcoal hover:text-amber transition-colors"
+                    className="w-10 h-12 flex items-center justify-center text-charcoal hover:text-rose transition-colors"
                   >
                     -
                   </button>
                   <span className="flex-grow text-center font-medium font-sans">{quantity}</span>
                   <button 
                     onClick={() => setQuantity(quantity + 1)}
-                    className="w-10 h-12 flex items-center justify-center text-charcoal hover:text-amber transition-colors"
+                    className="w-10 h-12 flex items-center justify-center text-charcoal hover:text-rose transition-colors"
                   >
                     +
                   </button>
@@ -235,7 +235,7 @@ export default function ProductPage() {
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
-                    className="flex items-center justify-center gap-2 text-amber-light"
+                    className="flex items-center justify-center gap-2 text-rose-light"
                   >
                     <Check className="w-5 h-5" /> Added to Cart
                   </motion.span>
@@ -247,15 +247,15 @@ export default function ProductPage() {
                     exit={{ opacity: 0, y: -15 }}
                     className="block"
                   >
-                    Add to Cart - ${(product.price * quantity).toFixed(2)}
+                    Add to Cart - ₹{(product.price * quantity).toFixed(2)}
                   </motion.span>
                 )}
               </AnimatePresence>
             </Button>
             
             {/* Delivery Estimate Box */}
-            <div className="flex items-center gap-4 p-4 mb-6 rounded-xl border border-amber/30 bg-amber/5">
-              <Calendar className="w-6 h-6 text-amber flex-shrink-0" />
+            <div className="flex items-center gap-4 p-4 mb-6 rounded-xl border border-rose/20 bg-rose/5">
+              <Calendar className="w-6 h-6 text-rose flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-charcoal font-sans">Estimated Delivery</p>
                 <p className="text-xs text-gray-600 font-sans mt-0.5">Order today, delivers between <strong className="text-charcoal font-semibold">Oct 12 - Oct 15</strong>.</p>
@@ -281,7 +281,7 @@ export default function ProductPage() {
             {/* Why You'll Love It */}
             <div className="mt-8 bg-cream/50 p-6 rounded-2xl border border-charcoal/5">
               <h3 className="font-serif text-xl text-charcoal mb-4 flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-amber" /> Why You'll Love It
+                <Sparkles className="w-5 h-5 text-gold" /> Why You'll Love It
               </h3>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
@@ -308,9 +308,9 @@ export default function ProductPage() {
                     className="w-full py-5 flex items-center justify-between font-serif text-lg text-charcoal focus:outline-none group"
                   >
                     <div className="flex items-center gap-3">
-                      {tab === 'description' && <Info className="w-5 h-5 text-gray-400 group-hover:text-amber transition-colors" />}
-                      {tab === 'specifications' && <Ruler className="w-5 h-5 text-gray-400 group-hover:text-amber transition-colors" />}
-                      {tab === 'shipping' && <Truck className="w-5 h-5 text-gray-400 group-hover:text-amber transition-colors" />}
+                      {tab === 'description' && <Info className="w-5 h-5 text-gray-400 group-hover:text-rose transition-colors" />}
+                      {tab === 'specifications' && <Ruler className="w-5 h-5 text-gray-400 group-hover:text-rose transition-colors" />}
+                      {tab === 'shipping' && <Truck className="w-5 h-5 text-gray-400 group-hover:text-rose transition-colors" />}
                       <span className="capitalize">{tab}</span>
                     </div>
                     <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${activeTab === tab ? 'rotate-180' : ''}`} />
@@ -326,7 +326,7 @@ export default function ProductPage() {
                         <div className="pb-6 text-gray-600 font-sans text-sm leading-relaxed pl-8">
                           {tab === 'description' && "Our signature curtains are woven with uncompromising attention to detail. Designed to drape beautifully from the moment they are hung, they offer the perfect balance of privacy and natural light."}
                           {tab === 'specifications' && "Sold as single panels. 100% premium fabric. Dry clean only. Includes matching tie-back. Stainless steel grommets or rod pocket available upon request."}
-                          {tab === 'shipping' && "Free standard shipping on all orders over $200. Standard delivery takes 3-5 business days. Expedited shipping is available at checkout. 30-day hassle-free returns."}
+                          {tab === 'shipping' && "Free standard shipping on all orders over ₹200. Standard delivery takes 3-5 business days. Expedited shipping is available at checkout. 30-day hassle-free returns."}
                         </div>
                       </motion.div>
                     )}
@@ -342,7 +342,7 @@ export default function ProductPage() {
       {/* Related Products Section */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 mt-20 md:mt-32 border-t border-charcoal/10 pt-20">
         <div className="text-center mb-12">
-          <span className="text-amber font-sans font-semibold tracking-widest text-xs uppercase block mb-3">Complete The Look</span>
+          <span className="text-rose font-sans font-semibold tracking-widest text-xs uppercase block mb-3">Complete The Look</span>
           <h2 className="text-3xl md:text-4xl font-serif text-charcoal">Related Products</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 max-w-4xl mx-auto">
@@ -356,7 +356,7 @@ export default function ProductPage() {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 px-6 z-50 md:hidden flex justify-between items-center shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
         <div>
           <p className="text-xs text-gray-500 font-sans uppercase font-medium">{product.name}</p>
-          <p className="text-lg font-sans font-semibold text-charcoal">${(product.price * quantity).toFixed(2)}</p>
+          <p className="text-lg font-sans font-semibold text-charcoal">₹{(product.price * quantity).toFixed(2)}</p>
         </div>
         <Button 
           variant="dark" 
@@ -371,7 +371,7 @@ export default function ProductPage() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
-                className="flex items-center justify-center gap-2 text-amber-light"
+                className="flex items-center justify-center gap-2 text-rose-light"
               >
                 <Check className="w-4 h-4" /> Added
               </motion.span>

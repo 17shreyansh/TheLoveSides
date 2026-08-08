@@ -35,7 +35,7 @@ export default function NewsletterCTA() {
               if (status === 'error') setStatus('idle');
             }}
             placeholder="Your email address"
-            className={`w-full bg-ivory/10 border ${status === 'error' ? 'border-red-400' : 'border-ivory/20'} rounded-md px-4 py-3 text-sm text-ivory placeholder:text-ivory/40 focus:outline-none focus:border-amber transition-colors`}
+            className={`w-full bg-ivory/10 border ${status === 'error' ? 'border-red-400' : 'border-ivory/20'} rounded-md px-4 py-3 text-sm text-ivory placeholder:text-ivory/40 focus:outline-none focus:border-rose-light transition-colors`}
             aria-label="Email address"
           />
           {status === 'error' && (

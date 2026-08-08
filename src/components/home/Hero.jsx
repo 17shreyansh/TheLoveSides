@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Button from '../ui/Button';
-import TrustBadges from './TrustBadges';
 import HeroImage from '../../assets/images/HeroImage2.jpeg';
 
 export default function Hero() {
@@ -31,7 +30,7 @@ export default function Hero() {
           className="w-full h-full object-cover object-[85%_center] md:object-[center_5%]"
         />
         {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-r from-navy-dark/90 via-navy-dark/60 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-hero-dark/90 via-hero-dark/60 to-transparent"></div>
       </div>
 
       {/* Content Container */}
@@ -67,16 +66,12 @@ export default function Hero() {
             variants={itemVariants}
             className="flex gap-4 flex-wrap"
           >
-            <Button variant="primary">
+            <Button className="!bg-rose !text-white hover:!bg-rose-dark hover:shadow-lg px-8">
               Shop Curtains
             </Button>
-            <Button className="bg-ivory/10 border border-ivory/40 text-ivory hover:bg-ivory hover:text-navy-dark">
+            <Button className="!bg-ivory/10 !border !border-ivory/40 !text-ivory hover:!bg-ivory hover:!text-hero-dark px-8">
               Book Free Consultation
             </Button>
-          </motion.div>
-
-          <motion.div variants={itemVariants} className="mt-16 md:mt-4">
-            <TrustBadges />
           </motion.div>
           
         </motion.div>
