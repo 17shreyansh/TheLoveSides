@@ -47,7 +47,7 @@ export default function MobileMenu({ isOpen, onClose }) {
             <div className="flex justify-end mb-8">
               <button 
                 onClick={onClose} 
-                className="p-2 -mr-2 text-charcoal hover:text-rose transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose rounded-md"
+                className="p-2 -mr-2 text-charcoal hover:text-pink-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary rounded-md"
                 aria-label="Close menu"
               >
                 <X className="w-6 h-6" />
@@ -59,7 +59,7 @@ export default function MobileMenu({ isOpen, onClose }) {
                 <a 
                   key={link.title} 
                   href={link.href} 
-                  className="hover:text-rose transition-colors w-fit tracking-wide uppercase text-sm"
+                  className="hover:text-pink-primary transition-colors w-fit tracking-wide uppercase text-sm"
                   onClick={onClose}
                 >
                   {link.title}

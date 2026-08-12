@@ -21,8 +21,8 @@ export default function WhyChooseUs() {
             return (
               <RevealOnScroll key={feature.id} delay={idx * 0.1}>
                 <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-rose/10 flex items-center justify-center mb-3 md:mb-4 transition-transform duration-300 hover:scale-110">
-                    {Icon && <Icon className="text-rose w-5 h-5 md:w-7 md:h-7" />}
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-pink-primary/10 flex items-center justify-center mb-3 md:mb-4 transition-transform duration-300 hover:scale-110">
+                    {Icon && <Icon className="text-pink-primary w-5 h-5 md:w-7 md:h-7" />}
                   </div>
                   <h3 className="font-serif text-base md:text-xl text-charcoal mb-1 md:mb-2">
                     {feature.title}

@@ -28,14 +28,14 @@ export default function NavbarRibbon({ isVisible }) {
   return (
     <div 
       className={clsx(
-        "w-full bg-burgundy text-ivory flex items-center justify-center relative transition-all duration-300 ease-in-out",
+        "w-full bg-pink-primary text-white flex items-center justify-center relative transition-all duration-300 ease-in-out",
         isVisible ? "opacity-100" : "opacity-0 overflow-hidden"
       )} 
       style={{ height: isVisible ? '40px' : '0px' }}
     >
       <button 
         onClick={handlePrev} 
-        className="absolute left-2 md:left-4 p-1 hover:text-rose-light transition-colors focus:outline-none z-10"
+        className="absolute left-2 md:left-4 p-1 hover:text-pink-soft transition-colors focus:outline-none z-10"
         aria-label="Previous Offer"
       >
         <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
@@ -51,7 +51,7 @@ export default function NavbarRibbon({ isVisible }) {
             transition={{ duration: 0.3 }}
             className="flex items-center gap-3 text-[10px] sm:text-xs font-sans font-bold uppercase tracking-[0.15em] sm:tracking-widest text-center"
           >
-            <Gift className="w-3 h-3 md:w-4 md:h-4 text-gold hidden sm:block flex-shrink-0" />
+            <Gift className="w-3 h-3 md:w-4 md:h-4 text-white hidden sm:block flex-shrink-0" />
             <span className="line-clamp-1">{promoOffers[currentIndex]}</span>
           </motion.div>
         </AnimatePresence>
@@ -59,7 +59,7 @@ export default function NavbarRibbon({ isVisible }) {
 
       <button 
         onClick={handleNext} 
-        className="absolute right-2 md:right-4 p-1 hover:text-rose-light transition-colors focus:outline-none z-10"
+        className="absolute right-2 md:right-4 p-1 hover:text-pink-soft transition-colors focus:outline-none z-10"
         aria-label="Next Offer"
       >
         <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />

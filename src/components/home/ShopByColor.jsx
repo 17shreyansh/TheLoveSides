@@ -28,7 +28,7 @@ export default function ShopByColor() {
                     onClick={() => setActiveColor(color.id)}
                     className={clsx(
                       'w-16 h-16 md:w-20 md:h-20 rounded-full shadow-md transition-all duration-300',
-                      isActive ? 'ring-2 ring-offset-4 ring-rose scale-110' : 'hover:scale-110 border-2 border-white'
+                      isActive ? 'ring-2 ring-offset-4 ring-pink-primary scale-110' : 'hover:scale-110 border-2 border-white'
                     )}
                     style={{ backgroundColor: color.hex }}
                     aria-label={`Select ${color.label} color`}

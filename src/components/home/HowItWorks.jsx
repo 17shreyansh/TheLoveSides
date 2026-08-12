@@ -28,7 +28,7 @@ export default function HowItWorks() {
                   </span>
                   
                   {/* Circle indicator for line (desktop only) */}
-                  <div className="hidden lg:flex w-4 h-4 rounded-full bg-cream border-2 border-rose mb-6 z-10" />
+                  <div className="hidden lg:flex w-4 h-4 rounded-full bg-cream border-2 border-pink-primary mb-6 z-10" />
                   
                   <h3 className="font-serif text-base sm:text-lg md:text-2xl text-charcoal mb-1 md:mb-2 relative z-10">
                     {step.title}

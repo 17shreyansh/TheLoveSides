@@ -71,7 +71,7 @@ export default function ProductPage() {
                   <button 
                     key={index} 
                     onClick={() => setActiveImageIndex(index)}
-                    className={`aspect-[4/5] rounded-lg overflow-hidden cursor-pointer border-2 focus:outline-none ${index === activeImageIndex ? 'border-rose opacity-100 shadow-md' : 'border-transparent opacity-50 hover:opacity-100'} transition-all duration-300`}
+                    className={`aspect-[4/5] rounded-lg overflow-hidden cursor-pointer border-2 focus:outline-none ${index === activeImageIndex ? 'border-pink-primary opacity-100 shadow-md' : 'border-transparent opacity-50 hover:opacity-100'} transition-all duration-300`}
                   >
                     <img src={product.image} alt={`thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                   </button>
@@ -104,7 +104,7 @@ export default function ProductPage() {
                 <button 
                   key={index} 
                   onClick={() => setActiveImageIndex(index)}
-                  className={`aspect-square rounded-xl overflow-hidden cursor-pointer border-2 focus:outline-none ${index === activeImageIndex ? 'border-rose opacity-100 shadow-md' : 'border-transparent opacity-50 hover:opacity-100'} transition-all duration-300`}
+                  className={`aspect-square rounded-xl overflow-hidden cursor-pointer border-2 focus:outline-none ${index === activeImageIndex ? 'border-pink-primary opacity-100 shadow-md' : 'border-transparent opacity-50 hover:opacity-100'} transition-all duration-300`}
                 >
                   <img src={product.image} alt={`thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                 </button>
@@ -119,7 +119,7 @@ export default function ProductPage() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="w-full lg:w-7/12 flex flex-col pb-10 lg:pl-8"
           >
-            <span className="text-rose font-sans font-semibold tracking-wider text-xs uppercase mb-3">
+            <span className="text-pink-primary font-sans font-semibold tracking-wider text-xs uppercase mb-3">
               Bespoke Window Treatments
             </span>
             <h1 className="text-3xl md:text-5xl font-serif text-charcoal mb-4 leading-tight">
@@ -166,8 +166,8 @@ export default function ProductPage() {
                       onClick={() => setSelectedSize(size)}
                       className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all ${
                         selectedSize === size 
-                          ? 'border-burgundy bg-burgundy text-white shadow-md' 
-                          : 'border-charcoal/20 text-charcoal hover:border-burgundy'
+                          ? 'border-pink-primary bg-pink-primary text-white shadow-md' 
+                          : 'border-charcoal/20 text-charcoal hover:border-pink-primary'
                       }`}
                     >
                       {size}
@@ -187,7 +187,7 @@ export default function ProductPage() {
                       key={color.name}
                       onClick={() => setSelectedColor(color.name)}
                       className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                        selectedColor === color.name ? 'ring-2 ring-offset-2 ring-rose' : 'ring-1 ring-gray-200 hover:ring-rose/50'
+                        selectedColor === color.name ? 'ring-2 ring-offset-2 ring-pink-primary' : 'ring-1 ring-gray-200 hover:ring-pink-primary/50'
                       }`}
                     >
                       <span 
@@ -205,14 +205,14 @@ export default function ProductPage() {
                 <div className="flex items-center border border-charcoal/20 rounded-xl w-32 bg-white">
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-12 flex items-center justify-center text-charcoal hover:text-rose transition-colors"
+                    className="w-10 h-12 flex items-center justify-center text-charcoal hover:text-pink-primary transition-colors"
                   >
                     -
                   </button>
                   <span className="flex-grow text-center font-medium font-sans">{quantity}</span>
                   <button 
                     onClick={() => setQuantity(quantity + 1)}
-                    className="w-10 h-12 flex items-center justify-center text-charcoal hover:text-rose transition-colors"
+                    className="w-10 h-12 flex items-center justify-center text-charcoal hover:text-pink-primary transition-colors"
                   >
                     +
                   </button>
@@ -235,7 +235,7 @@ export default function ProductPage() {
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
-                    className="flex items-center justify-center gap-2 text-rose-light"
+                    className="flex items-center justify-center gap-2 text-pink-primary-light"
                   >
                     <Check className="w-5 h-5" /> Added to Cart
                   </motion.span>
@@ -254,8 +254,8 @@ export default function ProductPage() {
             </Button>
             
             {/* Delivery Estimate Box */}
-            <div className="flex items-center gap-4 p-4 mb-6 rounded-xl border border-rose/20 bg-rose/5">
-              <Calendar className="w-6 h-6 text-rose flex-shrink-0" />
+            <div className="flex items-center gap-4 p-4 mb-6 rounded-xl border border-pink-primary/20 bg-pink-primary/5">
+              <Calendar className="w-6 h-6 text-pink-primary flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-charcoal font-sans">Estimated Delivery</p>
                 <p className="text-xs text-gray-600 font-sans mt-0.5">Order today, delivers between <strong className="text-charcoal font-semibold">Oct 12 - Oct 15</strong>.</p>
@@ -281,7 +281,7 @@ export default function ProductPage() {
             {/* Why You'll Love It */}
             <div className="mt-8 bg-cream/50 p-6 rounded-2xl border border-charcoal/5">
               <h3 className="font-serif text-xl text-charcoal mb-4 flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-gold" /> Why You'll Love It
+                <Sparkles className="w-5 h-5 text-pink-primary" /> Why You'll Love It
               </h3>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
@@ -308,9 +308,9 @@ export default function ProductPage() {
                     className="w-full py-5 flex items-center justify-between font-serif text-lg text-charcoal focus:outline-none group"
                   >
                     <div className="flex items-center gap-3">
-                      {tab === 'description' && <Info className="w-5 h-5 text-gray-400 group-hover:text-rose transition-colors" />}
-                      {tab === 'specifications' && <Ruler className="w-5 h-5 text-gray-400 group-hover:text-rose transition-colors" />}
-                      {tab === 'shipping' && <Truck className="w-5 h-5 text-gray-400 group-hover:text-rose transition-colors" />}
+                      {tab === 'description' && <Info className="w-5 h-5 text-gray-400 group-hover:text-pink-primary transition-colors" />}
+                      {tab === 'specifications' && <Ruler className="w-5 h-5 text-gray-400 group-hover:text-pink-primary transition-colors" />}
+                      {tab === 'shipping' && <Truck className="w-5 h-5 text-gray-400 group-hover:text-pink-primary transition-colors" />}
                       <span className="capitalize">{tab}</span>
                     </div>
                     <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${activeTab === tab ? 'rotate-180' : ''}`} />
@@ -342,7 +342,7 @@ export default function ProductPage() {
       {/* Related Products Section */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 mt-20 md:mt-32 border-t border-charcoal/10 pt-20">
         <div className="text-center mb-12">
-          <span className="text-rose font-sans font-semibold tracking-widest text-xs uppercase block mb-3">Complete The Look</span>
+          <span className="text-pink-primary font-sans font-semibold tracking-widest text-xs uppercase block mb-3">Complete The Look</span>
           <h2 className="text-3xl md:text-4xl font-serif text-charcoal">Related Products</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 max-w-4xl mx-auto">
@@ -371,7 +371,7 @@ export default function ProductPage() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
-                className="flex items-center justify-center gap-2 text-rose-light"
+                className="flex items-center justify-center gap-2 text-pink-primary-light"
               >
                 <Check className="w-4 h-4" /> Added
               </motion.span>

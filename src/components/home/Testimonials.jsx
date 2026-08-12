@@ -8,8 +8,8 @@ import { Star } from 'lucide-react';
 export default function Testimonials() {
   const renderTestimonial = (testimonial, idx) => (
     <RevealOnScroll delay={idx * 0.1} className="h-full w-full flex">
-      <div className="bg-ivory rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow flex-1 flex flex-col border border-rose/10 max-w-sm mx-auto min-h-[260px]">
-        <div className="flex gap-1 mb-4 text-gold">
+      <div className="bg-ivory rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow flex-1 flex flex-col border border-pink-primary/10 max-w-sm mx-auto min-h-[260px]">
+        <div className="flex gap-1 mb-4 text-pink-primary">
           {[...Array(5)].map((_, i) => (
             <Star key={i} className="w-4 h-4 md:w-5 md:h-5 fill-current" />
           ))}

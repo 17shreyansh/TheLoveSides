@@ -66,7 +66,7 @@ export default function Hero() {
             variants={itemVariants}
             className="flex gap-4 flex-wrap"
           >
-            <Button className="!bg-rose !text-white hover:!bg-rose-dark hover:shadow-lg px-8">
+            <Button className="!bg-pink-primary !text-white hover:!bg-pink-dark hover:shadow-lg px-8">
               Shop Curtains
             </Button>
             <Button className="!bg-ivory/10 !border !border-ivory/40 !text-ivory hover:!bg-ivory hover:!text-hero-dark px-8">
