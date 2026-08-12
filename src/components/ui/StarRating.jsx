@@ -8,7 +8,7 @@ export default function StarRating({ value, className }) {
   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
   return (
-    <div className={clsx('flex items-center gap-0.5 text-pink-primary', className)} aria-label={`${value} out of 5 stars`}>
+    <div className={clsx('flex items-center gap-0.5 text-gold', className)} aria-label={`${value} out of 5 stars`}>
       {[...Array(fullStars)].map((_, i) => (
         <Star key={`full-${i}`} className="w-4 h-4 fill-current" />
       ))}

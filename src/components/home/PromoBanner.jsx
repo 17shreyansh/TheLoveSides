@@ -18,4 +18,8 @@ export default function PromoBanner() {
               Shop The Sale
             </button>
           </div>
-        </
+        </RevealOnScroll>
+      </div>
+    </section>
+  );
+}
