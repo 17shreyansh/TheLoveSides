@@ -59,7 +59,7 @@ export default function Hero() {
             variants={itemVariants}
             className="md:hidden text-base text-ivory/80 font-sans mb-8 leading-relaxed"
           >
-            Premium fabrics and custom sizing to effortlessly elevate your space.
+            Adding Love to Every Sides.
           </motion.p>
           
           <motion.div 

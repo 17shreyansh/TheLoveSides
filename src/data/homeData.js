@@ -179,7 +179,7 @@ export const promoOffers = [
 ];
 
 export const navLinks = [
-  { title: 'Arrivals', href: '/arrivals' },
+  { title: 'New Arrivals', href: '/arrivals' },
   { title: 'Best Seller', href: '/best-sellers' },
   { title: 'Curtains', href: '/category/curtains' },
   { title: 'Sofa Covers', href: '/category/sofa-covers' },
