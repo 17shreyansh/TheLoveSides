@@ -343,7 +343,7 @@ export default function ProductPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 max-w-4xl mx-auto">
           {relatedProducts.map(related => (
-            <ProductCard key={related.id} product={related} />
+            <ProductCard key={related.id} product={related} layout="vertical" />
           ))}
         </div>
       </div>

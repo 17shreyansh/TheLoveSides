@@ -78,7 +78,7 @@ export default function CategoryPage({ type }) {
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
               {visibleProducts.map((product, idx) => (
                 <RevealOnScroll key={product.id} delay={(idx % 12) * 0.05} className="h-full">
-                  <ProductCard product={product} />
+                  <ProductCard product={product} layout="vertical" />
                 </RevealOnScroll>
               ))}
             </div>
