@@ -11,7 +11,7 @@ export default function ResponsiveCardSlider({ items, renderItem, desktopCols = 
   const sliderId = React.useId().replace(/:/g, "");
 
   return (
-    <div className="w-full relative overflow-visible -mx-4 px-4 md:mx-0 md:px-0 group slider-container">
+    <div className="w-full relative overflow-visible group slider-container mx-auto">
       <Swiper
         modules={[Navigation, Pagination]}
         slidesPerView={1}

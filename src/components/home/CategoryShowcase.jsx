@@ -47,7 +47,7 @@ export default function CategoryShowcase() {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-cream overflow-hidden">
+    <section className="py-8 md:py-10 bg-cream overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <RevealOnScroll>
           <SectionHeading 
@@ -64,7 +64,7 @@ export default function CategoryShowcase() {
             onMouseLeave={() => setIsHovered(false)}
             onTouchStart={() => setIsHovered(true)}
             onTouchEnd={() => setIsHovered(false)}
-            className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory pb-6 relative scroll-smooth" 
+            className="flex xl:justify-center gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory pb-6 relative scroll-smooth" 
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
           <style>{`
@@ -73,11 +73,11 @@ export default function CategoryShowcase() {
             }
           `}</style>
           {categories.map((category, idx) => (
-            <div key={category.id} className="w-[75vw] sm:w-[320px] lg:w-[350px] flex-shrink-0 snap-center md:snap-start">
+            <div key={category.id} className="w-[70vw] sm:w-[240px] lg:w-[260px] flex-shrink-0 snap-center md:snap-start">
               <RevealOnScroll delay={idx * 0.1}>
                 <a 
                   href={`#${category.title.toLowerCase().replace(' ', '-')}`}
-                  className="group relative block aspect-[4/5] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer shadow-sm md:hover:shadow-2xl transition-all duration-500"
+                  className="group relative block aspect-[1/1.1] sm:aspect-[4/5] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer shadow-sm md:hover:shadow-2xl transition-all duration-500"
                 >
                   <img 
                     src={category.image} 
@@ -106,7 +106,7 @@ export default function CategoryShowcase() {
               <button
                 key={idx}
                 onClick={() => scrollTo(idx)}
-                className={`h-2 rounded-full transition-all duration-500 ${activeIndex === idx ? 'bg-rose w-8 md:w-10' : 'bg-charcoal/20 hover:bg-rose/50 w-2 md:w-2'}`}
+                className={`h-2 rounded-full transition-all duration-500 ${activeIndex === idx ? 'bg-pink-primary w-8 md:w-10' : 'bg-charcoal/20 hover:bg-pink-primary/50 w-2 md:w-2'}`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
             ))}
