@@ -33,7 +33,7 @@ import velvetBlackoutImg from '../assets/images/Curtains/Blackout Curtains/Velve
 import naturalBambooImg from '../assets/images/Curtains/Wooden Blinds/NaturalBamboo.jpeg';
 import sheerWhiteImg from '../assets/images/Curtains/Sheer Curtains/SheerWhite.jpeg';
 
-export const products = [
+export const bestSellerProducts = [
   {
     id: 101,
     name: 'Premium Linen Drapes',
@@ -64,6 +64,7 @@ export const products = [
   }
 ];
 
+export { products } from './products';
 export const rooms = [
   {
     id: 1,
@@ -178,13 +179,13 @@ export const promoOffers = [
 ];
 
 export const navLinks = [
-  { title: 'Arrivals', href: '#' },
-  { title: 'Best Seller', href: '#' },
-  { title: 'Curtains', href: '#' },
-  { title: 'Sofa Covers', href: '#' },
-  { title: 'Marble', href: '#' },
-  { title: 'Accessories', href: '#' },
-  { title: 'Clothing', href: '#' },
+  { title: 'Arrivals', href: '/arrivals' },
+  { title: 'Best Seller', href: '/best-sellers' },
+  { title: 'Curtains', href: '/category/curtains' },
+  { title: 'Sofa Covers', href: '/category/sofa-covers' },
+  { title: 'Marble', href: '/category/marble' },
+  { title: 'Accessories', href: '/category/accessories' },
+  { title: 'Clothing', href: '/category/clothing' },
 ];
 
 export const footerLinks = [

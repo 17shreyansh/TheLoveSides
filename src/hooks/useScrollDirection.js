@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 export function useScrollDirection() {
   const [scrollY, setScrollY] = useState(0);
   const [hideNavbar, setHideNavbar] = useState(false);
+  const [showRibbon, setShowRibbon] = useState(true);
 
   useEffect(() => {
     let lastScrollY = window.pageYOffset;
@@ -11,6 +12,12 @@ export function useScrollDirection() {
     const updateScrollDir = () => {
       const currentScrollY = window.pageYOffset;
       setScrollY(currentScrollY);
+
+      if (currentScrollY === 0) {
+        setShowRibbon(true);
+      } else {
+        setShowRibbon(false);
+      }
 
       // Only trigger if delta is > 10px to avoid jitter
       if (Math.abs(currentScrollY - lastScrollY) < 10) {
@@ -43,5 +50,5 @@ export function useScrollDirection() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  return { hideNavbar, scrollY };
+  return { hideNavbar, scrollY, showRibbon };
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { navLinks } from '../../data/homeData';
 
 export default function MobileMenu({ isOpen, onClose }) {
@@ -56,14 +57,14 @@ export default function MobileMenu({ isOpen, onClose }) {
             
             <nav className="flex flex-col gap-6 font-sans text-lg text-charcoal font-medium">
               {navLinks.map((link) => (
-                <a 
+                <Link 
                   key={link.title} 
-                  href={link.href} 
+                  to={link.href} 
                   className="hover:text-pink-primary transition-colors w-fit tracking-wide uppercase text-sm"
                   onClick={onClose}
                 >
                   {link.title}
-                </a>
+                </Link>
               ))}
             </nav>
           </motion.div>

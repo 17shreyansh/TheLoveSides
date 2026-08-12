@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, ShoppingBag, Search, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 import { useCart } from '../../context/CartContext';
 import { navLinks } from '../../data/homeData';
@@ -9,7 +10,7 @@ import clsx from 'clsx';
 import Badge from '../ui/Badge';
 
 export default function Navbar() {
-  const { hideNavbar, scrollY } = useScrollDirection();
+  const { hideNavbar, scrollY, showRibbon } = useScrollDirection();
   const { state } = useCart();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isBouncing, setIsBouncing] = useState(false);
@@ -38,10 +39,10 @@ export default function Navbar() {
         scrollY > 20 && 'shadow-md'
       )}>
         {/* ROW 1: Ribbon */}
-        <NavbarRibbon isVisible={true} />
+        <NavbarRibbon isVisible={showRibbon} />
         
         {/* ROW 2: Main Header */}
-        <div className="w-full py-4 border-b border-charcoal/10 relative">
+        <div className="w-full py-4 lg:py-2 border-b border-charcoal/10 relative">
           <div className="max-w-7xl mx-auto px-6 md:px-10 flex items-center justify-between">
             {/* LEFT: Search / Mobile Menu */}
             <div className="flex items-center gap-4">
@@ -59,7 +60,7 @@ export default function Navbar() {
                   className="p-1 text-charcoal hover:text-pink-primary transition-colors focus:outline-none"
                   aria-label="Search"
                 >
-                  <Search className="w-5 h-5 md:w-6 md:h-6" />
+                  <Search className="w-5 h-5 md:w-6 md:h-6 lg:w-5 lg:h-5" />
                 </button>
                 <div 
                   className={clsx(
@@ -78,17 +79,17 @@ export default function Navbar() {
             </div>
 
             {/* CENTER: Brand Wordmark */}
-            <a 
-              href="/" 
+            <Link 
+              to="/" 
               className={clsx(
                 "absolute left-1/2 -translate-x-1/2 flex items-center justify-center transition-opacity duration-300",
                 isSearchOpen ? "opacity-0 sm:opacity-100 pointer-events-none sm:pointer-events-auto" : "opacity-100"
               )}
             >
-              <span className="font-serif text-lg sm:text-2xl md:text-3xl tracking-[0.1em] sm:tracking-[0.2em] text-charcoal uppercase text-center whitespace-nowrap">
+              <span className="font-serif text-lg sm:text-2xl md:text-3xl lg:text-2xl tracking-[0.1em] sm:tracking-[0.2em] text-charcoal uppercase text-center whitespace-nowrap">
                 THELOVESIDES
               </span>
-            </a>
+            </Link>
 
             {/* RIGHT: User & Cart */}
             <div className="flex items-center gap-3 md:gap-5">
@@ -96,14 +97,14 @@ export default function Navbar() {
                 className="p-1 text-charcoal hover:text-pink-primary transition-colors focus:outline-none hidden sm:block"
                 aria-label="Account"
               >
-                <User className="w-5 h-5 md:w-6 md:h-6" />
+                <User className="w-5 h-5 md:w-6 md:h-6 lg:w-5 lg:h-5" />
               </button>
               
               <button 
                 className="relative p-1 text-charcoal hover:text-pink-primary transition-colors focus:outline-none"
                 aria-label="View Cart"
               >
-                <ShoppingBag className="w-5 h-5 md:w-6 md:h-6" />
+                <ShoppingBag className="w-5 h-5 md:w-6 md:h-6 lg:w-5 lg:h-5" />
                 {state.totalCount > 0 && (
                   <Badge className={clsx(isBouncing && 'animate-bounce')}>
                     {state.totalCount}
@@ -115,16 +116,16 @@ export default function Navbar() {
         </div>
 
         {/* ROW 3: Categories (Desktop Only) */}
-        <div className="hidden md:flex w-full py-3 border-b border-charcoal/10 bg-cream">
-          <nav className="max-w-7xl mx-auto px-6 md:px-10 flex justify-center gap-10 w-full">
+        <div className="hidden md:flex w-full md:py-3 lg:py-2 border-b border-charcoal/10 bg-cream">
+          <nav className="max-w-7xl mx-auto px-4 md:px-6 lg:px-10 flex justify-start xl:justify-center gap-6 lg:gap-8 xl:gap-10 w-full overflow-x-auto no-scrollbar">
             {navLinks.map((link) => (
-              <a 
+              <Link 
                 key={link.title} 
-                href={link.href}
-                className="text-sm font-medium tracking-wider uppercase text-charcoal hover:text-pink-primary relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[2px] after:bg-pink-primary hover:after:w-full after:transition-all after:duration-300"
+                to={link.href}
+                className="text-xs lg:text-sm font-medium tracking-wider uppercase text-charcoal hover:text-pink-primary relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[2px] after:bg-pink-primary hover:after:w-full after:transition-all after:duration-300 whitespace-nowrap shrink-0"
               >
                 {link.title}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>

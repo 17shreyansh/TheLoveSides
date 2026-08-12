@@ -3,7 +3,7 @@ import SectionHeading from '../ui/SectionHeading';
 import ProductCard from '../ui/ProductCard';
 import RevealOnScroll from '../ui/RevealOnScroll';
 import ResponsiveCardSlider from '../ui/ResponsiveCardSlider';
-import { products } from '../../data/homeData';
+import { bestSellerProducts } from '../../data/homeData';
 
 export default function BestSellers() {
   const renderProduct = (product, idx) => (
@@ -22,7 +22,7 @@ export default function BestSellers() {
           />
         </RevealOnScroll>
 
-        <ResponsiveCardSlider items={products} renderItem={renderProduct} desktopCols={4} />
+        <ResponsiveCardSlider items={bestSellerProducts} renderItem={renderProduct} desktopCols={4} />
       </div>
     </section>
   );

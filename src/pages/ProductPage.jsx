@@ -147,10 +147,6 @@ export default function ProductPage() {
               <span className="text-sm font-sans font-medium text-green-700">In Stock — Ships in 2-3 days</span>
             </div>
 
-            <p className="text-base text-gray-600 font-sans leading-relaxed mb-8">
-              Elevate your living space with our premium bespoke window treatments. Hand-crafted from the finest materials, these curtains offer an unparalleled blend of sophistication, light control, and thermal efficiency.
-            </p>
-
             <div className="h-px w-full bg-charcoal/10 mb-8"></div>
 
             {/* Options */}
