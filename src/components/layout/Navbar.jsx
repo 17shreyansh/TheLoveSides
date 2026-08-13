@@ -11,7 +11,7 @@ import clsx from 'clsx';
 import Badge from '../ui/Badge';
 
 export default function Navbar() {
-  const { hideNavbar, scrollY, showRibbon } = useScrollDirection();
+  const { scrollY, showRibbon } = useScrollDirection();
   const { state } = useCart();
   const { cartIconRef } = useFlyToCart();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -37,7 +37,6 @@ export default function Navbar() {
     <>
       <header className={clsx(
         'fixed top-0 left-0 right-0 z-50 flex flex-col bg-cream transition-transform duration-300 ease-in-out w-full',
-        hideNavbar ? '-translate-y-full' : 'translate-y-0',
         scrollY > 20 && 'shadow-md'
       )}>
         {/* ROW 1: Ribbon */}
