@@ -13,7 +13,7 @@ export default function FeatureCollection() {
   ];
 
   return (
-    <section className="py-16 md:py-24 bg-cream">
+    <section className="py-10 md:py-16 bg-cream">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           

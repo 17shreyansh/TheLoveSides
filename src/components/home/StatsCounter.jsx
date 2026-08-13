@@ -5,7 +5,7 @@ import { stats } from '../../data/homeData';
 
 export default function StatsCounter() {
   return (
-    <section className="bg-ivory py-16 md:py-24">
+    <section className="bg-ivory py-10 md:py-16">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <div className="grid grid-cols-3 gap-2 md:gap-12 text-center divide-x divide-charcoal/10">
           {stats.map((stat, idx) => (

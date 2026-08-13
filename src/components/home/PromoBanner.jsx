@@ -4,7 +4,7 @@ import Button from '../ui/Button';
 
 export default function PromoBanner() {
   return (
-    <section className="py-8 md:py-16 bg-[#fdecf4] text-charcoal">
+    <section className="py-6 md:py-10 bg-[#fdecf4] text-charcoal">
       <div className="max-w-6xl mx-auto px-6">
         <RevealOnScroll>
           <div className="flex flex-col md:flex-row items-center justify-between gap-5 md:gap-8 text-center md:text-left">

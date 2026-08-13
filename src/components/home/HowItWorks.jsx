@@ -5,7 +5,7 @@ import { steps } from '../../data/homeData';
 
 export default function HowItWorks() {
   return (
-    <section className="py-20 md:py-32 bg-ivory relative overflow-hidden">
+    <section className="py-12 md:py-20 bg-ivory relative overflow-hidden">
       {/* Decorative background blobs */}
       <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-pink-soft/30 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-pink-primary/10 rounded-full blur-[120px] translate-x-1/3 translate-y-1/3 pointer-events-none"></div>

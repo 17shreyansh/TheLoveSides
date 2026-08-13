@@ -3,15 +3,19 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Check, ChevronDown, Info, Ruler, Truck, Shield, RefreshCw, Calendar, Star, Award, Sparkles } from 'lucide-react';
 import { products } from '../data/homeData';
 import { useCart } from '../context/CartContext';
+import { useFlyToCart } from '../context/FlyToCartContext';
 import Button from '../components/ui/Button';
 import StarRating from '../components/ui/StarRating';
 import ProductCard from '../components/ui/ProductCard';
+import ImageZoomViewer from '../components/ui/ImageZoomViewer';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { triggerFlyToCart } = useFlyToCart();
+  const mainImageRef = React.useRef(null);
   
   const product = products.find((p) => p.id === parseInt(id));
   
@@ -20,7 +24,6 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   // Mock related products (excluding current product)
   const relatedProducts = products.filter(p => p.id !== parseInt(id)).slice(0, 3);
@@ -48,7 +51,11 @@ export default function ProductPage() {
     { name: 'Navy', hex: '#1C2E4A' }
   ];
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    if (mainImageRef.current) {
+      triggerFlyToCart(mainImageRef.current.getBoundingClientRect(), product.image);
+    }
     // In a real app we'd pass size/color/qty to the cart too
     addToCart(product);
     setAdded(true);
@@ -62,54 +69,8 @@ export default function ProductPage() {
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
           
           {/* Left Column: Images (Sticky) */}
-          <div className="w-full lg:w-5/12 lg:sticky lg:top-32 self-start flex flex-col gap-4">
-            
-            <div className="flex gap-4">
-              {/* Desktop Vertical Thumbnails */}
-              <div className="hidden lg:flex flex-col gap-3 w-16 xl:w-20 shrink-0">
-                {[0, 1, 2, 3].map((index) => (
-                  <button 
-                    key={index} 
-                    onClick={() => setActiveImageIndex(index)}
-                    className={`aspect-[4/5] rounded-lg overflow-hidden cursor-pointer border-2 focus:outline-none ${index === activeImageIndex ? 'border-pink-primary opacity-100 shadow-md' : 'border-transparent opacity-50 hover:opacity-100'} transition-all duration-300`}
-                  >
-                    <img src={product.image} alt={`thumbnail ${index + 1}`} className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-
-              {/* Main Image */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="w-full aspect-square md:aspect-[4/5] overflow-hidden rounded-2xl bg-gray-100 shadow-sm relative"
-              >
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                />
-              </motion.div>
-            </div>
-            
-            {/* Mobile Horizontal Thumbnails */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="lg:hidden grid grid-cols-4 gap-3 w-full"
-            >
-              {[0, 1, 2, 3].map((index) => (
-                <button 
-                  key={index} 
-                  onClick={() => setActiveImageIndex(index)}
-                  className={`aspect-square rounded-xl overflow-hidden cursor-pointer border-2 focus:outline-none ${index === activeImageIndex ? 'border-pink-primary opacity-100 shadow-md' : 'border-transparent opacity-50 hover:opacity-100'} transition-all duration-300`}
-                >
-                  <img src={product.image} alt={`thumbnail ${index + 1}`} className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </motion.div>
+          <div ref={mainImageRef} className="w-full lg:w-5/12 lg:sticky lg:top-32 self-start flex flex-col gap-4 relative z-40">
+            <ImageZoomViewer images={[product.image, product.image, product.image, product.image]} />
           </div>
 
           {/* Right Column: Details (Scrollable) */}
@@ -117,7 +78,7 @@ export default function ProductPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="w-full lg:w-7/12 flex flex-col pb-10 lg:pl-8"
+            className="w-full lg:w-7/12 flex flex-col pb-10 lg:pl-8 relative z-10"
           >
             <span className="text-pink-primary font-sans font-semibold tracking-wider text-xs uppercase mb-3">
               Bespoke Window Treatments

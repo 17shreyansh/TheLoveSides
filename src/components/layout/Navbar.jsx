@@ -3,6 +3,7 @@ import { Menu, ShoppingBag, Search, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 import { useCart } from '../../context/CartContext';
+import { useFlyToCart } from '../../context/FlyToCartContext';
 import { navLinks } from '../../data/homeData';
 import MobileMenu from './MobileMenu';
 import NavbarRibbon from './NavbarRibbon';
@@ -12,6 +13,7 @@ import Badge from '../ui/Badge';
 export default function Navbar() {
   const { hideNavbar, scrollY, showRibbon } = useScrollDirection();
   const { state } = useCart();
+  const { cartIconRef } = useFlyToCart();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isBouncing, setIsBouncing] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -101,6 +103,7 @@ export default function Navbar() {
               </button>
               
               <button 
+                ref={cartIconRef}
                 className="relative p-1 text-charcoal hover:text-pink-primary transition-colors focus:outline-none"
                 aria-label="View Cart"
               >

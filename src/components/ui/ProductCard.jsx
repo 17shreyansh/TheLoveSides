@@ -3,13 +3,20 @@ import { Link } from 'react-router-dom';
 import StarRating from './StarRating';
 import Button from './Button';
 import { useCart } from '../../context/CartContext';
+import { useFlyToCart } from '../../context/FlyToCartContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProductCard({ product, layout = 'auto' }) {
   const { addToCart } = useCart();
+  const { triggerFlyToCart } = useFlyToCart();
   const [added, setAdded] = useState(false);
+  const imageRef = React.useRef(null);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.preventDefault(); // In case it's inside a Link or prevents event bubbling
+    if (imageRef.current) {
+      triggerFlyToCart(imageRef.current.getBoundingClientRect(), product.image);
+    }
     addToCart(product);
     setAdded(true);
     setTimeout(() => {
@@ -22,6 +29,7 @@ export default function ProductCard({ product, layout = 'auto' }) {
       <div className="group rounded-xl bg-ivory shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden flex flex-col h-full border border-charcoal/5">
         <Link to={`/product/${product.id}`} className="relative w-full shrink-0 aspect-square md:aspect-[4/5] block cursor-pointer">
           <img 
+            ref={imageRef}
             src={product.image} 
             alt={product.name} 
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -83,6 +91,7 @@ export default function ProductCard({ product, layout = 'auto' }) {
     <div className="group rounded-2xl bg-ivory shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden flex flex-row sm:flex-col h-full">
       <Link to={`/product/${product.id}`} className="relative w-1/2 sm:w-full shrink-0 sm:aspect-[4/3] overflow-hidden rounded-l-2xl sm:rounded-l-none sm:rounded-t-2xl min-h-[150px] block cursor-pointer">
         <img 
+          ref={imageRef}
           src={product.image} 
           alt={product.name} 
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

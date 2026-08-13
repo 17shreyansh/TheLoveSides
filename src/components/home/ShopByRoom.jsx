@@ -5,7 +5,7 @@ import { rooms } from '../../data/homeData';
 
 export default function ShopByRoom() {
   return (
-    <section className="py-16 md:py-24 bg-cream">
+    <section className="py-10 md:py-16 bg-cream">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <RevealOnScroll>
           <SectionHeading 

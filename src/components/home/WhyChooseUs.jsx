@@ -6,7 +6,7 @@ import * as Icons from 'lucide-react';
 
 export default function WhyChooseUs() {
   return (
-    <section className="py-16 md:py-24 bg-ivory">
+    <section className="py-10 md:py-16 bg-ivory">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <RevealOnScroll>
           <SectionHeading 
