@@ -105,7 +105,7 @@ export default function ProductPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
               </span>
-              <span className="text-sm font-sans font-medium text-green-700">In Stock — Ships in 2-3 days</span>
+              <span className="text-sm font-sans font-medium text-green-700">In Stock — Ships in 5-6 days</span>
             </div>
 
             <div className="h-px w-full bg-charcoal/10 mb-8"></div>
@@ -220,14 +220,10 @@ export default function ProductPage() {
             </div>
             
             {/* Guarantee Badges */}
-            <div className="grid grid-cols-3 gap-2 mt-4 pt-6 border-t border-charcoal/10">
-              <div className="flex flex-col items-center text-center gap-2">
+            <div className="grid grid-cols-2 gap-2 mt-4 pt-6 border-t border-charcoal/10">
+              <div className="flex flex-col items-center text-center gap-2 border-r border-charcoal/10">
                 <Truck className="w-6 h-6 text-gray-400" />
                 <span className="text-[10px] md:text-xs font-sans text-gray-500 uppercase tracking-wider">Free Shipping</span>
-              </div>
-              <div className="flex flex-col items-center text-center gap-2 border-x border-charcoal/10">
-                <RefreshCw className="w-6 h-6 text-gray-400" />
-                <span className="text-[10px] md:text-xs font-sans text-gray-500 uppercase tracking-wider">30-Day Returns</span>
               </div>
               <div className="flex flex-col items-center text-center gap-2">
                 <Shield className="w-6 h-6 text-gray-400" />
@@ -283,7 +279,7 @@ export default function ProductPage() {
                         <div className="pb-6 text-gray-600 font-sans text-sm leading-relaxed pl-8">
                           {tab === 'description' && "Our signature curtains are woven with uncompromising attention to detail. Designed to drape beautifully from the moment they are hung, they offer the perfect balance of privacy and natural light."}
                           {tab === 'specifications' && "Sold as single panels. 100% premium fabric. Dry clean only. Includes matching tie-back. Stainless steel grommets or rod pocket available upon request."}
-                          {tab === 'shipping' && "Free standard shipping on all orders over ₹200. Standard delivery takes 3-5 business days. Expedited shipping is available at checkout. 30-day hassle-free returns."}
+                          {tab === 'shipping' && "Free standard shipping on all orders over ₹200. Standard delivery takes 3-5 business days. Expedited shipping is available at checkout."}
                         </div>
                       </motion.div>
                     )}

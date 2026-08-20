@@ -91,27 +91,27 @@ export const rooms = [
 export const features = [
   {
     id: 1,
-    icon: 'Ruler',
-    title: 'Free Measurement',
-    description: 'Professional on-site measurement service'
+    icon: 'Award',
+    title: 'Premium Quality Fabrics',
+    description: 'High-quality fabrics with beautiful finishing and long-lasting durability.'
   },
   {
     id: 2,
-    icon: 'Sparkles',
-    title: 'Custom Fit',
-    description: 'Tailored to your exact specifications'
+    icon: 'Gem',
+    title: 'Affordable Luxury',
+    description: 'Premium-looking curtains at prices that offer great value.'
   },
   {
     id: 3,
-    icon: 'Award',
-    title: 'Premium Quality',
-    description: 'Finest materials and craftsmanship'
+    icon: 'ShoppingCart',
+    title: 'Easy Ordering',
+    description: 'Simple ordering process with support from selection to delivery.'
   },
   {
     id: 4,
-    icon: 'CheckCircle',
-    title: 'Expert Installation',
-    description: 'Certified installers for perfect fitting'
+    icon: 'Heart',
+    title: 'Trusted by Customers',
+    description: 'Real customer love, feedback and growing community'
   }
 ];
 
@@ -195,7 +195,7 @@ export const footerLinks = [
   },
   {
     title: 'Support',
-    links: ['Contact Us', 'Measurement Guide', 'Installation', 'Warranty']
+    links: ['Contact Us', 'Measurement Guide']
   }
 ];
 

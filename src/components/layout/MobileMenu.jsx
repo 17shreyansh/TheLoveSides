@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { navLinks } from '../../data/homeData';
+import LogoImage from '../../assets/images/LogoProcessed.png';
 
 export default function MobileMenu({ isOpen, onClose }) {
   // Prevent body scroll when menu is open
@@ -45,7 +46,10 @@ export default function MobileMenu({ isOpen, onClose }) {
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="fixed top-0 left-0 bottom-0 w-4/5 max-w-sm bg-cream z-[70] shadow-2xl flex flex-col p-6 border-r border-charcoal/10"
           >
-            <div className="flex justify-end mb-8">
+            <div className="flex justify-between items-center mb-8 pb-4 border-b border-charcoal/10">
+              <Link to="/" onClick={onClose} className="block">
+                <img src={LogoImage} alt="The Love Sides" className="h-12 md:h-16 object-contain mix-blend-multiply" />
+              </Link>
               <button 
                 onClick={onClose} 
                 className="p-2 -mr-2 text-charcoal hover:text-pink-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary rounded-md"
