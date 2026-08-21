@@ -14,12 +14,12 @@ export default function HowItWorks() {
         <RevealOnScroll>
           <SectionHeading 
             title="The Process" 
-            subtitle="Four elegant steps to your perfect bespoke windows" 
+            subtitle="Simple steps to your perfect bespoke windows" 
           />
         </RevealOnScroll>
 
         <div className="mt-16 md:mt-24">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6 relative">
+          <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto gap-8 md:gap-12 relative">
             {/* Elegant connecting line for desktop */}
             <div className="hidden lg:block absolute top-[2.5rem] left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-pink-primary/30 to-transparent -z-10"></div>
 

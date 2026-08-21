@@ -127,23 +127,13 @@ export const colors = [
 export const steps = [
   {
     id: 1,
-    title: 'Book Consultation',
-    description: 'Schedule a free home visit'
-  },
-  {
-    id: 2,
     title: 'Measurement',
     description: 'Precise measurements taken'
   },
   {
-    id: 3,
+    id: 2,
     title: 'Customize',
     description: 'Choose fabric, style & finish'
-  },
-  {
-    id: 4,
-    title: 'Installation',
-    description: 'Professional fitting included'
   }
 ];
 
