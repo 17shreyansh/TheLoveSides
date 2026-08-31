@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   ChevronRight, 
-  ChevronDown, 
   AlertCircle, 
   MapPin, 
   Mail, 
@@ -10,7 +9,6 @@ import {
   User, 
   MessageCircle 
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import RevealOnScroll from '../components/ui/RevealOnScroll';
 import { 
@@ -29,7 +27,6 @@ const iconMap = {
 export default function PolicyPage({ policyData }) {
   const location = useLocation();
   const [activeSection, setActiveSection] = useState('');
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   // Auto-detect policy data if not explicitly passed as prop
   let policy = policyData;
@@ -86,7 +83,6 @@ export default function PolicyPage({ policyData }) {
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
       setActiveSection(id);
-      setIsMobileNavOpen(false);
     }
   };
 
@@ -195,54 +191,6 @@ export default function PolicyPage({ policyData }) {
 
       {/* 2. Main Content Area */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-8 md:py-12">
-        {/* Mobile Jump to section dropdown (lg:hidden) */}
-        <div className="lg:hidden mb-8">
-          <button
-            type="button"
-            onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-            className="w-full bg-cream border border-charcoal/10 rounded-lg px-4 py-3.5 flex justify-between items-center text-sm font-medium text-charcoal shadow-xs hover:border-amber transition-colors"
-          >
-            <span>Jump to a section</span>
-            <ChevronDown
-              className={clsx(
-                'w-4 h-4 text-gray-500 transition-transform duration-200',
-                isMobileNavOpen && 'rotate-180 text-amber'
-              )}
-            />
-          </button>
-
-          <AnimatePresence>
-            {isMobileNavOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden bg-white border border-charcoal/10 rounded-lg mt-2 shadow-md divide-y divide-charcoal/5"
-              >
-                {policy.sections.map((section) => (
-                  <button
-                    key={section.id}
-                    type="button"
-                    onClick={() => scrollToSection(section.id)}
-                    className={clsx(
-                      'w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between',
-                      activeSection === section.id
-                        ? 'text-amber bg-amber/5 font-medium'
-                        : 'text-gray-600 hover:text-amber hover:bg-gray-50'
-                    )}
-                  >
-                    <span>{section.heading}</span>
-                    {activeSection === section.id && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber" />
-                    )}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
         {/* Two-Column Layout */}
         <div className="flex flex-col lg:flex-row lg:gap-14">
           {/* Left Column: Sticky Table of Contents (Desktop only) */}
