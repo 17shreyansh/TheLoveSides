@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { footerLinks } from '../../data/homeData';
 import NewsletterCTA from './NewsletterCTA';
 import LogoImage from '../../assets/images/LogoProcessed.png';
@@ -11,9 +12,9 @@ export default function Footer() {
           
           {/* Brand Col */}
           <div className="md:col-span-1 flex flex-col items-start">
-            <a href="/" className="mb-6 inline-block">
+            <Link to="/" className="mb-6 inline-block">
               <img src={LogoImage} alt="THELOVESIDES" className="h-10 md:h-12 object-contain brightness-0 invert" />
-            </a>
+            </Link>
             <p className="text-ivory/60 text-sm leading-relaxed max-w-xs mb-6">
               Premium window treatments with expert installation since 2018.
             </p>
@@ -56,13 +57,32 @@ export default function Footer() {
               <div key={section.title}>
                 <h4 className="font-serif text-lg mb-4 text-ivory">{section.title}</h4>
                 <ul className="space-y-2">
-                  {section.links.map((link) => (
-                    <li key={link}>
-                      <a href="#" className="text-ivory/70 hover:text-pink-primary text-sm block transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-primary rounded px-1 -ml-1">
-                        {link}
-                      </a>
-                    </li>
-                  ))}
+                  {section.links.map((link) => {
+                    const isObj = typeof link === 'object' && link !== null;
+                    const label = isObj ? link.name : link;
+                    const href = isObj ? link.href : '#';
+                    const isInternal = href.startsWith('/');
+
+                    return (
+                      <li key={label}>
+                        {isInternal ? (
+                          <Link
+                            to={href}
+                            className="text-ivory/70 hover:text-pink-primary text-sm block transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-primary rounded px-1 -ml-1"
+                          >
+                            {label}
+                          </Link>
+                        ) : (
+                          <a
+                            href={href}
+                            className="text-ivory/70 hover:text-pink-primary text-sm block transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-primary rounded px-1 -ml-1"
+                          >
+                            {label}
+                          </a>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))}

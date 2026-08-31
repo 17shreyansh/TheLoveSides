@@ -181,11 +181,20 @@ export const navLinks = [
 export const footerLinks = [
   {
     title: 'Categories',
-    links: ['Curtains', 'Blinds', 'Fabrics', 'Accessories']
+    links: [
+      { name: 'Curtains', href: '/category/curtains' },
+      { name: 'Sofa Covers', href: '/category/sofa-covers' },
+      { name: 'Marble', href: '/category/marble' },
+      { name: 'Accessories', href: '/category/accessories' },
+    ]
   },
   {
-    title: 'Support',
-    links: ['Contact Us', 'Measurement Guide']
+    title: 'Policies',
+    links: [
+      { name: 'Exchange & Refund', href: '/policies/exchange-refund' },
+      { name: 'Privacy Policy', href: '/policies/privacy' },
+      { name: 'Shipping Policy', href: '/policies/shipping' },
+    ]
   }
 ];
 
