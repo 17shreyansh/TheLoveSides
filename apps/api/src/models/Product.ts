@@ -1,6 +1,6 @@
 import mongoose, { Schema, type Document, type Types } from 'mongoose';
 
-export type ProductStatus = 'draft' | 'published' | 'scheduled' | 'archived';
+export type ProductStatus = 'draft' | 'published' | 'archived';
 
 export interface ISeoMetadata {
   metaTitle?: string;
@@ -102,7 +102,7 @@ const productSchema = new Schema<IProduct>(
     seo: { type: seoSchema, default: () => ({}) },
     status: {
       type: String,
-      enum: ['draft', 'published', 'scheduled', 'archived'],
+      enum: ['draft', 'published', 'archived'],
       default: 'draft',
       index: true,
     },

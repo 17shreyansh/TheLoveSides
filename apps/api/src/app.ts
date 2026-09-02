@@ -30,7 +30,9 @@ import reviewsRouter from './routes/reviews.js';
 export const app = express();
 
 // Security middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(cors({
   origin: [env.STOREFRONT_URL, env.ADMIN_URL],
   credentials: true, // Allow cookies

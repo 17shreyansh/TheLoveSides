@@ -5,14 +5,11 @@ import { sendSuccess } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
 
 export async function adjustInventory(req: Request, res: Response, next: NextFunction): Promise<void> {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const { variantId } = req.params;
     const { type, quantity, reason } = req.body;
 
-    const inventory = await Inventory.findOne({ variantId }).session(session);
+    const inventory = await Inventory.findOne({ variantId });
     if (!inventory) {
       throw ApiError.notFound('Inventory record not found for variant');
     }
@@ -25,7 +22,7 @@ export async function adjustInventory(req: Request, res: Response, next: NextFun
     }
 
     inventory.available = newAvailable;
-    await inventory.save({ session });
+    await inventory.save();
 
     const transaction = await InventoryTransaction.create([{
       variantId,
@@ -35,15 +32,11 @@ export async function adjustInventory(req: Request, res: Response, next: NextFun
       newAvailable,
       reason,
       performedBy: req.user?.id, // Requires Admin Auth
-    }], { session });
-
-    await session.commitTransaction();
-    session.endSession();
+    }]);
 
     sendSuccess({ res, data: { inventory, transaction: transaction[0] }, message: 'Inventory adjusted successfully' });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
+    console.error("ADJUST INVENTORY ERROR:", error);
     next(error);
   }
 }

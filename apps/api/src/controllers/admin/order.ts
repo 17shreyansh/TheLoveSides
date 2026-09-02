@@ -193,6 +193,7 @@ export async function getDashboardStats(req: Request, res: Response, next: NextF
       cancelledOrders,
       revenueResult,
       todayOrders,
+      revenueByDayResult
     ] = await Promise.all([
       Order.countDocuments(dateFilter),
       Order.countDocuments({ ...dateFilter, status: 'PENDING_PAYMENT' }),
@@ -203,11 +204,26 @@ export async function getDashboardStats(req: Request, res: Response, next: NextF
         { $group: { _id: null, total: { $sum: '$grandTotal' }, count: { $sum: 1 } } },
       ]),
       Order.countDocuments({ createdAt: { $gte: todayStart } }),
+      Order.aggregate([
+        { $match: { ...dateFilter, status: { $nin: ['CANCELLED', 'REFUNDED', 'PENDING_PAYMENT', 'PAYMENT_FAILED'] } } },
+        { 
+          $group: { 
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, 
+            revenue: { $sum: '$grandTotal' } 
+          } 
+        },
+        { $sort: { _id: 1 } }
+      ])
     ]);
 
     const revenue = revenueResult[0]?.total || 0;
     const paidCount = revenueResult[0]?.count || 0;
     const aov = paidCount > 0 ? Math.round(revenue / paidCount) : 0;
+
+    const revenueByDay = revenueByDayResult.map(item => ({
+      date: item._id, // YYYY-MM-DD format
+      revenue: item.revenue
+    }));
 
     sendSuccess({
       res,
@@ -220,6 +236,7 @@ export async function getDashboardStats(req: Request, res: Response, next: NextF
         revenue,
         averageOrderValue: aov,
         todayOrders,
+        revenueByDay
       },
     });
   } catch (error) {

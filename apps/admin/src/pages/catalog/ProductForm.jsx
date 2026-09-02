@@ -66,6 +66,8 @@ export default function ProductForm() {
           
           setFormData({ 
             ...product,
+            roomIds: (product.roomIds || []).map(r => typeof r === 'object' ? r._id : r),
+            collectionIds: (product.collectionIds || []).map(c => typeof c === 'object' ? c._id : c),
             sku: baseVariant.sku || '',
             price: baseVariant.price || '',
             compareAtPrice: baseVariant.compareAtPrice || '',
@@ -259,6 +261,14 @@ export default function ProductForm() {
         payload.slug = payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
       } else if (payload.slug) {
         payload.slug = payload.slug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      }
+
+      // Ensure roomIds and collectionIds are strings (extract _id if populated objects)
+      if (payload.roomIds) {
+        payload.roomIds = payload.roomIds.map(r => typeof r === 'object' ? r._id : r).filter(Boolean);
+      }
+      if (payload.collectionIds) {
+        payload.collectionIds = payload.collectionIds.map(c => typeof c === 'object' ? c._id : c).filter(Boolean);
       }
 
       // Clean up empty highlights and attributes
@@ -461,64 +471,6 @@ export default function ProductForm() {
             <p className="text-xs text-charcoal/50 mt-4">Drag and drop images to reorder. The first image will be used as the cover.</p>
           </div>
 
-          {/* Pricing & Inventory Card */}
-          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-charcoal/5">
-            <div className="flex items-center gap-2 mb-6 text-charcoal">
-              <Tag className="w-5 h-5 text-pink-primary" />
-              <h2 className="text-lg font-serif font-bold">Pricing & Inventory</h2>
-            </div>
-
-            {formData.attributes && formData.attributes.length > 0 && formData.attributes[0].name ? (
-              <div className="p-4 bg-pink-primary/5 border border-pink-primary/20 rounded-xl">
-                <p className="text-sm text-charcoal font-medium">
-                  This product has multiple options. Pricing and inventory are managed for each variant individually in the dedicated section below.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-sm font-semibold text-charcoal mb-1.5">Price (₹)</label>
-                  <input
-                    type="number" name="price" required min="0" step="0.01"
-                    value={formData.price} onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-charcoal mb-1.5 flex items-center gap-1">
-                    Compare-at Price <span className="text-[10px] font-normal text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">Optional</span>
-                  </label>
-                  <input
-                    type="number" name="compareAtPrice" min="0" step="0.01"
-                    value={formData.compareAtPrice} onChange={handleChange}
-                    placeholder="0.00"
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-charcoal mb-1.5">Available Stock</label>
-                  <input
-                    type="number" name="inventory" min="0"
-                    value={formData.inventory} onChange={handleChange}
-                    placeholder="0"
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-charcoal mb-1.5 flex items-center gap-1">
-                    SKU <span className="text-[10px] font-normal text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">Optional</span>
-                  </label>
-                  <input
-                    type="text" name="sku" 
-                    value={formData.sku} onChange={handleChange}
-                    placeholder="e.g. RNG-01"
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all uppercase"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Dynamic Attributes Card */}
           <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-charcoal/5">
             <div className="flex items-center justify-between mb-6">
@@ -651,6 +603,64 @@ export default function ProductForm() {
               </div>
             </div>
           )}
+
+          {/* Pricing & Inventory Card */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-charcoal/5 mt-6">
+            <div className="flex items-center gap-2 mb-6 text-charcoal">
+              <Tag className="w-5 h-5 text-pink-primary" />
+              <h2 className="text-lg font-serif font-bold">Pricing & Inventory</h2>
+            </div>
+
+            {formData.attributes && formData.attributes.length > 0 && formData.attributes[0].name ? (
+              <div className="p-4 bg-pink-primary/5 border border-pink-primary/20 rounded-xl">
+                <p className="text-sm text-charcoal font-medium">
+                  This product has multiple options. Pricing and inventory are managed for each variant individually in the dedicated section above.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal mb-1.5">Price (₹)</label>
+                  <input
+                    type="number" name="price" required min="0" step="0.01"
+                    value={formData.price} onChange={handleChange}
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal mb-1.5 flex items-center gap-1">
+                    Compare-at Price <span className="text-[10px] font-normal text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">Optional</span>
+                  </label>
+                  <input
+                    type="number" name="compareAtPrice" min="0" step="0.01"
+                    value={formData.compareAtPrice} onChange={handleChange}
+                    placeholder="0.00"
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal mb-1.5">Available Stock</label>
+                  <input
+                    type="number" name="inventory" min="0"
+                    value={formData.inventory} onChange={handleChange}
+                    placeholder="0"
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal mb-1.5 flex items-center gap-1">
+                    SKU <span className="text-[10px] font-normal text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">Optional</span>
+                  </label>
+                  <input
+                    type="text" name="sku" 
+                    value={formData.sku} onChange={handleChange}
+                    placeholder="e.g. RNG-01"
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all uppercase"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Column: Metadata & Organization */}
@@ -667,7 +677,6 @@ export default function ProductForm() {
             >
               <option value="draft">Draft</option>
               <option value="published">Published</option>
-              <option value="scheduled">Scheduled</option>
               <option value="archived">Archived</option>
             </select>
             <p className="text-xs text-gray-500 mt-2">

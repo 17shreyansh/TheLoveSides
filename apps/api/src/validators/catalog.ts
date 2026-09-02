@@ -101,7 +101,7 @@ export const createProductSchema = z.object({
   images: z.array(z.string().url()).default([]),
   videos: z.array(z.string().url()).default([]),
   seo: seoSchema.optional(),
-  status: z.enum(['draft', 'published', 'scheduled', 'archived']).default('draft'),
+  status: z.enum(['draft', 'published', 'archived']).default('draft'),
   isFeatured: z.boolean().default(false),
   isBestSeller: z.boolean().default(false),
   isNewArrival: z.boolean().default(false),
