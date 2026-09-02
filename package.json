@@ -1,30 +1,32 @@
 {
-  "name": "temp",
+  "name": "thelovesides",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "1.0.0",
+  "description": "TheLoveSides — Premium Curtains & Blinds E-Commerce Platform",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "oxlint",
-    "preview": "vite preview"
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:storefront\" \"npm run dev:admin\"",
+    "dev:storefront": "npm run dev --workspace=@thelovesides/storefront",
+    "dev:api": "npm run dev --workspace=@thelovesides/api",
+    "dev:admin": "npm run dev --workspace=@thelovesides/admin",
+    "build": "npm run build --workspaces --if-present",
+    "build:storefront": "npm run build --workspace=@thelovesides/storefront",
+    "build:api": "npm run build --workspace=@thelovesides/api",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "seed": "npm run seed --workspace=@thelovesides/api",
+    "create-admin": "npm run create-admin --workspace=@thelovesides/api",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
   },
-  "dependencies": {
-    "@tailwindcss/vite": "^4.3.3",
-    "clsx": "^2.1.1",
-    "framer-motion": "^12.43.0",
-    "lucide-react": "^1.28.0",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.2",
-    "swiper": "^14.0.7",
-    "tailwindcss": "^4.3.3"
+  "engines": {
+    "node": ">=20.0.0"
   },
   "devDependencies": {
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.4",
-    "oxlint": "^1.75.0",
-    "vite": "^8.2.0"
+    "concurrently": "^10.0.5"
   }
 }

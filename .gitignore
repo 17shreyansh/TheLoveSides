@@ -1,3 +1,18 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+*.local
+
+# Environment files (NEVER commit real .env files)
+.env
+.env.development
+.env.staging
+.env.production
+!.env.example
+
 # Logs
 logs
 *.log
@@ -6,11 +21,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +32,20 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# OS files
+Thumbs.db
+Desktop.ini
+
+# Docker volumes
+mongodb_data
+redis_data
+
+# Uploads
+uploads/
+
+# Coverage
+coverage/
+
+# TypeScript build info
+*.tsbuildinfo
