@@ -253,7 +253,7 @@ export default function CheckoutPage() {
                       <p className="font-sans text-xs text-charcoal/60">Qty: {item.quantity}</p>
                     </div>
                     <div className="font-sans font-medium text-charcoal text-sm">
-                      ₹{item.price * item.quantity}
+                      ₹{Number(item.price * item.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                     </div>
                   </div>
                 ))}
@@ -262,7 +262,7 @@ export default function CheckoutPage() {
               <div className="border-t border-charcoal/10 pt-4 space-y-3 font-sans text-sm">
                 <div className="flex justify-between text-charcoal/80">
                   <span>Subtotal</span>
-                  <span>₹{state.subtotal}</span>
+                  <span>₹{Number(state.subtotal).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between text-charcoal/80">
                   <span>Shipping</span>
@@ -276,7 +276,7 @@ export default function CheckoutPage() {
 
               <div className="border-t border-charcoal/10 mt-4 pt-4 flex justify-between font-serif text-xl text-charcoal">
                 <span>Total</span>
-                <span>₹{state.subtotal}</span>
+                <span>₹{Number(state.subtotal).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>

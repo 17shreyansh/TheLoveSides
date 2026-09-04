@@ -41,7 +41,7 @@ export default function ProductCard({ product, layout = 'auto' }) {
               <h3 className="font-serif text-sm md:text-lg text-charcoal line-clamp-1 leading-snug">{product.name}</h3>
             </Link>
             <div className="flex justify-between items-center mt-1 md:mt-2 gap-1">
-              <span className="font-sans font-semibold text-sm md:text-lg text-charcoal shrink-0">₹{product.price}</span>
+              <span className="font-sans font-semibold text-sm md:text-lg text-charcoal shrink-0">₹{Number(product.price).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
               <div className="scale-[0.6] sm:scale-75 md:scale-100 origin-right">
                 <StarRating value={product.rating} />
               </div>
@@ -103,7 +103,7 @@ export default function ProductCard({ product, layout = 'auto' }) {
             <h3 className="font-serif text-base sm:text-lg md:text-xl text-charcoal mb-1 sm:mb-2 line-clamp-2 sm:line-clamp-1 leading-snug">{product.name}</h3>
           </Link>
           <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-3 sm:mb-6 gap-1 sm:gap-0">
-            <span className="font-sans font-medium text-sm sm:text-lg text-charcoal">₹{product.price}</span>
+            <span className="font-sans font-medium text-sm sm:text-lg text-charcoal">₹{Number(product.price).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
             <div className="scale-[0.70] origin-left sm:scale-100 sm:origin-center">
               <StarRating value={product.rating} />
             </div>

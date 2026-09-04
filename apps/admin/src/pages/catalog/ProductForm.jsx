@@ -8,6 +8,44 @@ import { TagInput } from '../../components/TagInput';
 import { SortableGridItem } from '../../components/SortableGridItem';
 import { MultiSelect } from '../../components/MultiSelect';
 
+const ColorAttributeInput = ({ values, onChange }) => {
+  const [colorValue, setColorValue] = useState('#000000');
+
+  const handleAddHex = () => {
+    if (!values.includes(colorValue)) {
+      onChange([...values, colorValue]);
+    }
+  };
+
+  return (
+    <div className="flex items-start gap-3 w-full">
+      <div className="flex-1">
+        <TagInput 
+          tags={values || []}
+          onChange={onChange}
+          placeholder="e.g. Red, Blue, #Hex"
+        />
+      </div>
+      <div className="flex items-center gap-2 border border-gray-200 rounded-lg p-1 bg-white mt-1 shrink-0">
+        <input 
+          type="color" 
+          value={colorValue}
+          onChange={e => setColorValue(e.target.value)}
+          className="w-7 h-7 p-0 border-0 rounded cursor-pointer"
+          title="Pick a color"
+        />
+        <button 
+          type="button"
+          onClick={handleAddHex}
+          className="px-2 py-1 text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-charcoal rounded transition-colors"
+        >
+          Add
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export default function ProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -502,17 +540,24 @@ export default function ProductForm() {
                   <div className="w-full sm:w-2/3">
                     <label className="block text-xs font-semibold text-charcoal mb-1.5">Values (Press Enter to add)</label>
                     <div className="flex items-start gap-3">
-                      <div className="flex-1">
-                        <TagInput 
-                          tags={attr.values || []}
-                          onChange={(newTags) => handleUpdateAttribute(index, 'values', newTags)}
-                          placeholder="e.g. Small, Medium"
-                        />
+                      <div className="flex-1 flex">
+                        {attr.name.toLowerCase().includes('color') ? (
+                          <ColorAttributeInput 
+                            values={attr.values || []}
+                            onChange={(newTags) => handleUpdateAttribute(index, 'values', newTags)}
+                          />
+                        ) : (
+                          <TagInput 
+                            tags={attr.values || []}
+                            onChange={(newTags) => handleUpdateAttribute(index, 'values', newTags)}
+                            placeholder="e.g. Small, Medium"
+                          />
+                        )}
                       </div>
                       <button 
                         type="button" 
                         onClick={() => handleRemoveAttribute(index)} 
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-0.5"
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-1"
                         title="Remove Option"
                       >
                         <Trash2 className="w-4 h-4" />

@@ -98,7 +98,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                           +
                         </button>
                       </div>
-                      <p className="font-sans font-semibold text-charcoal">₹{item.price}</p>
+                      <p className="font-sans font-semibold text-charcoal">₹{Number(item.price).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</p>
                     </div>
                   </div>
                 </div>
@@ -111,7 +111,7 @@ export default function CartDrawer({ isOpen, onClose }) {
           <div className="p-6 border-t border-charcoal/10 bg-ivory/50">
             <div className="flex justify-between items-center mb-6">
               <span className="font-sans font-medium text-charcoal text-lg">Subtotal</span>
-              <span className="font-sans font-bold text-charcoal text-2xl">₹{state.subtotal}</span>
+              <span className="font-sans font-bold text-charcoal text-2xl">₹{Number(state.subtotal).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
             </div>
             <Button variant="dark" className="w-full py-4 text-lg shadow-lg" onClick={handleCheckout}>
               Checkout

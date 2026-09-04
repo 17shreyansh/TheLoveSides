@@ -115,25 +115,22 @@ export default function ProductPage() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="w-full lg:w-7/12 flex flex-col pb-10 lg:pl-8 relative z-10"
           >
-            <span className="text-pink-primary font-sans font-semibold tracking-wider text-xs uppercase mb-3">
-              Bespoke Window Treatments
-            </span>
             <h1 className="text-3xl md:text-5xl font-serif text-charcoal mb-4 leading-tight">
               {product.name}
             </h1>
             
             <div className="flex items-center gap-4 mb-4">
               <span className="text-3xl font-sans font-medium text-red-700">
-                ₹{currentPrice}
+                ₹{Number(currentPrice).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
               </span>
               {currentComparePrice > currentPrice && (
                 <span className="text-xl font-sans text-gray-400 line-through">
-                  ₹{currentComparePrice}
+                  ₹{Number(currentComparePrice).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                 </span>
               )}
               <div className="flex items-center gap-2 border-l border-gray-300 pl-4 ml-2">
                 <StarRating value={product.rating} />
-                <span className="text-sm text-gray-500 font-medium">({Math.floor(Math.random() * 50) + 20} reviews)</span>
+                <span className="text-sm text-gray-500 font-medium">({product.reviewsCount || 0} reviews)</span>
               </div>
             </div>
 
@@ -188,7 +185,7 @@ export default function ProductPage() {
                             >
                               <span 
                                 className="w-8 h-8 rounded-full shadow-inner border border-black/5" 
-                                style={{ backgroundColor: val.toLowerCase().replace(/[^a-z]/g, '') || '#ccc' }}
+                                style={{ backgroundColor: (val.startsWith('#') || val.startsWith('rgb')) ? val : (val.toLowerCase().replace(/[^a-z]/g, '') || '#ccc') }}
                               />
                             </button>
                           );
@@ -266,7 +263,7 @@ export default function ProductPage() {
                     exit={{ opacity: 0, y: -15 }}
                     className="block"
                   >
-                    Add to Cart - ₹{(currentPrice * quantity).toFixed(2)}
+                    Add to Cart - ₹{Number(currentPrice * quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -388,7 +385,7 @@ export default function ProductPage() {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 px-6 z-50 md:hidden flex justify-between items-center shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
         <div>
           <p className="text-xs text-gray-500 font-sans uppercase font-medium">{product.name}</p>
-          <p className="text-lg font-sans font-semibold text-charcoal">₹{(currentPrice * quantity).toFixed(2)}</p>
+          <p className="text-lg font-sans font-semibold text-charcoal">₹{Number(currentPrice * quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</p>
         </div>
         <Button 
           variant="dark" 

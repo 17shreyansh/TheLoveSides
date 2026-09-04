@@ -49,7 +49,17 @@ export function errorHandler(
   // Mongoose duplicate key error
   if (err.name === 'MongoServerError' && (err as unknown as { code: number }).code === 11000) {
     logger.warn({ err, requestId: req.requestId }, 'Duplicate key error');
-    sendError(res, 409, 'DUPLICATE_ENTRY', 'A record with this value already exists');
+    
+    // Attempt to extract the conflicting field and value
+    const anyErr = err as any;
+    let message = 'A record with this value already exists';
+    if (anyErr.keyValue) {
+      const field = Object.keys(anyErr.keyValue)[0];
+      const value = anyErr.keyValue[field];
+      message = `The ${field} '${value}' is already in use. Please provide a unique value.`;
+    }
+    
+    sendError(res, 409, 'DUPLICATE_ENTRY', message);
     return;
   }
 
