@@ -27,7 +27,7 @@ export default function ProductCard({ product, layout = 'auto' }) {
   if (layout === 'vertical') {
     return (
       <div className="group rounded-xl bg-ivory shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden flex flex-col h-full border border-charcoal/5">
-        <Link to={`/product/${product.id}`} className="relative w-full shrink-0 aspect-square md:aspect-[4/5] block cursor-pointer">
+        <Link to={`/product/${product.slug}`} className="relative w-full shrink-0 aspect-square md:aspect-[4/5] block cursor-pointer">
           <img 
             ref={imageRef}
             src={product.image} 
@@ -37,7 +37,7 @@ export default function ProductCard({ product, layout = 'auto' }) {
         </Link>
         <div className="flex flex-col flex-grow p-3 md:p-4 justify-between">
           <div>
-            <Link to={`/product/${product.id}`} className="hover:text-pink-primary transition-colors block mb-1">
+            <Link to={`/product/${product.slug}`} className="hover:text-pink-primary transition-colors block mb-1">
               <h3 className="font-serif text-sm md:text-lg text-charcoal line-clamp-1 leading-snug">{product.name}</h3>
             </Link>
             <div className="flex justify-between items-center mt-1 md:mt-2 gap-1">
@@ -89,7 +89,7 @@ export default function ProductCard({ product, layout = 'auto' }) {
   // Original layout ('auto')
   return (
     <div className="group rounded-2xl bg-ivory shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden flex flex-row sm:flex-col h-full">
-      <Link to={`/product/${product.id}`} className="relative w-1/2 sm:w-full shrink-0 sm:aspect-[4/3] overflow-hidden rounded-l-2xl sm:rounded-l-none sm:rounded-t-2xl min-h-[150px] block cursor-pointer">
+      <Link to={`/product/${product.slug}`} className="relative w-1/2 sm:w-full shrink-0 sm:aspect-[4/3] overflow-hidden rounded-l-2xl sm:rounded-l-none sm:rounded-t-2xl min-h-[150px] block cursor-pointer">
         <img 
           ref={imageRef}
           src={product.image} 
@@ -99,7 +99,7 @@ export default function ProductCard({ product, layout = 'auto' }) {
       </Link>
       <div className="flex flex-col flex-grow w-1/2 sm:w-full p-4 sm:p-6 justify-between">
         <div>
-          <Link to={`/product/${product.id}`} className="hover:text-pink-primary transition-colors">
+          <Link to={`/product/${product.slug}`} className="hover:text-pink-primary transition-colors">
             <h3 className="font-serif text-base sm:text-lg md:text-xl text-charcoal mb-1 sm:mb-2 line-clamp-2 sm:line-clamp-1 leading-snug">{product.name}</h3>
           </Link>
           <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-3 sm:mb-6 gap-1 sm:gap-0">

@@ -5,6 +5,7 @@ import { FlyToCartProvider } from './context/FlyToCartContext';
 import Home from './pages/Home';
 import ProductPage from './pages/ProductPage';
 import CategoryPage from './pages/CategoryPage';
+import ProductsPage from './pages/ProductsPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderSuccessPage from './pages/OrderSuccessPage';
 import Navbar from './components/layout/Navbar';
@@ -20,7 +21,8 @@ function App() {
             <main className="flex-grow">
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/product/:id" element={<ProductPage />} />
+                <Route path="/products" element={<ProductsPage />} />
+                <Route path="/product/:slug" element={<ProductPage />} />
                 <Route path="/category/:categorySlug" element={<CategoryPage />} />
                 <Route path="/arrivals" element={<CategoryPage type="arrivals" />} />
                 <Route path="/best-sellers" element={<CategoryPage type="bestsellers" />} />

@@ -169,6 +169,7 @@ export const promoOffers = [
 ];
 
 export const navLinks = [
+  { title: 'Shop All', href: '/products' },
   { title: 'New Arrivals', href: '/arrivals' },
   { title: 'Best Seller', href: '/best-sellers' },
   { title: 'Curtains', href: '/category/curtains' },

@@ -11,13 +11,12 @@ import ImageZoomViewer from '../components/ui/ImageZoomViewer';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProductPage() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { triggerFlyToCart } = useFlyToCart();
   const mainImageRef = React.useRef(null);
-  
-  const { product, loading } = useProduct(id);
+  const { product, loading } = useProduct(slug);
   const { products: relatedProductsArray } = useProducts({ limit: 4 });
   
   const [selectedOptions, setSelectedOptions] = useState({});
@@ -27,31 +26,12 @@ export default function ProductPage() {
   const [activeTab, setActiveTab] = useState('description');
 
   // Mock related products (excluding current product)
-  const relatedProducts = relatedProductsArray.filter(p => p.id !== id).slice(0, 3);
+  const relatedProducts = relatedProductsArray.filter(p => p.slug !== slug).slice(0, 3);
 
   useEffect(() => {
     // Scroll to top when loading a new product page
     window.scrollTo(0, 0);
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="pt-32 pb-20 px-6 text-center min-h-[60vh] flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-primary mb-4"></div>
-        <p className="text-gray-500">Loading product...</p>
-      </div>
-    );
-  }
-
-  if (!product) {
-    return (
-      <div className="pt-32 pb-20 px-6 text-center min-h-[60vh] flex flex-col items-center justify-center">
-        <h1 className="text-3xl font-serif text-charcoal mb-4">Product Not Found</h1>
-        <p className="text-gray-500 mb-8">We couldn't find the product you're looking for.</p>
-        <Button onClick={() => navigate('/')}>Return Home</Button>
-      </div>
-    );
-  }
+  }, [slug]);
 
   // Initialize selected options when product loads
   useEffect(() => {
@@ -79,14 +59,32 @@ export default function ProductPage() {
     }
   }, [selectedOptions, product]);
 
+  if (loading) {
+    return (
+      <div className="pt-32 pb-20 px-6 text-center min-h-[60vh] flex flex-col items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-primary mb-4"></div>
+        <p className="text-gray-500">Loading product...</p>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="pt-32 pb-20 px-6 text-center min-h-[60vh] flex flex-col items-center justify-center">
+        <h1 className="text-3xl font-serif text-charcoal mb-4">Product Not Found</h1>
+        <p className="text-gray-500 mb-8">We couldn't find the product you're looking for.</p>
+        <Button onClick={() => navigate('/')}>Return Home</Button>
+      </div>
+    );
+  }
+
   const handleOptionSelect = (attrName, value) => {
     setSelectedOptions(prev => ({ ...prev, [attrName]: value }));
   };
 
   const currentPrice = selectedVariant?.price || product.price;
   const currentComparePrice = selectedVariant?.compareAtPrice || (product.price * 1.4);
-  const stockAvailable = selectedVariant?.inventory?.available || 0;
-  const inStock = stockAvailable > 0;
+  const inStock = selectedVariant ? selectedVariant.isPurchasable : true;
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -147,7 +145,7 @@ export default function ProductPage() {
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                   </span>
                   <span className="text-sm font-sans font-medium text-green-700">
-                    In Stock ({stockAvailable} available) — Ships in 5-6 days
+                    In Stock — Ships in 5-6 days
                   </span>
                 </>
               ) : (

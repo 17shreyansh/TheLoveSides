@@ -14,18 +14,21 @@ export function useProducts(query = {}) {
         const { data } = await api.get('/catalog/products', { params: query });
         if (active) {
           // Transform backend data to match frontend's expected ProductCard schema
-          const formatted = data.data.map(p => ({
+          const formatted = (data || []).map(p => ({
             id: p._id, // backend _id is a string
             slug: p.slug,
             name: p.name,
             price: p.variants?.[0]?.price || 0,
-            image: p.variants?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500',
-            images: p.variants?.[0]?.images || [],
+            image: p.images?.[0] || p.variants?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500',
+            images: p.images?.length > 0 ? p.images : (p.variants?.[0]?.images || []),
             rating: p.averageRating || 5,
             isNewArrival: true,
             isBestSeller: true, 
             category: p.category?.slug,
             description: p.description,
+            highlights: p.highlights || [],
+            specifications: p.specifications || '',
+            attributes: p.attributes || [],
             variants: p.variants || [],
           }));
           setProducts(formatted);
@@ -57,19 +60,22 @@ export function useProduct(identifier) {
         setLoading(true);
         const { data } = await api.get(`/catalog/products/${identifier}`);
         if (active) {
-          const p = data.data;
+          const p = data;
           const formatted = {
             id: p._id,
             slug: p.slug,
             name: p.name,
             price: p.variants?.[0]?.price || 0,
-            image: p.variants?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500',
-            images: p.variants?.[0]?.images?.length > 0 ? p.variants[0].images : ['https://via.placeholder.com/400x500', 'https://via.placeholder.com/400x500', 'https://via.placeholder.com/400x500', 'https://via.placeholder.com/400x500'],
+            image: p.images?.[0] || p.variants?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500',
+            images: p.images?.length > 0 ? p.images : (p.variants?.[0]?.images?.length > 0 ? p.variants[0].images : ['https://via.placeholder.com/400x500', 'https://via.placeholder.com/400x500', 'https://via.placeholder.com/400x500', 'https://via.placeholder.com/400x500']),
             rating: p.averageRating || 5,
             isNewArrival: true,
             isBestSeller: true, 
             category: p.category?.slug,
             description: p.description,
+            highlights: p.highlights || [],
+            specifications: p.specifications || '',
+            attributes: p.attributes || [],
             variants: p.variants || [],
           };
           setProduct(formatted);

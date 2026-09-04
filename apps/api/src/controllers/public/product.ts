@@ -18,9 +18,25 @@ export async function listProducts(req: Request, res: Response, next: NextFuncti
       deletedAt: null,
     };
 
-    if (req.query.room) query.roomIds = new mongoose.Types.ObjectId(req.query.room as string);
-    if (collection) query.collectionIds = new mongoose.Types.ObjectId(collection as string);
+    if (req.query.room) {
+      const roomStr = req.query.room as string;
+      if (mongoose.Types.ObjectId.isValid(roomStr)) {
+        query.roomIds = new mongoose.Types.ObjectId(roomStr);
+      } else {
+        const roomDoc = await mongoose.model('Room').findOne({ slug: roomStr }).lean();
+        if (roomDoc) query.roomIds = (roomDoc as any)._id;
+      }
+    }
 
+    if (collection) {
+      const collStr = collection as string;
+      if (mongoose.Types.ObjectId.isValid(collStr)) {
+        query.collectionIds = new mongoose.Types.ObjectId(collStr);
+      } else {
+        const collDoc = await mongoose.model('Collection').findOne({ slug: collStr }).lean();
+        if (collDoc) query.collectionIds = (collDoc as any)._id;
+      }
+    }
     let sortOptions: any = { createdAt: -1 };
     if (sort === 'price_asc') sortOptions = { 'variants.0.price': 1 }; // Requires aggregation for perfect sorting
     if (sort === 'price_desc') sortOptions = { 'variants.0.price': -1 };
@@ -69,11 +85,18 @@ export async function getProductBySlug(req: Request, res: Response, next: NextFu
   try {
     const { slug } = req.params;
 
-    const product = await Product.findOne({
-      slug,
+    const query: any = {
       status: 'published',
       deletedAt: null,
-    })
+    };
+
+    if (typeof slug === 'string' && mongoose.Types.ObjectId.isValid(slug)) {
+      query.$or = [{ _id: slug }, { slug: slug }];
+    } else {
+      query.slug = slug;
+    }
+
+    const product = await Product.findOne(query)
       .populate('roomIds', 'name slug')
       .populate('collectionIds', 'name slug')
       .lean();

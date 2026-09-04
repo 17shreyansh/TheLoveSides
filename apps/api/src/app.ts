@@ -71,7 +71,7 @@ app.get('/health', (_req, res) => {
 
 // Routes
 app.use('/api/v1/auth', authRouter);
-app.use('/api/v1', catalogRouter);
+app.use('/api/v1/catalog', catalogRouter);
 app.use('/api/v1', cartRouter);
 app.use('/api/v1/account', accountRouter);
 app.use('/api/v1/orders', ordersRouter);
