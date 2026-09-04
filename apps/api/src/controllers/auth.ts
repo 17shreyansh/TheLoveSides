@@ -20,6 +20,7 @@ const cookieOptions = {
   httpOnly: true,
   secure: isProduction && env.API_URL.startsWith('https'),
   sameSite: 'lax' as const,
+  path: '/',
 };
 
 export async function registerCustomer(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -52,7 +53,6 @@ export async function registerCustomer(req: Request, res: Response, next: NextFu
     });
     res.cookie('refreshToken', refreshToken, {
       ...cookieOptions,
-      path: '/api/v1/auth/refresh',
       maxAge: getMs(env.JWT_REFRESH_EXPIRY),
     });
 
@@ -126,7 +126,6 @@ export async function loginCustomer(req: Request, res: Response, next: NextFunct
     });
     res.cookie('refreshToken', refreshToken, {
       ...cookieOptions,
-      path: '/api/v1/auth/refresh',
       maxAge: getMs(env.JWT_REFRESH_EXPIRY),
     });
 
@@ -182,7 +181,6 @@ export async function loginAdmin(req: Request, res: Response, next: NextFunction
     });
     res.cookie('adminRefreshToken', refreshToken, {
       ...cookieOptions,
-      path: '/api/v1/auth/admin/refresh',
       maxAge: getMs(env.JWT_REFRESH_EXPIRY),
     });
 
@@ -203,13 +201,13 @@ export async function loginAdmin(req: Request, res: Response, next: NextFunction
 
 export async function logoutCustomer(_req: Request, res: Response): Promise<void> {
   res.clearCookie('accessToken', cookieOptions);
-  res.clearCookie('refreshToken', { ...cookieOptions, path: '/api/v1/auth/refresh' });
+  res.clearCookie('refreshToken', cookieOptions);
   sendSuccess({ res, message: 'Logged out successfully' });
 }
 
 export async function logoutAdmin(_req: Request, res: Response): Promise<void> {
   res.clearCookie('adminAccessToken', cookieOptions);
-  res.clearCookie('adminRefreshToken', { ...cookieOptions, path: '/api/v1/auth/admin/refresh' });
+  res.clearCookie('adminRefreshToken', cookieOptions);
   sendSuccess({ res, message: 'Admin logged out successfully' });
 }
 
@@ -272,7 +270,6 @@ export async function refreshCustomerToken(req: Request, res: Response, next: Ne
     });
     res.cookie('refreshToken', newRefreshToken, {
       ...cookieOptions,
-      path: '/api/v1/auth/refresh',
       maxAge: getMs(env.JWT_REFRESH_EXPIRY),
     });
 
@@ -325,7 +322,6 @@ export async function refreshAdminToken(req: Request, res: Response, next: NextF
     });
     res.cookie('adminRefreshToken', newRefreshToken, {
       ...cookieOptions,
-      path: '/api/v1/auth/admin/refresh',
       maxAge: getMs(env.JWT_REFRESH_EXPIRY),
     });
 
