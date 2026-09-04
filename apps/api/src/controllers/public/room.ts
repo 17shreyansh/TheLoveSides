@@ -3,7 +3,7 @@ import { Room } from '../../models/Room.js';
 import { sendSuccess } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
 
-export async function getActiveRooms(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getActiveRooms(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const rooms = await Room.find({ isActive: true })
       .sort({ sortOrder: 1, createdAt: -1 })

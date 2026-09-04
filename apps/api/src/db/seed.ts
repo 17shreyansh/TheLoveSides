@@ -14,7 +14,7 @@ import { Inventory } from '../models/Inventory.js';
 
 async function seedDatabase() {
   logger.info('Connecting to database for seeding...');
-  await mongoose.connect(env.MONGODB_URI);
+  await mongoose.connect(env.MONGO_URI);
   logger.info('Connected to MongoDB');
 
   try {

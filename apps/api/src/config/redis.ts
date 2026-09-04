@@ -28,7 +28,7 @@ export async function connectRedis(): Promise<Redis> {
     logger.info('✅ Redis connected');
   });
 
-  redisClient.on('error', (err: Error) => {
+  redisClient.on('error', (_err: Error) => {
     // Only log if it's not the initial failure that we're catching
   });
 

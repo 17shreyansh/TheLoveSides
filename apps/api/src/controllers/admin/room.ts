@@ -11,7 +11,7 @@ export const createRoom = async (req: Request, res: Response, next: NextFunction
     }
 
     const room = await Room.create(req.body);
-    sendSuccess({ res, status: 201, data: room, message: 'Room created successfully' });
+    sendSuccess({ res, statusCode: 201, data: room, message: 'Room created successfully' });
   } catch (error) {
     next(error);
   }

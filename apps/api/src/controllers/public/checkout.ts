@@ -51,7 +51,7 @@ export async function initiateCheckout(req: Request, res: Response, next: NextFu
     const idempotencyKey = req.headers['x-idempotency-key'] as string || uuidv4();
 
     const order = await createOrderFromCart({
-      userId: userId,
+      userId: userId as string,
       shippingAddress,
       billingAddress,
       couponCode,

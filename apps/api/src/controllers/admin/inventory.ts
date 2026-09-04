@@ -1,5 +1,4 @@
 import type { Request, Response, NextFunction } from 'express';
-import mongoose from 'mongoose';
 import { Inventory, InventoryTransaction } from '../../models/Inventory.js';
 import { sendSuccess } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';

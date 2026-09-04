@@ -7,7 +7,6 @@ import path from 'path';
 import { env } from './config/env.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
 import { errorHandler } from './middleware/errorHandler.js';
-import { rateLimitGeneral } from './middleware/rateLimiter.js';
 import { sendSuccess } from './utils/ApiResponse.js';
 
 // Import routers

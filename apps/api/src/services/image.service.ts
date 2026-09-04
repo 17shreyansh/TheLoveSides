@@ -12,7 +12,7 @@ if (!fs.existsSync(uploadDir)) {
  * Optimizes an image buffer using Sharp, converts it to WebP, and saves to disk.
  * Returns the generated filename and file size.
  */
-export async function optimizeAndSaveImage(buffer: Buffer, originalName: string): Promise<{ filename: string, size: number }> {
+export async function optimizeAndSaveImage(buffer: Buffer, _originalName: string): Promise<{ filename: string, size: number }> {
   // We'll generate a UUID and append -optimized.webp
   const filename = `${uuidv4()}-optimized.webp`;
   const filepath = path.join(uploadDir, filename);

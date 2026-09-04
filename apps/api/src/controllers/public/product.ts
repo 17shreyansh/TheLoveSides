@@ -11,7 +11,7 @@ export async function listProducts(req: Request, res: Response, next: NextFuncti
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = (page - 1) * limit;
 
-    const { category, collection, sort } = req.query;
+    const { collection, sort } = req.query;
 
     const query: any = {
       status: 'published',
