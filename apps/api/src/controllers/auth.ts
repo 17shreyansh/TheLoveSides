@@ -18,7 +18,7 @@ const getMs = (val: string) => {
 
 const cookieOptions = {
   httpOnly: true,
-  secure: isProduction && env.API_URL.startsWith('https'),
+  secure: false, // Forced to false for HTTP environments
   sameSite: 'lax' as const,
   path: '/',
 };
