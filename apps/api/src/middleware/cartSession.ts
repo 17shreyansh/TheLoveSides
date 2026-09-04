@@ -46,7 +46,7 @@ export function cartSession(req: Request, res: Response, next: NextFunction): vo
   // Set cookie for 30 days
   res.cookie('guestId', newGuestId, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'production' && process.env.API_URL?.startsWith('https'),
     sameSite: 'lax',
     maxAge: 30 * 24 * 60 * 60 * 1000, 
   });
