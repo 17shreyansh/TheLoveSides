@@ -5,7 +5,7 @@ import { hashPassword, verifyPassword } from '../utils/password.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt.js';
 import { sendSuccess } from '../utils/ApiResponse.js';
 import { ApiError } from '../utils/ApiError.js';
-import { env, isProduction } from '../config/env.js';
+import { env } from '../config/env.js';
 import { mergeGuestCartIntoUserCart } from '../services/cart.service.js';
 import { logger } from '../utils/logger.js';
 
