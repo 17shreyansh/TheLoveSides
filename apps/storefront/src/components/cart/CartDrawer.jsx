@@ -79,7 +79,11 @@ export default function CartDrawer({ isOpen, onClose }) {
                     </div>
                     
                     <p className="font-sans text-xs text-charcoal/60 mt-1 mb-2">
-                      {item.variant?.attributes?.map(attr => `${attr.name}: ${attr.value}`).join(' | ')}
+                      {item.variant?.attributes?.map(attr => {
+                        const isColor = attr.name.toLowerCase().includes('color');
+                        const displayVal = isColor ? attr.value.replace(/\s*\(#[^\)]+\)\s*/g, '') : attr.value;
+                        return `${attr.name}: ${displayVal}`;
+                      }).join(' | ')}
                     </p>
                     
                     <div className="mt-auto flex items-center justify-between">

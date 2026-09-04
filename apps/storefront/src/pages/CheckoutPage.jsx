@@ -248,7 +248,11 @@ export default function CheckoutPage() {
                     <div className="flex-1">
                       <h3 className="font-serif text-charcoal text-sm">{item.product?.name}</h3>
                       <p className="font-sans text-xs text-charcoal/60 mt-1">
-                        {item.variant?.attributes?.map(attr => `${attr.name}: ${attr.value}`).join(' | ')}
+                        {item.variant?.attributes?.map(attr => {
+                           const isColor = attr.name.toLowerCase().includes('color');
+                           const displayVal = isColor ? attr.value.replace(/\s*\(#[^\)]+\)\s*/g, '') : attr.value;
+                           return `${attr.name}: ${displayVal}`;
+                        }).join(' | ')}
                       </p>
                       <p className="font-sans text-xs text-charcoal/60">Qty: {item.quantity}</p>
                     </div>

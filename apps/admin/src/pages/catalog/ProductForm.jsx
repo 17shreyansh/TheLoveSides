@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../lib/api';
-import { Upload, Plus, Trash2, Tag, Box, Info, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Upload, Plus, Trash2, Tag, Box, Info, Image as ImageIcon, Loader2, AlertCircle } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { TagInput } from '../../components/TagInput';
@@ -10,38 +10,49 @@ import { MultiSelect } from '../../components/MultiSelect';
 
 const ColorAttributeInput = ({ values, onChange }) => {
   const [colorValue, setColorValue] = useState('#000000');
+  const [colorName, setColorName] = useState('');
 
-  const handleAddHex = () => {
-    if (!values.includes(colorValue)) {
-      onChange([...values, colorValue]);
+  const handleAdd = () => {
+    if (!colorName.trim()) return;
+    const formatted = `${colorName.trim()} (${colorValue})`;
+    if (!values.includes(formatted)) {
+      onChange([...values, formatted]);
+      setColorName('');
     }
   };
 
   return (
-    <div className="flex items-start gap-3 w-full">
-      <div className="flex-1">
-        <TagInput 
-          tags={values || []}
-          onChange={onChange}
-          placeholder="e.g. Red, Blue, #Hex"
-        />
-      </div>
-      <div className="flex items-center gap-2 border border-gray-200 rounded-lg p-1 bg-white mt-1 shrink-0">
+    <div className="flex flex-col gap-2 w-full">
+      <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg p-2">
         <input 
           type="color" 
           value={colorValue}
           onChange={e => setColorValue(e.target.value)}
-          className="w-7 h-7 p-0 border-0 rounded cursor-pointer"
+          className="w-8 h-8 p-0 border-0 rounded cursor-pointer shrink-0"
           title="Pick a color"
+        />
+        <input 
+          type="text" 
+          value={colorName}
+          onChange={e => setColorName(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAdd())}
+          placeholder="Color Name (e.g. Navy Blue)"
+          className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:border-pink-primary"
         />
         <button 
           type="button"
-          onClick={handleAddHex}
-          className="px-2 py-1 text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-charcoal rounded transition-colors"
+          onClick={handleAdd}
+          disabled={!colorName.trim()}
+          className="px-3 py-1.5 text-xs font-semibold bg-charcoal text-white hover:bg-black rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Add
+          Add Color
         </button>
       </div>
+      <TagInput 
+        tags={values || []}
+        onChange={onChange}
+        placeholder="Or type raw format (Name (#Hex))"
+      />
     </div>
   );
 };
@@ -55,6 +66,7 @@ export default function ProductForm() {
   const [rooms, setRooms] = useState([]);
   const [collections, setCollections] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [formError, setFormError] = useState(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -362,7 +374,8 @@ export default function ProductForm() {
       console.error(err);
       const apiError = err.response?.data?.error;
       const errorMessage = typeof apiError === 'object' ? apiError.message : (apiError || err.response?.data?.message || 'Failed to save product');
-      alert(errorMessage);
+      setFormError(errorMessage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -370,6 +383,15 @@ export default function ProductForm() {
 
   return (
     <form onSubmit={handleSubmit} className="relative pb-20">
+      {formError && (
+        <div className="mb-6 mx-auto max-w-6xl p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+          <div>
+            <h3 className="text-sm font-bold text-red-800">Error saving product</h3>
+            <p className="text-sm text-red-700 mt-1">{formError}</p>
+          </div>
+        </div>
+      )}
       {/* Sticky Header */}
       <div className="sticky top-0 z-40 -mx-8 px-8 py-4 mb-8 bg-[#fdfdfc]/80 backdrop-blur-md border-b border-charcoal/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

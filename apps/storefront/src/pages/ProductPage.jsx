@@ -83,7 +83,7 @@ export default function ProductPage() {
   };
 
   const currentPrice = selectedVariant?.price || product.price;
-  const currentComparePrice = selectedVariant?.compareAtPrice || (product.price * 1.4);
+  const currentComparePrice = selectedVariant?.compareAtPrice || product.compareAtPrice;
   const inStock = selectedVariant ? selectedVariant.isPurchasable : true;
 
   const handleAddToCart = (e) => {
@@ -164,10 +164,16 @@ export default function ProductPage() {
               {product.attributes?.map((attr, idx) => {
                 const isColor = attr.name.toLowerCase().includes('color');
                 
+                const getDisplayName = (val) => isColor ? val.replace(/\s*\(#[^\)]+\)\s*/g, '') : val;
+                const getHex = (val) => {
+                  const match = val.match(/\((#[^\)]+)\)/);
+                  return match ? match[1] : (val.startsWith('#') || val.startsWith('rgb') ? val : val.toLowerCase().replace(/[^a-z]/g, '') || '#ccc');
+                };
+
                 return (
                   <div key={idx}>
                     <span className="font-sans font-semibold text-charcoal block mb-3">
-                      {attr.name}: <span className="font-normal text-gray-600">{selectedOptions[attr.name]}</span>
+                      {attr.name}: <span className="font-normal text-gray-600">{selectedOptions[attr.name] ? getDisplayName(selectedOptions[attr.name]) : ''}</span>
                     </span>
                     
                     {isColor ? (
@@ -181,11 +187,11 @@ export default function ProductPage() {
                               className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                                 isSelected ? 'ring-2 ring-offset-2 ring-pink-primary' : 'ring-1 ring-gray-200 hover:ring-pink-primary/50'
                               }`}
-                              title={val}
+                              title={getDisplayName(val)}
                             >
                               <span 
                                 className="w-8 h-8 rounded-full shadow-inner border border-black/5" 
-                                style={{ backgroundColor: (val.startsWith('#') || val.startsWith('rgb')) ? val : (val.toLowerCase().replace(/[^a-z]/g, '') || '#ccc') }}
+                                style={{ backgroundColor: getHex(val) }}
                               />
                             </button>
                           );
