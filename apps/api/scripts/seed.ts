@@ -7,8 +7,7 @@ import { hashPassword } from '../src/utils/password.js';
 import { Role, ALL_PERMISSIONS } from '../src/models/Role.js';
 import { AdminUser } from '../src/models/AdminUser.js';
 import { CmsPage } from '../src/models/CmsPage.js';
-import { Category } from '../src/models/Category.js';
-import { Attribute } from '../src/models/Attribute.js';
+import { Collection } from '../src/models/Collection.js';
 import { Product } from '../src/models/Product.js';
 import { ProductVariant } from '../src/models/ProductVariant.js';
 import { Inventory } from '../src/models/Inventory.js';
@@ -83,33 +82,20 @@ async function seedDatabase() {
       );
     }
 
-    // 4. Categories & Placeholder Products
-    logger.info('Seeding categories and products...');
+    // 4. Collections & Placeholder Products
+    logger.info('Seeding collections and products...');
     
-    // Category 1: Rings
-    const ringsCat = await Category.findOneAndUpdate(
+    // Collection 1: Rings
+    const ringsCol = await Collection.findOneAndUpdate(
       { slug: 'rings' },
-      { name: 'Rings', slug: 'rings', description: 'Beautiful handcrafted rings.', isActive: true },
+      { name: 'Rings', slug: 'rings', description: 'Beautiful handcrafted rings.', isActive: true, sortOrder: 1 },
       { new: true, upsert: true }
     );
 
-    // Category 2: Necklaces
-    const necklacesCat = await Category.findOneAndUpdate(
+    // Collection 2: Necklaces
+    const necklacesCol = await Collection.findOneAndUpdate(
       { slug: 'necklaces' },
-      { name: 'Necklaces', slug: 'necklaces', description: 'Elegant necklaces for every occasion.', isActive: true },
-      { new: true, upsert: true }
-    );
-
-    // Attributes
-    const materialAttr = await Attribute.findOneAndUpdate(
-      { slug: 'material' },
-      { name: 'Material', slug: 'material', type: 'select', isVariantDefining: true, values: [{ value: '18k White Gold', sortOrder: 0 }, { value: 'Sterling Silver', sortOrder: 1 }] },
-      { new: true, upsert: true }
-    );
-
-    const sizeAttr = await Attribute.findOneAndUpdate(
-      { slug: 'size' },
-      { name: 'Size', slug: 'size', type: 'select', isVariantDefining: true, values: [{ value: '7', sortOrder: 0 }] },
+      { name: 'Necklaces', slug: 'necklaces', description: 'Elegant necklaces for every occasion.', isActive: true, sortOrder: 2 },
       { new: true, upsert: true }
     );
 
@@ -120,9 +106,13 @@ async function seedDatabase() {
         name: 'Classic Diamond Ring',
         slug: 'classic-diamond-ring',
         description: 'A timeless classic diamond ring made with 18k white gold.',
-        categoryId: ringsCat._id,
+        collectionIds: [ringsCol._id],
         isActive: true,
         status: 'published',
+        attributes: [
+          { name: 'Material', values: ['18k White Gold'] },
+          { name: 'Size', values: ['7'] }
+        ]
       });
 
       const variant1 = await ProductVariant.create({
@@ -130,8 +120,8 @@ async function seedDatabase() {
         sku: 'RNG-DIA-01-WHT',
         price: 50000,
         attributes: [
-          { attributeId: materialAttr._id, name: materialAttr.name, value: '18k White Gold' },
-          { attributeId: sizeAttr._id, name: sizeAttr.name, value: '7' }
+          { name: 'Material', value: '18k White Gold' },
+          { name: 'Size', value: '7' }
         ],
       });
 
@@ -145,9 +135,12 @@ async function seedDatabase() {
         name: 'Pearl Pendant Necklace',
         slug: 'pearl-pendant-necklace',
         description: 'A beautiful freshwater pearl pendant on a silver chain.',
-        categoryId: necklacesCat._id,
+        collectionIds: [necklacesCol._id],
         isActive: true,
         status: 'published',
+        attributes: [
+          { name: 'Material', values: ['Sterling Silver'] }
+        ]
       });
 
       const variant2 = await ProductVariant.create({
@@ -155,7 +148,7 @@ async function seedDatabase() {
         sku: 'NCK-PRL-01-SLV',
         price: 15000,
         attributes: [
-          { attributeId: materialAttr._id, name: materialAttr.name, value: 'Sterling Silver' }
+          { name: 'Material', value: 'Sterling Silver' }
         ],
       });
 
