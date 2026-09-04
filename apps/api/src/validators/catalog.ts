@@ -90,6 +90,10 @@ export const createProductSchema = z.object({
   description: z.string().optional(),
   highlights: z.array(z.string()).default([]),
   specifications: z.string().optional(),
+  specificationTable: z.array(z.object({
+    name: z.string().min(1),
+    value: z.string().min(1),
+  })).default([]),
   brand: z.string().optional(),
   roomIds: z.array(z.string().length(24)).default([]),
   collectionIds: z.array(z.string().length(24)).default([]),

@@ -22,6 +22,7 @@ export interface IProduct extends Document {
   description?: string;
   highlights: string[];
   specifications?: string;
+  specificationTable?: { name: string; value: string }[];
   brand?: string;
   roomIds: Types.ObjectId[];
   collectionIds: Types.ObjectId[];
@@ -81,6 +82,10 @@ const productSchema = new Schema<IProduct>(
     description: { type: String }, // Rich text / HTML (sanitized)
     highlights: [{ type: String }],
     specifications: { type: String },
+    specificationTable: [{
+      name: { type: String, required: true, trim: true },
+      value: { type: String, required: true, trim: true }
+    }],
     brand: { type: String, trim: true },
     roomIds: [{
       type: Schema.Types.ObjectId,

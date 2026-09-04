@@ -80,6 +80,7 @@ export default function ProductForm() {
     attributes: [],
     highlights: [],
     specifications: '',
+    specificationTable: [],
     
     // Base Variant Fields
     sku: '',
@@ -118,6 +119,9 @@ export default function ProductForm() {
             ...product,
             roomIds: (product.roomIds || []).map(r => typeof r === 'object' ? r._id : r),
             collectionIds: (product.collectionIds || []).map(c => typeof c === 'object' ? c._id : c),
+            highlights: product.highlights || [],
+            specifications: product.specifications || '',
+            specificationTable: product.specificationTable || [],
             sku: baseVariant.sku || '',
             price: baseVariant.price || '',
             compareAtPrice: baseVariant.compareAtPrice || '',
@@ -180,6 +184,28 @@ export default function ProductForm() {
     setFormData(prev => ({
       ...prev,
       highlights: (prev.highlights || []).filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleAddSpecRow = () => {
+    setFormData(prev => ({
+      ...prev,
+      specificationTable: [...(prev.specificationTable || []), { name: '', value: '' }]
+    }));
+  };
+
+  const handleUpdateSpecRow = (index, field, val) => {
+    setFormData(prev => {
+      const newTable = [...(prev.specificationTable || [])];
+      newTable[index] = { ...newTable[index], [field]: val };
+      return { ...prev, specificationTable: newTable };
+    });
+  };
+
+  const handleRemoveSpecRow = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      specificationTable: (prev.specificationTable || []).filter((_, i) => i !== index)
     }));
   };
 
@@ -327,6 +353,9 @@ export default function ProductForm() {
       }
       if (payload.attributes) {
         payload.attributes = payload.attributes.filter(a => a.name.trim() !== '' && a.values.length > 0);
+      }
+      if (payload.specificationTable) {
+        payload.specificationTable = payload.specificationTable.filter(row => row.name.trim() !== '' && row.value.trim() !== '');
       }
 
       // Populate base variant
@@ -486,6 +515,41 @@ export default function ProductForm() {
                   ))}
                   {(!formData.highlights || formData.highlights.length === 0) && (
                     <div className="text-sm text-gray-400 italic py-2">No highlights added. Storefront will use default fallback text.</div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="pt-4 border-t border-charcoal/10">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-semibold text-charcoal">Specifications Table</label>
+                  <button type="button" onClick={handleAddSpecRow} className="text-xs text-pink-primary font-semibold hover:underline">
+                    + Add Row
+                  </button>
+                </div>
+                <div className="space-y-3 mt-3">
+                  {(formData.specificationTable || []).map((row, index) => (
+                    <div key={index} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={row.name}
+                        onChange={(e) => handleUpdateSpecRow(index, 'name', e.target.value)}
+                        placeholder="e.g. Material"
+                        className="w-1/3 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all"
+                      />
+                      <input
+                        type="text"
+                        value={row.value}
+                        onChange={(e) => handleUpdateSpecRow(index, 'value', e.target.value)}
+                        placeholder="e.g. 100% Solid Wood"
+                        className="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all"
+                      />
+                      <button type="button" onClick={() => handleRemoveSpecRow(index)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ))}
+                  {(!formData.specificationTable || formData.specificationTable.length === 0) && (
+                    <div className="text-sm text-gray-400 italic py-2">No table specifications added.</div>
                   )}
                 </div>
               </div>

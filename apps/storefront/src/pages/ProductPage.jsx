@@ -357,7 +357,22 @@ export default function ProductPage() {
                             <div dangerouslySetInnerHTML={{ __html: product.description || "Our signature curtains are woven with uncompromising attention to detail. Designed to drape beautifully from the moment they are hung, they offer the perfect balance of privacy and natural light." }} />
                           )}
                           {tab === 'specifications' && (
-                            <div dangerouslySetInnerHTML={{ __html: product.specifications || "Sold as single panels. 100% premium fabric. Dry clean only. Includes matching tie-back. Stainless steel grommets or rod pocket available upon request." }} />
+                            <div className="space-y-6">
+                              <div dangerouslySetInnerHTML={{ __html: product.specifications || "Sold as single panels. 100% premium fabric. Dry clean only. Includes matching tie-back. Stainless steel grommets or rod pocket available upon request." }} />
+                              
+                              {product.specificationTable && product.specificationTable.length > 0 && (
+                                <div className="mt-8">
+                                  <div className="flex flex-col gap-1 sm:gap-2">
+                                    {product.specificationTable.map((row, idx) => (
+                                      <div key={idx} className="flex flex-col sm:flex-row p-4 sm:p-5 rounded-2xl hover:bg-pink-50/40 transition-colors duration-300 group">
+                                        <div className="w-full sm:w-1/3 font-semibold text-charcoal/80 text-sm font-sans mb-1 sm:mb-0 group-hover:text-charcoal transition-colors tracking-wide">{row.name}</div>
+                                        <div className="w-full sm:w-2/3 text-gray-600 text-sm leading-relaxed font-sans group-hover:text-gray-900 transition-colors">{row.value}</div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           )}
                           {tab === 'shipping' && (
                             <div>Free standard shipping on all orders over ₹200. Standard delivery takes 3-5 business days. Expedited shipping is available at checkout.</div>

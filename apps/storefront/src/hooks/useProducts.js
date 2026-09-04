@@ -28,6 +28,7 @@ export function useProducts(query = {}) {
             description: p.description,
             highlights: p.highlights || [],
             specifications: p.specifications || '',
+            specificationTable: p.specificationTable || [],
             attributes: p.attributes || [],
             variants: p.variants || [],
           }));
@@ -75,6 +76,7 @@ export function useProduct(identifier) {
             description: p.description,
             highlights: p.highlights || [],
             specifications: p.specifications || '',
+            specificationTable: p.specificationTable || [],
             attributes: p.attributes || [],
             variants: p.variants || [],
           };
