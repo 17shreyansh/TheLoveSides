@@ -156,14 +156,14 @@ const DEFAULT_THEME_SETTINGS = [
   }
 ];
 
-export async function getPublicSettings(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getPublicSettings(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     let settings = await Setting.find({ isPublic: true }).lean();
 
     // Auto-seed theme settings if none exist
     if (settings.length === 0) {
       const inserted = await Setting.insertMany(DEFAULT_THEME_SETTINGS);
-      settings = inserted.map(doc => doc.toObject());
+      settings = inserted.map(doc => doc.toObject() as any);
     }
 
     sendSuccess({ res, data: settings });

@@ -12,7 +12,7 @@ export const getPageBySlug = async (req: Request, res: Response, next: NextFunct
     }).select('-__v -publishedBy');
 
     if (!page) {
-      sendError({ res, statusCode: 404, message: 'Page not found' });
+      sendError(res, 404, 'NOT_FOUND', 'Page not found');
       return;
     }
 
