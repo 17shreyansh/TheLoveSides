@@ -28,8 +28,14 @@ export async function updateSettings(req: Request, res: Response, next: NextFunc
     for (const item of settings) {
       const setting = await Setting.findOneAndUpdate(
         { key: item.key },
-        { value: item.value },
-        { new: true, upsert: false } // Only update existing to avoid accidental inserts
+        { 
+          $set: { value: item.value },
+          $setOnInsert: { 
+            group: item.key.startsWith('theme.') ? 'theme' : 'general',
+            isPublic: item.key.startsWith('theme.') 
+          }
+        },
+        { new: true, upsert: true }
       );
       if (setting) updatedSettings.push(setting);
     }

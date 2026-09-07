@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { api } from '../../lib/api';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
-
+import RichTextEditor from '../../components/ui/RichTextEditor';
 export default function CmsPageForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -123,14 +123,10 @@ export default function CmsPageForm() {
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <label className="block text-sm font-medium text-charcoal">Content (Markdown or HTML) *</label>
-            <textarea
-              name="content"
-              required
-              rows={15}
+            <label className="block text-sm font-medium text-charcoal mb-2">Content (Rich Text) *</label>
+            <RichTextEditor
               value={formData.content || ''}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition-colors font-mono text-sm"
+              onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
             />
           </div>
 

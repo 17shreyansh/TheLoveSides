@@ -1,10 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import Button from '../ui/Button';
+import { useTheme } from '../../context/ThemeContext';
 import HeroImageDesktop from '../../assets/images/heroimg.jpeg';
 import HeroImageMobile from '../../assets/images/HeroImage2.jpeg';
 
 export default function Hero() {
+  const { hero } = useTheme();
+
   // Stagger animation setup
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -50,34 +54,41 @@ export default function Hero() {
           <motion.h1 
             variants={itemVariants}
             className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif leading-[1.2] md:leading-[1.05] text-ivory md:text-black mb-4 md:mb-6"
-          >
-            Curtains & <br className="md:hidden" /> Quiet Luxury
-          </motion.h1>
+            dangerouslySetInnerHTML={{ __html: hero?.title || 'Curtains & <br class="md:hidden" /> Quiet Luxury' }}
+          />
           
           <motion.p 
             variants={itemVariants}
             className="hidden md:block text-lg md:text-xl text-black/80 font-sans mb-10 leading-relaxed"
           >
-            Shop our exclusive collection of premium curtains and blinds. Discover high-quality fabrics, custom sizing, and effortless style to elevate any room.
+            {hero?.description || 'Shop our exclusive collection of premium curtains and blinds. Discover high-quality fabrics, custom sizing, and effortless style to elevate any room.'}
           </motion.p>
           
           <motion.p 
             variants={itemVariants}
             className="md:hidden text-base text-ivory/80 font-sans mb-8 leading-relaxed"
           >
-            Home, Styled with Love
+            {hero?.subtitle || 'Home, Styled with Love'}
           </motion.p>
           
           <motion.div 
             variants={itemVariants}
             className="flex gap-4 flex-wrap"
           >
-            <Button className="!bg-pink-primary !text-white hover:!bg-pink-dark hover:shadow-lg px-8">
-              Shop Curtains
-            </Button>
-            <Button className="!bg-ivory/10 md:!bg-black/5 !border !border-ivory/40 md:!border-black/20 !text-ivory md:!text-black hover:!bg-ivory hover:!text-hero-dark md:hover:!bg-black md:hover:!text-white px-8">
-              Book Free Consultation
-            </Button>
+            {hero?.button1Text && (
+              <Link to={hero?.button1Link || '/products'}>
+                <Button className="!bg-pink-primary !text-white hover:!bg-pink-dark hover:shadow-lg px-8">
+                  {hero?.button1Text}
+                </Button>
+              </Link>
+            )}
+            {hero?.button2Text && (
+              <Link to={hero?.button2Link || '/contact'}>
+                <Button className="!bg-ivory/10 md:!bg-black/5 !border !border-ivory/40 md:!border-black/20 !text-ivory md:!text-black hover:!bg-ivory hover:!text-hero-dark md:hover:!bg-black md:hover:!text-white px-8">
+                  {hero?.button2Text}
+                </Button>
+              </Link>
+            )}
           </motion.div>
           
         </motion.div>

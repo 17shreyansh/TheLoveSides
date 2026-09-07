@@ -21,7 +21,8 @@ import {
   Star,
   FileText,
   History,
-  Ticket
+  Ticket,
+  Palette
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -89,6 +90,7 @@ export default function AdminLayout() {
       label: 'System & Settings',
       items: [
         { name: 'General Settings', href: '/settings', icon: Settings },
+        { name: 'Theme', href: '/settings/theme', icon: Palette },
         { name: 'Tax Rules', href: '/settings/taxes', icon: Percent },
         { name: 'Shipping Zones', href: '/settings/shipping', icon: Truck },
         { name: 'Users & Roles', href: '/settings/users', icon: Shield },

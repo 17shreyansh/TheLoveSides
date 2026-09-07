@@ -1,7 +1,7 @@
 import React from 'react';
 import { Heart, MessageCircle, Play } from 'lucide-react';
 import RevealOnScroll from '../ui/RevealOnScroll';
-import { socialPosts } from '../../data/homeData';
+import { useTheme } from '../../context/ThemeContext';
 
 // Custom SVG for Instagram since lucide-react removed brand icons
 const InstagramIcon = ({ className, strokeWidth = 1.5 }) => (
@@ -24,6 +24,8 @@ const InstagramIcon = ({ className, strokeWidth = 1.5 }) => (
 );
 
 export default function SocialFeed() {
+  const { socialFeed = [] } = useTheme();
+
   return (
     <section className="py-8 md:py-12 bg-cream/30 relative overflow-hidden" id="social-feed">
       {/* Decorative background elements */}
@@ -53,7 +55,7 @@ export default function SocialFeed() {
 
         {/* CSS Grid Masonry Layout */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 auto-rows-[120px] sm:auto-rows-[150px] md:auto-rows-[180px] lg:auto-rows-[200px]">
-          {socialPosts.slice(0, 6).map((img, idx) => {
+          {socialFeed.slice(0, 6).map((img, idx) => {
             let spanClasses = "";
             let hasPlayIcon = false;
 

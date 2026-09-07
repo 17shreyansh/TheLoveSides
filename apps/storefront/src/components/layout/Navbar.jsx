@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 import { useCart } from '../../context/CartContext';
 import { useFlyToCart } from '../../context/FlyToCartContext';
-import { navLinks } from '../../data/homeData';
+import { useTheme } from '../../context/ThemeContext';
 import MobileMenu from './MobileMenu';
 import NavbarRibbon from './NavbarRibbon';
 import clsx from 'clsx';
@@ -12,6 +12,7 @@ import Badge from '../ui/Badge';
 import CartDrawer from '../cart/CartDrawer';
 
 export default function Navbar() {
+  const { navbarLinks } = useTheme();
   const { scrollY, showRibbon } = useScrollDirection();
   const { state } = useCart();
   const { cartIconRef } = useFlyToCart();
@@ -123,7 +124,7 @@ export default function Navbar() {
         {/* ROW 3: Categories (Desktop Only) */}
         <div className="hidden md:flex w-full md:py-3 lg:py-2 border-b border-charcoal/10 bg-cream">
           <nav className="max-w-7xl mx-auto px-4 md:px-6 lg:px-10 flex justify-start xl:justify-center gap-6 lg:gap-8 xl:gap-10 w-full overflow-x-auto no-scrollbar">
-            {navLinks.map((link) => (
+            {(navbarLinks || []).map((link) => (
               <Link 
                 key={link.title} 
                 to={link.href}

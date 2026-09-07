@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Gift } from 'lucide-react';
-import { promoOffers } from '../../data/homeData';
-
+import { useTheme } from '../../context/ThemeContext';
 import clsx from 'clsx';
 
 export default function NavbarRibbon({ isVisible }) {
+  const { promoOffers = [] } = useTheme();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
+    if (!promoOffers || promoOffers.length === 0) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % promoOffers.length);
     }, 4000);
     return () => clearInterval(timer);
-  }, []);
+  }, [promoOffers]);
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? promoOffers.length - 1 : prev - 1));

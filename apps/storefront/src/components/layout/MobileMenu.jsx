@@ -2,10 +2,12 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { navLinks } from '../../data/homeData';
+import { useTheme } from '../../context/ThemeContext';
 import LogoImage from '../../assets/images/LogoProcessed.png';
 
 export default function MobileMenu({ isOpen, onClose }) {
+  const { navbarLinks } = useTheme();
+  
   // Prevent body scroll when menu is open
   React.useEffect(() => {
     if (isOpen) {
@@ -60,7 +62,7 @@ export default function MobileMenu({ isOpen, onClose }) {
             </div>
             
             <nav className="flex flex-col gap-6 font-sans text-lg text-charcoal font-medium">
-              {navLinks.map((link) => (
+              {(navbarLinks || []).map((link) => (
                 <Link 
                   key={link.title} 
                   to={link.href} 

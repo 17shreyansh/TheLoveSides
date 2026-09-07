@@ -25,6 +25,8 @@ import paymentRouter from './routes/payment.js';
 import webhooksRouter from './routes/webhooks.js';
 import wishlistRouter from './routes/wishlist.js';
 import reviewsRouter from './routes/reviews.js';
+import settingsRouter from './routes/settings.js';
+import pagesRouter from './routes/pages.js';
 
 export const app = express();
 
@@ -78,6 +80,8 @@ app.use('/api/v1/payments', paymentRouter);
 app.use('/api/v1/webhooks', webhooksRouter);
 app.use('/api/v1/wishlist', wishlistRouter);
 app.use('/api/v1/reviews', reviewsRouter);
+app.use('/api/v1/settings', settingsRouter);
+app.use('/api/v1/pages', pagesRouter);
 app.use('/api/v1/admin/catalog', adminCatalogRouter);
 app.use('/api/v1/admin/inventory', adminInventoryRouter);
 app.use('/api/v1/admin/upload', adminUploadRouter);

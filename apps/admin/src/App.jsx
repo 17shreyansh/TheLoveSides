@@ -23,6 +23,7 @@ import TaxesSettings from './pages/settings/TaxesSettings';
 import ShippingSettings from './pages/settings/ShippingSettings';
 import UsersList from './pages/settings/UsersList';
 import AuditLogsList from './pages/settings/AuditLogsList';
+import ThemeSettings from './pages/settings/ThemeSettings';
 import CollectionsList from './pages/catalog/CollectionsList';
 import CollectionForm from './pages/catalog/CollectionForm';
 import RoomsList from './pages/catalog/RoomsList';
@@ -78,6 +79,7 @@ function App() {
             <Route path="/settings/taxes" element={<TaxesSettings />} />
             <Route path="/settings/shipping" element={<ShippingSettings />} />
             <Route path="/settings/users" element={<UsersList />} />
+            <Route path="/settings/theme" element={<ThemeSettings />} />
             <Route path="/settings/audit-logs" element={<AuditLogsList />} />
             
             <Route path="*" element={<div className="p-8 text-center text-charcoal/50">Page Not Found</div>} />

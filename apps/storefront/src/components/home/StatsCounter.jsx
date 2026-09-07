@@ -1,9 +1,11 @@
 import React from 'react';
 import RevealOnScroll from '../ui/RevealOnScroll';
 import AnimatedCounter from '../ui/AnimatedCounter';
-import { stats } from '../../data/homeData';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function StatsCounter() {
+  const { stats = [] } = useTheme();
+
   return (
     <section className="bg-ivory py-10 md:py-16">
       <div className="max-w-7xl mx-auto px-6 md:px-10">

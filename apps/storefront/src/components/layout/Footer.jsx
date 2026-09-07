@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { footerLinks } from '../../data/homeData';
+import { useTheme } from '../../context/ThemeContext';
 import NewsletterCTA from './NewsletterCTA';
 import LogoImage from '../../assets/images/LogoProcessed.png';
 
 export default function Footer() {
+  const { footerLinks } = useTheme();
+
   return (
     <footer className="bg-hero-dark text-ivory pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
@@ -53,7 +55,7 @@ export default function Footer() {
 
           {/* Link Columns */}
           <div className="md:col-span-2 grid grid-cols-2 gap-8">
-            {footerLinks.map((section) => (
+            {(footerLinks || []).map((section) => (
               <div key={section.title}>
                 <h4 className="font-serif text-lg mb-4 text-ivory">{section.title}</h4>
                 <ul className="space-y-2">

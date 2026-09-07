@@ -1,10 +1,12 @@
 import React from 'react';
 import SectionHeading from '../ui/SectionHeading';
 import RevealOnScroll from '../ui/RevealOnScroll';
-import { features } from '../../data/homeData';
+import { useTheme } from '../../context/ThemeContext';
 import * as Icons from 'lucide-react';
 
 export default function WhyChooseUs() {
+  const { features } = useTheme();
+  
   return (
     <section className="py-10 md:py-16 bg-ivory">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
@@ -16,7 +18,7 @@ export default function WhyChooseUs() {
         </RevealOnScroll>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 text-center mt-8 md:mt-12">
-          {features.map((feature, idx) => {
+          {(features || []).map((feature, idx) => {
             const Icon = Icons[feature.icon];
             return (
               <RevealOnScroll key={feature.id} delay={idx * 0.1}>

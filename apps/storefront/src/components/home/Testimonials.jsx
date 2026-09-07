@@ -2,10 +2,12 @@ import React from 'react';
 import SectionHeading from '../ui/SectionHeading';
 import RevealOnScroll from '../ui/RevealOnScroll';
 import ResponsiveCardSlider from '../ui/ResponsiveCardSlider';
-import { testimonials } from '../../data/homeData';
+import { useTheme } from '../../context/ThemeContext';
 import { Star } from 'lucide-react';
 
 export default function Testimonials() {
+  const { testimonials = [] } = useTheme();
+
   const renderTestimonial = (testimonial, idx) => (
     <RevealOnScroll delay={idx * 0.1} className="h-full w-full flex justify-center">
       <div className="bg-ivory rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow flex-1 flex flex-col border border-pink-primary/10 max-w-sm mx-auto min-h-[260px]">
