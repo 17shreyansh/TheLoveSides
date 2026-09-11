@@ -80,7 +80,16 @@ export default function ProductForm() {
     attributes: [],
     highlights: [],
     specifications: '',
-    specificationTable: [],
+    specificationTable: [
+      { name: 'Color', value: 'Pastel Shades' },
+      { name: 'Material', value: 'Georgette Ruffle Cotton Base' },
+      { name: 'Opacity', value: 'Blackout' },
+      { name: 'Special Feature', value: 'Easy Hanging' },
+      { name: 'Room Type', value: 'Any' },
+      { name: 'Style', value: 'Simple' },
+      { name: 'Pattern', value: 'Solid' },
+      { name: 'Theme', value: 'Ruffle' }
+    ],
     
     // Base Variant Fields
     sku: '',
