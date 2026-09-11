@@ -12,6 +12,7 @@ import OrderSuccessPage from './pages/OrderSuccessPage';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import CmsPage from './pages/CmsPage';
+import TrackPage from './pages/TrackPage';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/best-sellers" element={<CategoryPage type="bestsellers" />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/order-success" element={<OrderSuccessPage />} />
+                <Route path="/track" element={<TrackPage />} />
                 <Route path="/pages/:slug" element={<CmsPage />} />
               </Routes>
             </main>

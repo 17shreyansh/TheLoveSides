@@ -38,6 +38,7 @@ export async function calculateCartPricing(
   cartItems: ICartItem[],
   couponCode?: string,
   userId?: string,
+  shippingMethod?: { rate: number }
 ): Promise<CartPricing> {
   if (!cartItems || cartItems.length === 0) {
     return {
@@ -114,11 +115,16 @@ export async function calculateCartPricing(
   // For now, prices are tax-inclusive (Indian e-commerce standard)
   const taxAmount = 0;
 
-  // 5. Calculate shipping (placeholder — configurable via settings/Shiprocket)
-  // Free shipping above threshold, flat rate otherwise
-  const FREE_SHIPPING_THRESHOLD = 2000; // ₹2000
-  const FLAT_SHIPPING_RATE = 99; // ₹99
-  const shippingAmount = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING_RATE;
+  // 5. Calculate shipping
+  let shippingAmount = 0;
+  if (shippingMethod && typeof shippingMethod.rate === 'number') {
+    shippingAmount = shippingMethod.rate;
+  } else {
+    // Fallback: Free shipping above threshold, flat rate otherwise
+    const FREE_SHIPPING_THRESHOLD = 2000; // ₹2000
+    const FLAT_SHIPPING_RATE = 99; // ₹99
+    shippingAmount = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING_RATE;
+  }
 
   // 6. Grand total
   const grandTotal = Math.max(0, subtotal - discountAmount + taxAmount + shippingAmount);

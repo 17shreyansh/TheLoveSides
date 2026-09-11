@@ -175,3 +175,39 @@ export async function trackMyShipment(req: Request, res: Response, next: NextFun
     next(error);
   }
 }
+
+/**
+ * GET /shipping/track/:awb
+ * Public endpoint to track an AWB.
+ */
+export async function trackByAWB(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const awb = req.params.awb;
+    
+    if (!awb) {
+      throw ApiError.badRequest('AWB is required');
+    }
+
+    if (!isShiprocketConfigured) {
+      throw ApiError.badRequest('Shipping integration not configured');
+    }
+
+    const liveTracking = await trackAWB(awb);
+    
+    // Attempt to find local shipment to supplement info
+    const shipment = await Shipment.findOne({ awbCode: awb }).lean();
+
+    sendSuccess({
+      res,
+      data: {
+        status: shipment?.status || 'UNKNOWN',
+        awbCode: awb,
+        courierName: shipment?.courierName || null,
+        estimatedDeliveryDate: shipment?.estimatedDeliveryDate || null,
+        liveTracking,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}

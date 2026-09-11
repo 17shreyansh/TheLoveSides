@@ -21,7 +21,7 @@ import { hashPassword } from '../../utils/password.js';
  */
 export async function initiateCheckout(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { email, shippingAddress, billingAddress, couponCode, customerNotes } = req.body;
+    const { email, shippingAddress, billingAddress, couponCode, customerNotes, shippingMethod } = req.body;
 
     let userId = req.user?.id;
 
@@ -57,6 +57,7 @@ export async function initiateCheckout(req: Request, res: Response, next: NextFu
       couponCode,
       customerNotes,
       idempotencyKey,
+      shippingMethod,
     });
 
     sendSuccess({

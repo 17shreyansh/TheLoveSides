@@ -4,6 +4,7 @@ import { ArrowLeft, Check, ChevronDown, Info, Ruler, Truck, Shield, RefreshCw, C
 import { useCart } from '../context/CartContext';
 import { useFlyToCart } from '../context/FlyToCartContext';
 import { useProduct, useProducts } from '../hooks/useProducts';
+import { api } from '../lib/api';
 import Button from '../components/ui/Button';
 import StarRating from '../components/ui/StarRating';
 import ProductCard from '../components/ui/ProductCard';
@@ -24,6 +25,12 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
+
+  // Pincode state
+  const [pincode, setPincode] = useState('');
+  const [checkingPincode, setCheckingPincode] = useState(false);
+  const [serviceability, setServiceability] = useState(null);
+  const [pincodeError, setPincodeError] = useState('');
 
   // Mock related products (excluding current product)
   const relatedProducts = relatedProductsArray.filter(p => p.slug !== slug).slice(0, 3);
@@ -95,6 +102,27 @@ export default function ProductPage() {
     addToCart(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
+  };
+
+  const handleCheckPincode = async () => {
+    if (!/^\d{6}$/.test(pincode)) {
+      setPincodeError('Please enter a valid 6-digit PIN code');
+      setServiceability(null);
+      return;
+    }
+
+    setCheckingPincode(true);
+    setPincodeError('');
+    setServiceability(null);
+
+    try {
+      const { data } = await api.get(`/shipping/check?pincode=${pincode}`);
+      setServiceability(data.data);
+    } catch (err) {
+      setPincodeError(err.response?.data?.message || 'Failed to check pincode. Please try again.');
+    } finally {
+      setCheckingPincode(false);
+    }
   };
 
   return (
@@ -276,12 +304,76 @@ export default function ProductPage() {
             </Button>
             
             {/* Delivery Estimate Box */}
-            <div className="flex items-center gap-4 p-4 mb-6 rounded-xl border border-pink-primary/20 bg-pink-primary/5">
-              <Calendar className="w-6 h-6 text-pink-primary flex-shrink-0" />
-              <div>
-                <p className="text-sm font-medium text-charcoal font-sans">Estimated Delivery</p>
-                <p className="text-xs text-gray-600 font-sans mt-0.5">Order today, delivers between <strong className="text-charcoal font-semibold">Oct 12 - Oct 15</strong>.</p>
+            <div className="mb-6 p-5 rounded-2xl border border-charcoal/10 bg-white shadow-sm">
+              <h3 className="text-sm font-sans font-semibold text-charcoal mb-3 flex items-center gap-2">
+                <Truck className="w-4 h-4 text-pink-primary" /> Delivery Options
+              </h3>
+              
+              <div className="flex gap-2 mb-3">
+                <input 
+                  type="text" 
+                  placeholder="Enter PIN Code" 
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-charcoal/20 focus:outline-none focus:border-pink-primary font-sans text-sm bg-gray-50/50"
+                  maxLength={6}
+                />
+                <Button 
+                  variant="outline" 
+                  className="px-6 py-2.5 !rounded-xl"
+                  onClick={handleCheckPincode}
+                  disabled={checkingPincode || pincode.length !== 6}
+                >
+                  {checkingPincode ? 'Checking...' : 'Check'}
+                </Button>
               </div>
+
+              {pincodeError && (
+                <p className="text-xs text-red-500 font-sans mt-1">{pincodeError}</p>
+              )}
+
+              <AnimatePresence>
+                {serviceability && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-4 pt-4 border-t border-charcoal/5"
+                  >
+                    {serviceability.serviceable ? (
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-3">
+                          <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-charcoal">Delivery available to {pincode}</p>
+                            {serviceability.estimatedDays && (
+                              <p className="text-xs text-gray-600 mt-0.5">
+                                Usually delivers in {serviceability.estimatedDays} days
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        {serviceability.codAvailable ? (
+                          <div className="flex items-start gap-3">
+                            <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                            <p className="text-sm font-medium text-charcoal">Cash on Delivery is available</p>
+                          </div>
+                        ) : (
+                          <div className="flex items-start gap-3">
+                            <Info className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                            <p className="text-sm font-medium text-charcoal">Cash on Delivery not available for this location</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-start gap-3">
+                        <Info className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                        <p className="text-sm font-medium text-red-600">Sorry, delivery is currently not available for this PIN code.</p>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             
             {/* Guarantee Badges */}

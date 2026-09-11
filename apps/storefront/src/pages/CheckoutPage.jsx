@@ -21,6 +21,49 @@ export default function CheckoutPage() {
     phone: '',
   });
 
+  const [shippingRates, setShippingRates] = useState([]);
+  const [loadingRates, setLoadingRates] = useState(false);
+  const [selectedRate, setSelectedRate] = useState(null);
+  const [ratesError, setRatesError] = useState('');
+
+  // Fetch shipping rates when pincode is valid
+  useEffect(() => {
+    if (/^\d{6}$/.test(formData.postalCode)) {
+      const fetchRates = async () => {
+        setLoadingRates(true);
+        setRatesError('');
+        try {
+          // In a real app, calculate total weight from cart
+          const { data } = await api.get(`/shipping/rates?pincode=${formData.postalCode}&weight=0.5`);
+          if (data.data?.rates?.length > 0) {
+            setShippingRates(data.data.rates);
+            // Auto-select the cheapest rate
+            const cheapest = data.data.rates.reduce((prev, curr) => prev.rate < curr.rate ? prev : curr);
+            setSelectedRate(cheapest);
+          } else {
+            setShippingRates([]);
+            setSelectedRate(null);
+            setRatesError('No shipping rates found for this PIN code');
+          }
+        } catch (err) {
+          setRatesError('Failed to fetch shipping rates');
+          setShippingRates([]);
+          setSelectedRate(null);
+        } finally {
+          setLoadingRates(false);
+        }
+      };
+      
+      // Debounce the fetch slightly
+      const timeoutId = setTimeout(fetchRates, 500);
+      return () => clearTimeout(timeoutId);
+    } else {
+      setShippingRates([]);
+      setSelectedRate(null);
+      setRatesError('');
+    }
+  }, [formData.postalCode]);
+
   useEffect(() => {
     // If cart is empty, go back to home
     if (!state.loading && state.items.length === 0) {
@@ -54,6 +97,11 @@ export default function CheckoutPage() {
         email: formData.email,
         shippingAddress,
         billingAddress: shippingAddress,
+        shippingMethod: selectedRate ? {
+          courierId: selectedRate.courierId,
+          courierName: selectedRate.courierName,
+          rate: selectedRate.rate
+        } : null
       }, { withCredentials: true });
 
       const { orderId } = data.data;
@@ -228,7 +276,55 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              <Button type="submit" variant="dark" className="w-full py-4 text-lg shadow-lg" disabled={loading}>
+              {/* Shipping Method Selection */}
+              {/^\d{6}$/.test(formData.postalCode) && (
+                <div className="bg-white p-6 md:p-8 rounded-2xl border border-charcoal/5 shadow-sm">
+                  <h2 className="font-serif text-xl text-charcoal mb-4">Shipping Method</h2>
+                  
+                  {loadingRates ? (
+                    <div className="flex items-center gap-3 text-charcoal/60 text-sm font-sans">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-pink-primary"></div>
+                      Fetching shipping rates...
+                    </div>
+                  ) : ratesError ? (
+                    <p className="text-sm text-red-500 font-sans">{ratesError}</p>
+                  ) : shippingRates.length > 0 ? (
+                    <div className="space-y-3">
+                      {shippingRates.map((rate) => (
+                        <label 
+                          key={rate.courierId} 
+                          className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
+                            selectedRate?.courierId === rate.courierId 
+                              ? 'border-pink-primary bg-pink-primary/5 shadow-sm' 
+                              : 'border-charcoal/10 hover:border-pink-primary/50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <input 
+                              type="radio" 
+                              name="shippingRate"
+                              checked={selectedRate?.courierId === rate.courierId}
+                              onChange={() => setSelectedRate(rate)}
+                              className="w-4 h-4 text-pink-primary focus:ring-pink-primary border-gray-300"
+                            />
+                            <div>
+                              <p className="font-medium font-sans text-charcoal text-sm">{rate.courierName}</p>
+                              {rate.estimatedDays && (
+                                <p className="text-xs text-charcoal/60 font-sans mt-0.5">Est. delivery: {rate.estimatedDays} days</p>
+                              )}
+                            </div>
+                          </div>
+                          <p className="font-semibold font-sans text-charcoal text-sm">
+                            ₹{rate.rate}
+                          </p>
+                        </label>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              )}
+
+              <Button type="submit" variant="dark" className="w-full py-4 text-lg shadow-lg" disabled={loading || (!selectedRate && shippingRates.length > 0)}>
                 {loading ? 'Processing...' : 'Pay Now'}
               </Button>
             </form>
@@ -270,7 +366,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-charcoal/80">
                   <span>Shipping</span>
-                  <span>Free</span>
+                  <span>{selectedRate ? `₹${selectedRate.rate}` : 'Calculated at next step'}</span>
                 </div>
                 <div className="flex justify-between text-charcoal/80">
                   <span>Taxes (included)</span>
@@ -280,7 +376,7 @@ export default function CheckoutPage() {
 
               <div className="border-t border-charcoal/10 mt-4 pt-4 flex justify-between font-serif text-xl text-charcoal">
                 <span>Total</span>
-                <span>₹{Number(state.subtotal).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                <span>₹{Number(state.subtotal + (selectedRate?.rate || 0)).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>

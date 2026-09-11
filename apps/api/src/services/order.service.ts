@@ -36,6 +36,11 @@ interface CreateOrderInput {
   couponCode?: string;
   customerNotes?: string;
   idempotencyKey?: string;
+  shippingMethod?: {
+    courierId: number;
+    courierName: string;
+    rate: number;
+  };
 }
 
 /**
@@ -80,6 +85,7 @@ export async function createOrderFromCart(input: CreateOrderInput) {
       cart.items,
       input.couponCode || cart.couponCode || undefined,
       input.userId,
+      input.shippingMethod
     );
 
     if (pricing.items.length === 0) {

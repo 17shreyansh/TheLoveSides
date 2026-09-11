@@ -8,6 +8,8 @@ export default function OrderDetails() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [trackingData, setTrackingData] = useState(null);
+  const [showTrackingModal, setShowTrackingModal] = useState(false);
 
   useEffect(() => {
     fetchOrder();
@@ -35,6 +37,58 @@ export default function OrderDetails() {
       fetchOrder(); // Reload to get updated timeline
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to update status');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleCreateShipment = async () => {
+    if (!window.confirm('Create shipment for this order?')) return;
+    setUpdating(true);
+    try {
+      await api.post(`/admin/orders/${id}/shipment`);
+      fetchOrder();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to create shipment');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleSchedulePickup = async (shipmentId) => {
+    if (!window.confirm('Schedule pickup for this shipment?')) return;
+    setUpdating(true);
+    try {
+      await api.post('/admin/shipping/pickup', { shipmentId });
+      fetchOrder();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to schedule pickup');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleCancelShipment = async (shipmentId) => {
+    if (!window.confirm('Cancel this shipment? This cannot be undone.')) return;
+    setUpdating(true);
+    try {
+      await api.post('/admin/shipping/cancel', { shipmentId });
+      fetchOrder();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to cancel shipment');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleTrackShipment = async (shipmentId) => {
+    setUpdating(true);
+    try {
+      const { data } = await api.get(`/admin/shipping/track/shipment/${shipmentId}`);
+      setTrackingData(data.data);
+      setShowTrackingModal(true);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to fetch tracking data');
     } finally {
       setUpdating(false);
     }
@@ -147,8 +201,112 @@ export default function OrderDetails() {
               </div>
             </div>
           </div>
+
+          {/* Shipping & Tracking */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-charcoal/5">
+            <h2 className="text-lg font-serif font-bold text-charcoal mb-4">Shipping & Tracking</h2>
+            
+            {order.shipments && order.shipments.length > 0 ? (
+              <div className="space-y-6">
+                {order.shipments.map((shipment) => (
+                  <div key={shipment._id} className="pb-4 border-b border-charcoal/5 last:border-0 last:pb-0">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-sm font-medium text-charcoal">Shipment ID: {shipment.shiprocketShipmentId || 'Pending'}</span>
+                      <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-charcoal rounded-md">
+                        {shipment.status}
+                      </span>
+                    </div>
+                    <div className="space-y-1 text-sm text-charcoal/80">
+                      <p>Courier: {shipment.courierName || 'N/A'}</p>
+                      <p>AWB: {shipment.awbCode || 'N/A'}</p>
+                    </div>
+                    
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {shipment.awbCode && (
+                        <button 
+                          onClick={() => handleTrackShipment(shipment._id)}
+                          disabled={updating}
+                          className="px-3 py-1.5 text-xs font-medium bg-charcoal text-white rounded-lg hover:bg-charcoal/90 disabled:opacity-50"
+                        >
+                          Track
+                        </button>
+                      )}
+                      {shipment.status === 'READY_TO_SHIP' && !shipment.pickupScheduled && (
+                        <button 
+                          onClick={() => handleSchedulePickup(shipment._id)}
+                          disabled={updating}
+                          className="px-3 py-1.5 text-xs font-medium border border-charcoal/20 text-charcoal rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                        >
+                          Schedule Pickup
+                        </button>
+                      )}
+                      {!['CANCELLED', 'DELIVERED', 'RETURNED'].includes(shipment.status) && (
+                        <button 
+                          onClick={() => handleCancelShipment(shipment._id)}
+                          disabled={updating}
+                          className="px-3 py-1.5 text-xs font-medium border border-red-200 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div>
+                <p className="text-sm text-charcoal/60 mb-4">No shipments created for this order yet.</p>
+                {['PAID', 'PROCESSING'].includes(order.status) && (
+                  <button 
+                    onClick={handleCreateShipment}
+                    disabled={updating}
+                    className="w-full px-4 py-2 text-sm font-medium bg-charcoal text-white rounded-xl hover:bg-charcoal/90 disabled:opacity-50"
+                  >
+                    Create Shipment
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Tracking Modal */}
+      {showTrackingModal && trackingData && (
+        <div className="fixed inset-0 bg-charcoal/50 flex items-center justify-center z-50 p-4" onClick={() => setShowTrackingModal(false)}>
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[80vh] flex flex-col shadow-xl" onClick={e => e.stopPropagation()}>
+            <div className="p-6 border-b border-charcoal/10 flex justify-between items-center">
+              <h2 className="text-xl font-serif font-bold text-charcoal">Tracking Info</h2>
+              <button onClick={() => setShowTrackingModal(false)} className="text-charcoal/60 hover:text-charcoal text-xl">&times;</button>
+            </div>
+            <div className="p-6 overflow-y-auto">
+              <div className="mb-6 space-y-1">
+                <p className="text-sm"><span className="font-medium">Status:</span> {trackingData.liveTracking?.current_status || trackingData.status}</p>
+                <p className="text-sm"><span className="font-medium">AWB:</span> {trackingData.awbCode}</p>
+                <p className="text-sm"><span className="font-medium">Courier:</span> {trackingData.courierName}</p>
+              </div>
+              
+              <h3 className="font-medium text-charcoal mb-4">Tracking History</h3>
+              {trackingData.liveTracking?.scans?.length > 0 ? (
+                <div className="space-y-4 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px before:h-full before:w-0.5 before:bg-charcoal/10">
+                  {trackingData.liveTracking.scans.map((scan, idx) => (
+                    <div key={idx} className="relative flex items-start gap-4">
+                      <div className="w-4 h-4 rounded-full bg-pink-primary border-2 border-white shrink-0 mt-0.5 z-10" />
+                      <div className="pb-4 border-b border-charcoal/5 w-full last:border-0 last:pb-0">
+                        <p className="font-medium text-sm text-charcoal">{scan.activity}</p>
+                        <p className="text-xs text-charcoal/60 mt-1">{scan.location}</p>
+                        <p className="text-xs text-charcoal/50 mt-1">{new Date(scan.date).toLocaleString()}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-charcoal/50">No detailed tracking scans available.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
