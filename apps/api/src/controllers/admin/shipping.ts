@@ -1,6 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
 import { Shipment } from '../../models/Shipment.js';
-import { Order } from '../../models/Order.js';
 import { isShiprocketConfigured } from '../../integrations/shiprocket/client.js';
 import {
   getShippingRates,
@@ -94,7 +93,7 @@ export async function checkServiceabilityHandler(req: Request, res: Response, ne
  * GET /admin/shipping/couriers
  * List available courier partners.
  */
-export async function listCouriersHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function listCouriersHandler(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     assertShiprocketConfigured();
     const data = await listCouriers();
@@ -198,7 +197,7 @@ export async function trackShipmentHandler(req: Request, res: Response, next: Ne
       throw ApiError.badRequest('AWB code is required');
     }
 
-    const data = await trackAWB(awb);
+    const data = await trackAWB(awb as string);
     sendSuccess({ res, data });
   } catch (error) {
     next(error);
@@ -261,7 +260,7 @@ export async function getShipmentDetailsHandler(req: Request, res: Response, nex
  * GET /admin/shipping/ndr
  * List NDR (Non-Delivery Report) shipments.
  */
-export async function getNdrShipmentsHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getNdrShipmentsHandler(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     assertShiprocketConfigured();
     const data = await getNdrShipments();
@@ -290,12 +289,12 @@ export async function submitNdrActionHandler(req: Request, res: Response, next: 
       throw ApiError.badRequest('action must be "re-attempt" or "return"');
     }
 
-    const data = await submitNdrAction(awb, action, comments);
+    const data = await submitNdrAction(awb as string, action, comments);
 
     await createAuditLog({
       action: 'shipping.ndr_action',
       resource: 'Shipment',
-      resourceId: awb,
+      resourceId: awb as string,
       details: { action, comments },
       req,
     });
@@ -310,7 +309,7 @@ export async function submitNdrActionHandler(req: Request, res: Response, next: 
  * GET /admin/shipping/cod-remittance
  * Get COD remittance details.
  */
-export async function getCodRemittanceHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getCodRemittanceHandler(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     assertShiprocketConfigured();
     const data = await getCodRemittance();
@@ -324,7 +323,7 @@ export async function getCodRemittanceHandler(req: Request, res: Response, next:
  * GET /admin/shipping/warehouses
  * List all pickup locations (warehouses).
  */
-export async function listWarehousesHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function listWarehousesHandler(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     assertShiprocketConfigured();
     const data = await listPickupLocations();

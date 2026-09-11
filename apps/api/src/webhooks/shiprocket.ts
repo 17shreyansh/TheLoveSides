@@ -1,7 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { WebhookEvent } from '../models/WebhookEvent.js';
 import { Shipment, type ShipmentStatus } from '../models/Shipment.js';
-import { Order } from '../models/Order.js';
 import { transitionOrderStatus } from '../services/order.service.js';
 import { env } from '../config/env.js';
 import { logger } from '../utils/logger.js';
@@ -181,7 +180,6 @@ async function processShiprocketWebhook(payload: any): Promise<void> {
     etd, // Estimated delivery date
     courier_name,
     scans,
-    order_id: shiprocketOrderId,
     shipment_id: shiprocketShipmentId,
   } = payload;
 

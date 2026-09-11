@@ -5,7 +5,6 @@ import { ProductVariant } from '../../models/ProductVariant.js';
 import { Inventory } from '../../models/Inventory.js';
 import { sendSuccess } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
-import mongoose from 'mongoose';
 
 /**
  * Calculates totals for a cart and returns it.

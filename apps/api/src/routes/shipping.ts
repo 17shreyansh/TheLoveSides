@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticateCustomer, optionalAuth } from '../middleware/auth.js';
+import { authenticateCustomer } from '../middleware/auth.js';
 import { checkDeliveryAvailability, getCheckoutShippingRates, trackByAWB } from '../controllers/public/shipping.js';
 
 const router = Router();

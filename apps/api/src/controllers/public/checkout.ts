@@ -5,7 +5,6 @@ import { createOrderFromCart } from '../../services/order.service.js';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../../models/User.js';
 import { Role } from '../../models/Role.js';
-import { Role } from '../../models/Role.js';
 
 /**
  * Initiates checkout by converting a Cart to a pending Order.

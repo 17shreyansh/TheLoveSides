@@ -1,5 +1,4 @@
 import type { Request, Response, NextFunction } from 'express';
-import mongoose from 'mongoose';
 import { Order } from '../../models/Order.js';
 import { Payment } from '../../models/Payment.js';
 import { Cart } from '../../models/Cart.js';

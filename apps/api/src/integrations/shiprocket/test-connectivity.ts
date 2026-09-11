@@ -134,13 +134,13 @@ async function main() {
 
   // 6. NDR
   await runTest('6. NDR API', async () => {
-    const data = await authenticatedFetch('/ndr');
+    await authenticatedFetch('/ndr');
     return `NDR data retrieved successfully`;
   });
 
   // 7. COD Remittance
   await runTest('7. COD Remittance API', async () => {
-    const data = await authenticatedFetch('/account/details/cod');
+    await authenticatedFetch('/account/details/cod');
     return `COD remittance data retrieved`;
   });
 

@@ -221,7 +221,7 @@ export async function trackByAWB(req: Request, res: Response, next: NextFunction
       throw ApiError.badRequest('Shipping integration not configured');
     }
 
-    const liveTracking = await trackAWB(awb);
+    const liveTracking = await trackAWB(awb as string);
     
     // Attempt to find local shipment to supplement info
     const shipment = await Shipment.findOne({ awbCode: awb }).lean();
