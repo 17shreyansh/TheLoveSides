@@ -93,15 +93,18 @@ export default function Navbar() {
             <Link 
               to="/" 
               className={clsx(
-                "absolute left-1/2 -translate-x-1/2 flex items-center justify-center transition-opacity duration-300",
+                "absolute left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 transition-opacity duration-300",
                 isSearchOpen ? "opacity-0 sm:opacity-100 pointer-events-none sm:pointer-events-auto" : "opacity-100"
               )}
             >
               <img 
                 src={LogoImage} 
-                alt="THELOVESIDES" 
-                className="h-10 sm:h-12 md:h-14 lg:h-12 object-contain" 
+                alt="Logo" 
+                className="h-8 sm:h-10 md:h-12 lg:h-10 object-contain" 
               />
+              <span className="font-serif text-lg sm:text-2xl md:text-3xl lg:text-2xl tracking-[0.1em] sm:tracking-[0.2em] text-charcoal uppercase text-center whitespace-nowrap hidden sm:inline-block">
+                THELOVESIDES
+              </span>
             </Link>
 
             {/* RIGHT: User & Cart */}
