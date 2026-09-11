@@ -28,8 +28,10 @@ interface InventoryAdjustment {
 export async function reserveInventory(
   items: ReservationItem[],
   orderId: string,
-  session: mongoose.ClientSession,
+  session?: mongoose.ClientSession,
 ): Promise<void> {
+  const opts = session ? { session } : {};
+
   for (const item of items) {
     // Atomic conditional update: only succeeds if available >= quantity
     const result = await Inventory.findOneAndUpdate(
@@ -47,14 +49,16 @@ export async function reserveInventory(
           reserved: item.quantity,
         },
       },
-      { session, new: true },
+      { ...opts, new: true },
     );
 
     if (!result) {
       // Check if the inventory record exists at all
-      const inv = await Inventory.findOne({
+      let query = Inventory.findOne({
         variantId: new mongoose.Types.ObjectId(item.variantId),
-      }).session(session).lean();
+      });
+      if (session) query = query.session(session);
+      const inv = await query.lean();
 
       if (!inv) {
         throw ApiError.notFound(`Inventory record for variant ${item.variantId}`);
@@ -74,7 +78,7 @@ export async function reserveInventory(
       previousAvailable: result.available + item.quantity,
       newAvailable: result.available,
       orderId,
-    }], { session });
+    }], opts);
   }
 
   logger.info({ orderId, itemCount: items.length }, 'Inventory reserved for order');

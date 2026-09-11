@@ -11,6 +11,10 @@ export default function ProductCard({ product, layout = 'auto' }) {
   const { triggerFlyToCart } = useFlyToCart();
   const [added, setAdded] = useState(false);
   const imageRef = React.useRef(null);
+  
+  const inStock = product.variants?.length > 0 
+    ? product.variants[0].isPurchasable !== false 
+    : product.isPurchasable !== false;
 
   const handleAddToCart = (e) => {
     e.preventDefault(); // In case it's inside a Link or prevents event bubbling
@@ -50,9 +54,9 @@ export default function ProductCard({ product, layout = 'auto' }) {
           <div className="mt-3 md:mt-4">
             <Button 
               variant="dark" 
-              className="w-full relative overflow-hidden text-xs md:text-sm py-2 md:py-3 px-1 md:px-4 shrink-0" 
+              className="w-full relative overflow-hidden text-xs md:text-sm py-2 md:py-3 px-1 md:px-4 shrink-0 disabled:opacity-50" 
               onClick={handleAddToCart}
-              disabled={added}
+              disabled={added || !inStock}
             >
               <AnimatePresence mode="wait">
                 {added ? (
@@ -65,6 +69,17 @@ export default function ProductCard({ product, layout = 'auto' }) {
                   >
                     <span className="hidden sm:inline">Added ✓</span>
                     <span className="sm:hidden">✓</span>
+                  </motion.span>
+                ) : !inStock ? (
+                  <motion.span
+                    key="outofstock"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="block whitespace-nowrap"
+                  >
+                    <span className="hidden sm:inline">Out of Stock</span>
+                    <span className="sm:hidden">No Stock</span>
                   </motion.span>
                 ) : (
                   <motion.span
@@ -112,9 +127,9 @@ export default function ProductCard({ product, layout = 'auto' }) {
         <div className="mt-auto">
           <Button 
             variant="dark" 
-            className="w-full relative overflow-hidden text-sm sm:text-base px-2 sm:px-6" 
+            className="w-full relative overflow-hidden text-sm sm:text-base px-2 sm:px-6 disabled:opacity-50" 
             onClick={handleAddToCart}
-            disabled={added}
+            disabled={added || !inStock}
           >
             <AnimatePresence mode="wait">
               {added ? (
@@ -126,6 +141,16 @@ export default function ProductCard({ product, layout = 'auto' }) {
                   className="block text-pink-primary"
                 >
                   Added ✓
+                </motion.span>
+              ) : !inStock ? (
+                <motion.span
+                  key="outofstock"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="block"
+                >
+                  Out of Stock
                 </motion.span>
               ) : (
                 <motion.span

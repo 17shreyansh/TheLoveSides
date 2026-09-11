@@ -70,9 +70,6 @@ export async function getCart(req: Request, res: Response, next: NextFunction): 
  * Add item to cart
  */
 export async function addToCart(req: Request, res: Response, next: NextFunction): Promise<void> {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const { productId, variantId, quantity } = req.body;
     
@@ -80,20 +77,20 @@ export async function addToCart(req: Request, res: Response, next: NextFunction)
       ? { userId: req.cartOwner.id } 
       : { guestId: req.cartOwner.id };
 
-    let cart = await Cart.findOne(ownerQuery).session(session);
+    let cart = await Cart.findOne(ownerQuery);
 
     if (!cart) {
       const expiresAt = req.cartOwner.type === 'guest' 
         ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) 
         : undefined;
-      const [newCart] = await Cart.create([{ ...ownerQuery, items: [], expiresAt }], { session });
+      const [newCart] = await Cart.create([{ ...ownerQuery, items: [], expiresAt }]);
       cart = newCart;
     }
 
     // 1. Verify Product & Variant exist
     const [product, variant] = await Promise.all([
-      Product.findOne({ _id: productId, status: 'published' }).session(session).lean(),
-      ProductVariant.findOne({ _id: variantId, productId, isActive: true }).session(session).lean()
+      Product.findOne({ _id: productId, status: 'published' }).lean(),
+      ProductVariant.findOne({ _id: variantId, productId, isActive: true }).lean()
     ]);
 
     if (!product || !variant) {
@@ -101,7 +98,7 @@ export async function addToCart(req: Request, res: Response, next: NextFunction)
     }
 
     // 2. Check Inventory
-    const inventory = await Inventory.findOne({ variantId }).session(session).lean();
+    const inventory = await Inventory.findOne({ variantId }).lean();
     if (!inventory) {
       throw ApiError.notFound('Inventory record not found');
     }
@@ -130,9 +127,7 @@ export async function addToCart(req: Request, res: Response, next: NextFunction)
       } as any);
     }
 
-    await cart.save({ session });
-    await session.commitTransaction();
-    session.endSession();
+    await cart.save();
 
     // Re-fetch for totals
     const updatedCart = await Cart.findById(cart._id).lean();
@@ -140,8 +135,6 @@ export async function addToCart(req: Request, res: Response, next: NextFunction)
 
     sendSuccess({ res, data: cartWithTotals, message: 'Item added to cart' });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
     next(error);
   }
 }

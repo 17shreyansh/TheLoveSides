@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 
 export default function CheckoutPage() {
   const { state, fetchCart } = useCart();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -20,6 +22,18 @@ export default function CheckoutPage() {
     country: 'IN',
     phone: '',
   });
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email || prev.email,
+        firstName: user.firstName || prev.firstName,
+        lastName: user.lastName || prev.lastName,
+        phone: user.phone || prev.phone,
+      }));
+    }
+  }, [user, isAuthenticated]);
 
   const [shippingRates, setShippingRates] = useState([]);
   const [loadingRates, setLoadingRates] = useState(false);

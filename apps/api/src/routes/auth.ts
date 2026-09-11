@@ -3,13 +3,13 @@ import { validate } from '../middleware/validate.js';
 import { rateLimitAuth } from '../middleware/rateLimiter.js';
 import { authenticateCustomer, authenticateAdmin } from '../middleware/auth.js';
 import { 
-  customerRegisterSchema, 
-  customerLoginSchema, 
+  requestOtpSchema, 
+  verifyOtpSchema, 
   adminLoginSchema 
 } from '../validators/auth.js';
 import {
-  registerCustomer,
-  loginCustomer,
+  requestOtp,
+  verifyOtp,
   logoutCustomer,
   getMe,
   loginAdmin,
@@ -27,17 +27,17 @@ const router = Router();
 // Customer Routes
 // ========================================
 router.post(
-  '/register',
+  '/request-otp',
   rateLimitAuth,
-  validate({ body: customerRegisterSchema }),
-  registerCustomer
+  validate({ body: requestOtpSchema }),
+  requestOtp
 );
 
 router.post(
-  '/login',
+  '/verify-otp',
   rateLimitAuth,
-  validate({ body: customerLoginSchema }),
-  loginCustomer
+  validate({ body: verifyOtpSchema }),
+  verifyOtp
 );
 
 router.post('/logout', logoutCustomer);

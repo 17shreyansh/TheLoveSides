@@ -3,10 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import LogoImage from '../../assets/images/LogoProcessed.png';
 
-export default function MobileMenu({ isOpen, onClose }) {
+export default function MobileMenu({ isOpen, onClose, onAuthClick }) {
   const { navbarLinks } = useTheme();
+  const { isAuthenticated } = useAuth();
   
   // Prevent body scroll when menu is open
   React.useEffect(() => {
@@ -73,6 +75,28 @@ export default function MobileMenu({ isOpen, onClose }) {
                 </Link>
               ))}
             </nav>
+
+            <div className="mt-8 pt-8 border-t border-charcoal/10">
+              {isAuthenticated ? (
+                <Link
+                  to="/profile"
+                  onClick={onClose}
+                  className="w-full flex items-center gap-3 px-4 py-3 bg-charcoal text-cream rounded-xl font-medium justify-center uppercase tracking-wider text-sm"
+                >
+                  My Profile
+                </Link>
+              ) : (
+                <button
+                  onClick={() => {
+                    onClose();
+                    onAuthClick();
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 bg-charcoal text-cream rounded-xl font-medium justify-center uppercase tracking-wider text-sm"
+                >
+                  Sign In
+                </button>
+              )}
+            </div>
           </motion.div>
         </>
       )}

@@ -55,9 +55,6 @@ export async function createRazorpayOrder(req: Request, res: Response, next: Nex
  * Verifies the payment signature returned by the frontend after a successful Razorpay checkout.
  */
 export async function verifyPayment(req: Request, res: Response, next: NextFunction): Promise<void> {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const { orderId } = req.params;
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
@@ -70,7 +67,7 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
     const query: any = { _id: orderId };
     if (req.user) query.userId = req.user.id;
 
-    const order = await Order.findOne(query).session(session);
+    const order = await Order.findOne(query);
 
     if (!order) {
       throw ApiError.notFound('Order not found');
@@ -100,14 +97,7 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
       razorpaySignature: razorpay_signature,
       status: 'CAPTURED',
       paymentMethod: 'ONLINE', // We can refine this via webhook later
-    }], { session });
-
-    // Transition Order Status to PAID (this also confirms inventory)
-    // We cannot easily pass session to transitionOrderStatus currently, so we update here or commit first.
-    // Actually, transitionOrderStatus does not accept a session.
-    // Let's commit the transaction first, then call transitionOrderStatus to ensure it doesn't conflict.
-    await session.commitTransaction();
-    session.endSession();
+    }]);
 
     await transitionOrderStatus(
       order.id,
@@ -131,10 +121,6 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
 
     sendSuccess({ res, message: 'Payment verified and order confirmed' });
   } catch (error) {
-    if (session.inTransaction()) {
-      await session.abortTransaction();
-    }
-    session.endSession();
     next(error);
   }
 }

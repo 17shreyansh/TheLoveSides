@@ -13,7 +13,7 @@ const initialState = {
 function cartReducer(state, action) {
   switch (action.type) {
     case 'SET_CART': {
-      const cart = action.payload;
+      const cart = action.payload || { items: [], totalCount: 0, subtotal: 0 };
       return {
         ...state,
         items: cart.items || [],
@@ -35,7 +35,7 @@ export function CartProvider({ children }) {
   const fetchCart = async () => {
     try {
       const { data } = await api.get('/cart', { withCredentials: true });
-      dispatch({ type: 'SET_CART', payload: data.data || { items: [] } });
+      dispatch({ type: 'SET_CART', payload: data || { items: [] } });
     } catch (error) {
       console.error('Failed to fetch cart:', error);
       dispatch({ type: 'SET_CART', payload: { items: [] } });
@@ -49,18 +49,19 @@ export function CartProvider({ children }) {
   const addToCart = async (product, quantity = 1, variantId = null) => {
     try {
       // Use the provided variantId, or fallback to the first variant if available
-      const idToUse = variantId || product.variants?.[0]?._id;
+      const idToUse = variantId || product.variants?.[0]?._id || product.variants?.[0]?.id;
       if (!idToUse) {
         console.error('Cannot add to cart: No variant ID found', product);
         return;
       }
       
       const { data } = await api.post('/cart/items', {
+        productId: product.id || product._id,
         variantId: idToUse,
         quantity,
       }, { withCredentials: true });
       
-      dispatch({ type: 'SET_CART', payload: data.data });
+      dispatch({ type: 'SET_CART', payload: data });
     } catch (error) {
       console.error('Failed to add to cart:', error);
       // Depending on requirements, we could also fetchCart() here or show toast
@@ -70,7 +71,7 @@ export function CartProvider({ children }) {
   const removeFromCart = async (itemId) => {
     try {
       const { data } = await api.delete(`/cart/items/${itemId}`, { withCredentials: true });
-      dispatch({ type: 'SET_CART', payload: data.data });
+      dispatch({ type: 'SET_CART', payload: data });
     } catch (error) {
       console.error('Failed to remove from cart:', error);
     }
@@ -79,7 +80,7 @@ export function CartProvider({ children }) {
   const updateQuantity = async (itemId, quantity) => {
     try {
       const { data } = await api.patch(`/cart/items/${itemId}`, { quantity }, { withCredentials: true });
-      dispatch({ type: 'SET_CART', payload: data.data });
+      dispatch({ type: 'SET_CART', payload: data });
     } catch (error) {
       console.error('Failed to update cart quantity:', error);
     }

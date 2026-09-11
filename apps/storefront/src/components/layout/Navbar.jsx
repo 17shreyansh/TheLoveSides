@@ -10,14 +10,20 @@ import NavbarRibbon from './NavbarRibbon';
 import clsx from 'clsx';
 import Badge from '../ui/Badge';
 import CartDrawer from '../cart/CartDrawer';
+import { useAuth } from '../../context/AuthContext';
+import AuthModal from '../auth/AuthModal';
+import { useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
   const { navbarLinks } = useTheme();
   const { scrollY, showRibbon } = useScrollDirection();
   const { state } = useCart();
   const { cartIconRef } = useFlyToCart();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isBouncing, setIsBouncing] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchInputRef = useRef(null);
@@ -98,6 +104,7 @@ export default function Navbar() {
             {/* RIGHT: User & Cart */}
             <div className="flex items-center gap-3 md:gap-5">
               <button 
+                onClick={() => isAuthenticated ? navigate('/profile') : setIsAuthOpen(true)}
                 className="p-1 text-charcoal hover:text-pink-primary transition-colors focus:outline-none hidden sm:block"
                 aria-label="Account"
               >
@@ -137,8 +144,13 @@ export default function Navbar() {
         </div>
       </header>
       
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <MobileMenu 
+        isOpen={isMobileMenuOpen} 
+        onClose={() => setIsMobileMenuOpen(false)} 
+        onAuthClick={() => setIsAuthOpen(true)}
+      />
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </>
   );
 }

@@ -7,26 +7,21 @@ import { Cart } from '../models/Cart.js';
  * If the user has a cart, matching items add their quantities together.
  */
 export async function mergeGuestCartIntoUserCart(guestId: string, userId: string | mongoose.Types.ObjectId): Promise<void> {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
-    const guestCart = await Cart.findOne({ guestId }).session(session);
+    const guestCart = await Cart.findOne({ guestId });
     if (!guestCart || guestCart.items.length === 0) {
       // Nothing to merge
-      await session.commitTransaction();
-      session.endSession();
       return;
     }
 
-    let userCart = await Cart.findOne({ userId }).session(session);
+    let userCart = await Cart.findOne({ userId });
 
     if (!userCart) {
       // User doesn't have a cart, just re-assign ownership
       guestCart.userId = new mongoose.Types.ObjectId(userId);
       guestCart.guestId = undefined; // Remove guest ID
       guestCart.expiresAt = undefined; // Permanent carts don't expire
-      await guestCart.save({ session });
+      await guestCart.save();
     } else {
       // Merge items
       for (const guestItem of guestCart.items) {
@@ -41,17 +36,12 @@ export async function mergeGuestCartIntoUserCart(guestId: string, userId: string
         }
       }
 
-      await userCart.save({ session });
+      await userCart.save();
       
       // Delete the old guest cart
-      await Cart.deleteOne({ _id: guestCart._id }, { session });
+      await Cart.deleteOne({ _id: guestCart._id });
     }
-
-    await session.commitTransaction();
-    session.endSession();
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
     // Don't throw here, cart merging shouldn't crash login
     console.error('Failed to merge carts during login:', error);
   }

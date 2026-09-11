@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { User } from '../models/User.js';
+import { Otp } from '../models/Otp.js';
 import { AdminUser } from '../models/AdminUser.js';
 import { hashPassword, verifyPassword } from '../utils/password.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt.js';
@@ -23,97 +24,62 @@ const cookieOptions = {
   path: '/',
 };
 
-export async function registerCustomer(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function requestOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { email, password, firstName, lastName, phone } = req.body;
+    const { email } = req.body;
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      throw ApiError.conflict('Email already in use');
-    }
+    // Generate a 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const passwordHash = await hashPassword(password);
+    // Delete any existing OTP for this email
+    await Otp.deleteMany({ email });
 
-    const user = await User.create({
+    // Save new OTP, valid for 5 minutes
+    await Otp.create({
       email,
-      passwordHash,
-      firstName,
-      lastName,
-      phone,
+      otp,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
 
-    // Generate tokens
-    const accessToken = generateAccessToken(user.id);
-    const refreshToken = generateRefreshToken(user.id);
-
-    // Set cookies
-    res.cookie('accessToken', accessToken, {
-      ...cookieOptions,
-      maxAge: getMs(env.JWT_ACCESS_EXPIRY),
-    });
-    res.cookie('refreshToken', refreshToken, {
-      ...cookieOptions,
-      maxAge: getMs(env.JWT_REFRESH_EXPIRY),
-    });
-
-    // Merge cart if guestId exists
-    const guestId = req.cookies?.guestId;
-    if (guestId) {
-      await mergeGuestCartIntoUserCart(guestId, user.id);
-      res.clearCookie('guestId'); // Clear the guest cookie
-    }
+    // In a real application, send this via email
+    logger.info({ email, otp }, `OTP generated for ${email}`);
 
     sendSuccess({
       res,
-      statusCode: 201,
-      data: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
-      message: 'Registration successful',
+      message: 'OTP sent successfully to your email',
     });
   } catch (error) {
     next(error);
   }
 }
 
-export async function loginCustomer(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function verifyOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { email, password } = req.body;
+    const { email, otp } = req.body;
 
-    const user = await User.findOne({ email }).select('+passwordHash');
+    const otpDoc = await Otp.findOne({ email, otp });
+    if (!otpDoc) {
+      throw ApiError.unauthorized('Invalid or expired OTP');
+    }
+
+    // Delete OTP after successful verification
+    await Otp.deleteOne({ _id: otpDoc._id });
+
+    // Find or create user
+    let user = await User.findOne({ email });
     if (!user) {
-      throw ApiError.unauthorized('Invalid email or password');
-    }
-
-    if (!user.isActive) {
-      throw ApiError.forbidden('Your account has been deactivated');
-    }
-
-    // Check brute-force lock
-    if (user.lockUntil && user.lockUntil > new Date()) {
-      throw ApiError.tooManyRequests('Account is temporarily locked due to too many failed attempts. Try again later.');
-    }
-
-    const isValid = await verifyPassword(password, user.passwordHash);
-    
-    if (!isValid) {
-      user.loginAttempts += 1;
-      if (user.loginAttempts >= 5) {
-        // Lock for 15 minutes
-        user.lockUntil = new Date(Date.now() + 15 * 60 * 1000);
+      user = await User.create({
+        email,
+        isEmailVerified: true,
+      });
+    } else {
+      if (!user.isActive) {
+        throw ApiError.forbidden('Your account has been deactivated');
       }
+      user.isEmailVerified = true;
+      user.lastLoginAt = new Date();
       await user.save();
-      throw ApiError.unauthorized('Invalid email or password');
     }
-
-    // Reset attempts on success
-    user.loginAttempts = 0;
-    user.lockUntil = undefined;
-    user.lastLoginAt = new Date();
-    await user.save();
 
     // Generate tokens
     const accessToken = generateAccessToken(user.id);
@@ -144,7 +110,7 @@ export async function loginCustomer(req: Request, res: Response, next: NextFunct
         firstName: user.firstName,
         lastName: user.lastName,
       },
-      message: 'Login successful',
+      message: 'Authentication successful',
     });
   } catch (error) {
     next(error);

@@ -5,7 +5,7 @@ import { createOrderFromCart } from '../../services/order.service.js';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../../models/User.js';
 import { Role } from '../../models/Role.js';
-import { hashPassword } from '../../utils/password.js';
+import { Role } from '../../models/Role.js';
 
 /**
  * Initiates checkout by converting a Cart to a pending Order.
@@ -34,17 +34,35 @@ export async function initiateCheckout(req: Request, res: Response, next: NextFu
       let user = await User.findOne({ email });
       if (!user) {
         const customerRole = await Role.findOne({ name: 'Customer' });
-        const randomPassword = await hashPassword(uuidv4());
         
         user = await User.create({
           email,
-          passwordHash: randomPassword,
           firstName: shippingAddress?.firstName || 'Guest',
           lastName: shippingAddress?.lastName || 'User',
           role: customerRole?._id,
         });
+      } else {
+        // If user exists but is missing names, update them
+        if (!user.firstName && shippingAddress?.firstName) user.firstName = shippingAddress.firstName;
+        if (!user.lastName && shippingAddress?.lastName) user.lastName = shippingAddress.lastName;
+        await user.save();
       }
       userId = user.id;
+    } else {
+      // Authenticated user checkout
+      const user = await User.findById(userId);
+      if (user) {
+        let updated = false;
+        if (!user.firstName && shippingAddress?.firstName) {
+          user.firstName = shippingAddress.firstName;
+          updated = true;
+        }
+        if (!user.lastName && shippingAddress?.lastName) {
+          user.lastName = shippingAddress.lastName;
+          updated = true;
+        }
+        if (updated) await user.save();
+      }
     }
 
     // Generate idempotency key to prevent duplicate orders from double-clicks

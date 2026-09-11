@@ -3,12 +3,14 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { FlyToCartProvider } from './context/FlyToCartContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
 import Home from './pages/Home';
 import ProductPage from './pages/ProductPage';
 import CategoryPage from './pages/CategoryPage';
 import ProductsPage from './pages/ProductsPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderSuccessPage from './pages/OrderSuccessPage';
+import ProfilePage from './pages/ProfilePage';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import CmsPage from './pages/CmsPage';
@@ -17,8 +19,9 @@ import TrackPage from './pages/TrackPage';
 function App() {
   return (
     <ThemeProvider>
-      <CartProvider>
-      <FlyToCartProvider>
+      <AuthProvider>
+        <CartProvider>
+        <FlyToCartProvider>
         <BrowserRouter>
           <div className="flex flex-col min-h-screen">
             <Navbar />
@@ -33,14 +36,16 @@ function App() {
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/order-success" element={<OrderSuccessPage />} />
                 <Route path="/track" element={<TrackPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/pages/:slug" element={<CmsPage />} />
               </Routes>
             </main>
             <Footer />
           </div>
         </BrowserRouter>
-      </FlyToCartProvider>
-    </CartProvider>
+        </FlyToCartProvider>
+        </CartProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

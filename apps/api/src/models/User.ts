@@ -4,9 +4,9 @@ export interface IUser extends Document {
   _id: Types.ObjectId;
   email: string;
   phone?: string;
-  passwordHash: string;
-  firstName: string;
-  lastName: string;
+  passwordHash?: string;
+  firstName?: string;
+  lastName?: string;
   isActive: boolean;
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
@@ -36,11 +36,10 @@ const userSchema = new Schema<IUser>(
     },
     passwordHash: {
       type: String,
-      required: true,
       select: false, // Never returned by default
     },
-    firstName: { type: String, required: true, trim: true },
-    lastName: { type: String, required: true, trim: true },
+    firstName: { type: String, trim: true },
+    lastName: { type: String, trim: true },
     isActive: { type: Boolean, default: true },
     isEmailVerified: { type: Boolean, default: false },
     isPhoneVerified: { type: Boolean, default: false },

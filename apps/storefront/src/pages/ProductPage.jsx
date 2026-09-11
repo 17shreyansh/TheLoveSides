@@ -98,8 +98,7 @@ export default function ProductPage() {
     if (mainImageRef.current) {
       triggerFlyToCart(mainImageRef.current.getBoundingClientRect(), product.image);
     }
-    // In a real app we'd pass size/color/qty to the cart too
-    addToCart(product);
+    addToCart(product, quantity, selectedVariant?._id || selectedVariant?.id);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
@@ -274,9 +273,9 @@ export default function ProductPage() {
             {/* Add to Cart Action */}
             <Button 
               variant="dark" 
-              className="w-full py-4 text-lg font-medium shadow-xl hover:-translate-y-1 relative overflow-hidden mb-4"
+              className="w-full py-4 text-lg font-medium shadow-xl hover:-translate-y-1 relative overflow-hidden mb-4 disabled:opacity-50 disabled:hover:-translate-y-0"
               onClick={handleAddToCart}
-              disabled={added}
+              disabled={added || !inStock}
             >
               <AnimatePresence mode="wait">
                 {added ? (
@@ -288,6 +287,16 @@ export default function ProductPage() {
                     className="flex items-center justify-center gap-2 text-pink-primary-light"
                   >
                     <Check className="w-5 h-5" /> Added to Cart
+                  </motion.span>
+                ) : !inStock ? (
+                  <motion.span
+                    key="outofstock"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    className="block"
+                  >
+                    Out of Stock
                   </motion.span>
                 ) : (
                   <motion.span
@@ -502,9 +511,9 @@ export default function ProductPage() {
         </div>
         <Button 
           variant="dark" 
-          className="px-8 py-3 relative overflow-hidden"
+          className="px-8 py-3 relative overflow-hidden disabled:opacity-50"
           onClick={handleAddToCart}
-          disabled={added}
+          disabled={added || !inStock}
         >
           <AnimatePresence mode="wait">
             {added ? (
@@ -516,6 +525,16 @@ export default function ProductPage() {
                 className="flex items-center justify-center gap-2 text-pink-primary-light"
               >
                 <Check className="w-4 h-4" /> Added
+              </motion.span>
+            ) : !inStock ? (
+              <motion.span
+                key="outofstock"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="block whitespace-nowrap"
+              >
+                Out of Stock
               </motion.span>
             ) : (
               <motion.span

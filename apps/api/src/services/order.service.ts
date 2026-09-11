@@ -67,12 +67,9 @@ export async function createOrderFromCart(input: CreateOrderInput) {
     }
   }
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     // 1. Fetch cart
-    const cart = await Cart.findOne({ userId: input.userId }).session(session);
+    const cart = await Cart.findOne({ userId: input.userId });
     if (!cart || !cart.items || cart.items.length === 0) {
       throw ApiError.badRequest('Cart is empty');
     }
@@ -159,7 +156,7 @@ export async function createOrderFromCart(input: CreateOrderInput) {
       }],
       customerNotes: input.customerNotes,
       idempotencyKey: input.idempotencyKey,
-    }], { session });
+    }]);
 
     // 8. Reserve inventory atomically
     const reservationItems = pricing.items.map((item) => ({
@@ -167,24 +164,21 @@ export async function createOrderFromCart(input: CreateOrderInput) {
       quantity: item.quantity,
     }));
 
-    await reserveInventory(reservationItems, order._id.toString(), session);
+    await reserveInventory(reservationItems, order._id.toString());
 
     // 9. Record coupon usage
     if (pricing.couponCode) {
       await Coupon.findOneAndUpdate(
         { code: pricing.couponCode },
-        { $inc: { usedCount: 1 } },
-        { session },
+        { $inc: { usedCount: 1 } }
       );
 
       await CouponUsage.create([{
-        couponId: (await Coupon.findOne({ code: pricing.couponCode }).session(session).lean())?._id,
+        couponId: (await Coupon.findOne({ code: pricing.couponCode }).lean())?._id,
         userId: input.userId,
         orderId: order._id,
-      }], { session });
+      }]);
     }
-
-    await session.commitTransaction();
 
     logger.info({
       orderId: order._id,
@@ -195,10 +189,7 @@ export async function createOrderFromCart(input: CreateOrderInput) {
 
     return order;
   } catch (error) {
-    await session.abortTransaction();
     throw error;
-  } finally {
-    session.endSession();
   }
 }
 
