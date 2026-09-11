@@ -13,6 +13,7 @@ import CartDrawer from '../cart/CartDrawer';
 import { useAuth } from '../../context/AuthContext';
 import AuthModal from '../auth/AuthModal';
 import { useNavigate } from 'react-router-dom';
+import LogoImage from '../../assets/images/LogoTransparent.png';
 
 export default function Navbar() {
   const { navbarLinks } = useTheme();
@@ -96,9 +97,11 @@ export default function Navbar() {
                 isSearchOpen ? "opacity-0 sm:opacity-100 pointer-events-none sm:pointer-events-auto" : "opacity-100"
               )}
             >
-              <span className="font-serif text-lg sm:text-2xl md:text-3xl lg:text-2xl tracking-[0.1em] sm:tracking-[0.2em] text-charcoal uppercase text-center whitespace-nowrap">
-                THELOVESIDES
-              </span>
+              <img 
+                src={LogoImage} 
+                alt="THELOVESIDES" 
+                className="h-10 sm:h-12 md:h-14 lg:h-12 object-contain" 
+              />
             </Link>
 
             {/* RIGHT: User & Cart */}

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import NewsletterCTA from './NewsletterCTA';
-import LogoImage from '../../assets/images/LogoProcessed.png';
+import LogoImage from '../../assets/images/LogoTransparent.png';
 
 export default function Footer() {
   const { footerLinks } = useTheme();
