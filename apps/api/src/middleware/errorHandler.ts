@@ -46,6 +46,14 @@ export function errorHandler(
     return;
   }
 
+  // Multer error
+  if (err.name === 'MulterError') {
+    logger.warn({ err, requestId: req.requestId }, 'Multer upload error');
+    const statusCode = (err as any).code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+    sendError(res, statusCode, 'UPLOAD_ERROR', err.message);
+    return;
+  }
+
   // Mongoose duplicate key error
   if (err.name === 'MongoServerError' && (err as unknown as { code: number }).code === 11000) {
     logger.warn({ err, requestId: req.requestId }, 'Duplicate key error');
