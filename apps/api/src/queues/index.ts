@@ -23,3 +23,13 @@ export const shippingQueue = new Queue('shipping-jobs', {
 export async function enqueueShipment(orderId: string) {
   await shippingQueue.add('create-shiprocket-order', { orderId });
 }
+
+// Helper function to enqueue pickup request
+export async function enqueuePickup(shipmentId: string) {
+  await shippingQueue.add('request-pickup', { shipmentId });
+}
+
+// Helper function to enqueue Shiprocket order cancellation
+export async function enqueueCancelShiprocket(orderId: string) {
+  await shippingQueue.add('cancel-shiprocket-order', { orderId });
+}

@@ -19,6 +19,7 @@ import adminOrdersRouter from './routes/admin/orders.js';
 import adminSystemRouter from './routes/admin/system.js';
 import adminUploadRouter from './routes/admin/upload.js';
 import adminReviewsRouter from './routes/admin/reviews.js';
+import adminShippingRouter from './routes/admin/shipping.js';
 import accountRouter from './routes/account.js';
 import ordersRouter from './routes/orders.js';
 import paymentRouter from './routes/payment.js';
@@ -27,6 +28,7 @@ import wishlistRouter from './routes/wishlist.js';
 import reviewsRouter from './routes/reviews.js';
 import settingsRouter from './routes/settings.js';
 import pagesRouter from './routes/pages.js';
+import shippingRouter from './routes/shipping.js';
 
 export const app = express();
 
@@ -42,12 +44,12 @@ app.use(cookieParser());
 
 // Request parsing with raw body support for webhooks
 app.use(express.json({
-  limit: '5mb',
+  limit: '50mb',
   verify: (req: any, _res, buf) => {
     req.rawBody = buf.toString();
   }
 }));
-app.use(express.urlencoded({ extended: true, limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Compression
 app.use(compression());
@@ -82,12 +84,14 @@ app.use('/api/v1/wishlist', wishlistRouter);
 app.use('/api/v1/reviews', reviewsRouter);
 app.use('/api/v1/settings', settingsRouter);
 app.use('/api/v1/pages', pagesRouter);
+app.use('/api/v1/shipping', shippingRouter);
 app.use('/api/v1/admin/catalog', adminCatalogRouter);
 app.use('/api/v1/admin/inventory', adminInventoryRouter);
 app.use('/api/v1/admin/upload', adminUploadRouter);
 app.use('/api/v1/admin/reviews', adminReviewsRouter);
 app.use('/api/v1/admin', adminSystemRouter);
 app.use('/api/v1/admin', adminOrdersRouter);
+app.use('/api/v1/admin', adminShippingRouter);
 
 // Global Error Handler (must be last)
 app.use(errorHandler);

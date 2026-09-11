@@ -1,8 +1,14 @@
 import type { Request, Response, NextFunction } from 'express';
 import { Return } from '../../models/Return.js';
+import { Order } from '../../models/Order.js';
+import { User } from '../../models/User.js';
+import { ProductVariant } from '../../models/ProductVariant.js';
+import { isShiprocketConfigured } from '../../integrations/shiprocket/client.js';
+import { createReturnOrder } from '../../integrations/shiprocket/shiprocket.service.js';
 import { sendSuccess, sendPaginated } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
 import { createAuditLog } from '../../services/audit.service.js';
+import { logger } from '../../utils/logger.js';
 
 export async function listReturns(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -77,6 +83,74 @@ export async function updateReturnStatus(req: Request, res: Response, next: Next
 
     await returnRequest.save();
 
+    // When approved, automatically create a return order in Shiprocket
+    if (status === 'APPROVED' && isShiprocketConfigured) {
+      try {
+        const order = await Order.findById(returnRequest.orderId);
+        const user = await User.findById(returnRequest.userId);
+        const variant = await ProductVariant.findById(returnRequest.variantId);
+
+        if (order && user && variant) {
+          const [firstName, ...lastNameParts] = order.shippingAddress.fullName.split(' ');
+          const lastName = lastNameParts.join(' ') || '-';
+
+          const shiprocketReturn = await createReturnOrder({
+            order_id: `${order.orderNumber}-RET-${Date.now()}`,
+            order_date: new Date().toISOString().split('T')[0],
+            // Pickup from customer (the person returning the product)
+            pickup_customer_name: firstName,
+            pickup_last_name: lastName,
+            pickup_address: order.shippingAddress.addressLine1,
+            pickup_address_2: order.shippingAddress.addressLine2 || '',
+            pickup_city: order.shippingAddress.city,
+            pickup_state: order.shippingAddress.state,
+            pickup_country: order.shippingAddress.country,
+            pickup_pincode: order.shippingAddress.pincode,
+            pickup_email: user.email,
+            pickup_phone: order.shippingAddress.phone,
+            // Ship to warehouse
+            shipping_customer_name: 'TheLoveSides',
+            shipping_address: 'Primary Warehouse', // TODO: Use actual warehouse address
+            shipping_city: 'Delhi',
+            shipping_state: 'Delhi',
+            shipping_country: 'India',
+            shipping_pincode: '110001',
+            shipping_email: 'returns@thelovesides.com',
+            shipping_phone: '0000000000',
+            order_items: [{
+              name: variant.sku,
+              sku: variant.sku,
+              units: returnRequest.quantity,
+              selling_price: variant.price,
+              discount: 0,
+              qc_enable: true,
+            }],
+            payment_method: 'Prepaid',
+            sub_total: variant.price * returnRequest.quantity,
+            length: variant.dimensions?.length || 10,
+            breadth: variant.dimensions?.width || 10,
+            height: variant.dimensions?.height || 10,
+            weight: (variant.weight || 500) / 1000, // Convert grams to kg
+          });
+
+          returnRequest.shiprocketReturnId = shiprocketReturn.order_id?.toString();
+          returnRequest.status = 'PICKUP_SCHEDULED';
+          await returnRequest.save();
+
+          logger.info(
+            { returnId: id, shiprocketReturnId: shiprocketReturn.order_id },
+            'Return order created in Shiprocket',
+          );
+        }
+      } catch (shiprocketError) {
+        // Don't fail the return approval if Shiprocket return creation fails
+        logger.error(
+          { err: shiprocketError, returnId: id },
+          'Failed to create Shiprocket return order (return still approved)',
+        );
+      }
+    }
+
     await createAuditLog({
       action: 'return.update_status',
       resource: 'Return',
@@ -90,3 +164,4 @@ export async function updateReturnStatus(req: Request, res: Response, next: Next
     next(error);
   }
 }
+

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { razorpayWebhook } from '../webhooks/razorpay.js';
+import { shiprocketWebhook } from '../webhooks/shiprocket.js';
 
 const router = Router();
 
@@ -10,5 +11,7 @@ const router = Router();
 // Since we don't want to change global config immediately, we can mount it here.
 
 router.post('/razorpay', razorpayWebhook);
+router.post('/shiprocket', shiprocketWebhook);
 
 export default router;
+
