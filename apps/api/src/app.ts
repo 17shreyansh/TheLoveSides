@@ -37,7 +37,15 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 app.use(cors({
-  origin: [env.STOREFRONT_URL, env.ADMIN_URL],
+  origin: [
+    env.STOREFRONT_URL, 
+    env.ADMIN_URL,
+    'https://thelovesides.com',
+    'https://www.thelovesides.com',
+    'https://admin.thelovesides.com',
+    'http://localhost:5173',
+    'http://localhost:5174'
+  ],
   credentials: true, // Allow cookies
 }));
 app.use(cookieParser());
