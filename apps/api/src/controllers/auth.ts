@@ -9,6 +9,7 @@ import { ApiError } from '../utils/ApiError.js';
 import { env } from '../config/env.js';
 import { mergeGuestCartIntoUserCart } from '../services/cart.service.js';
 import { logger } from '../utils/logger.js';
+import { emailService } from '../services/email.service.js';
 
 // Helper to convert JWT expiry string to milliseconds (assuming '15m' and '7d')
 const getMs = (val: string) => {
@@ -41,8 +42,14 @@ export async function requestOtp(req: Request, res: Response, next: NextFunction
       expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
 
-    // In a real application, send this via email
+    // Send this via email
     logger.info({ email, otp }, `OTP generated for ${email}`);
+    await emailService.sendEmail({
+      to: email,
+      subject: 'Your Login OTP - TheLoveSides',
+      text: `Your One-Time Password (OTP) for login is: ${otp}. It is valid for 5 minutes.`,
+      html: `<p>Your One-Time Password (OTP) for login is: <strong>${otp}</strong></p><p>It is valid for 5 minutes.</p>`,
+    });
 
     sendSuccess({
       res,
@@ -328,7 +335,14 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
     const resetLink = `${env.STOREFRONT_URL}/reset-password?token=${token}&id=${user.id}`;
     
     logger.info({ resetLink }, `Password reset link generated for ${email}`);
-    // In production, send this via email using a notification worker
+    
+    // Send this via email
+    await emailService.sendEmail({
+      to: email,
+      subject: 'Password Reset - TheLoveSides',
+      text: `You requested a password reset. Click the link to reset your password: ${resetLink}`,
+      html: `<p>You requested a password reset.</p><p><a href="${resetLink}">Click here to reset your password</a></p>`,
+    });
 
     sendSuccess({ res, message: 'If that email is registered, a password reset link has been sent.' });
   } catch (error) {
