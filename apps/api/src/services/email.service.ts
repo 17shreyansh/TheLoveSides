@@ -1,8 +1,8 @@
-import nodemailer from 'nodemailer';
+import nodemailer, { Transporter } from 'nodemailer';
 import { env } from '../config/env.js';
 
 class EmailService {
-  private transporter: nodemailer.Transporter;
+  private transporter: Transporter;
 
   constructor() {
     this.transporter = nodemailer.createTransport({
