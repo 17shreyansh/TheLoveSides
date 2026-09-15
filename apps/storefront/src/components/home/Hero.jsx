@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Button from '../ui/Button';
 import { useTheme } from '../../context/ThemeContext';
-import HeroImageDesktop from '../../assets/images/heroimg.jpeg';
+import HeroImageDesktop from '../../assets/hero1.png';
 import HeroImageMobile from '../../assets/images/HeroImage2.jpeg';
 
 export default function Hero() {
@@ -51,27 +51,27 @@ export default function Hero() {
           initial="hidden"
           animate="visible"
         >
-          <motion.h1 
+          <motion.h1
             variants={itemVariants}
             className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif leading-[1.2] md:leading-[1.05] text-ivory md:text-black mb-4 md:mb-6"
             dangerouslySetInnerHTML={{ __html: hero?.title || 'Curtains & <br class="md:hidden" /> Quiet Luxury' }}
           />
-          
-          <motion.p 
+
+          <motion.p
             variants={itemVariants}
             className="hidden md:block text-lg md:text-xl text-black/80 font-sans mb-10 leading-relaxed"
           >
             {hero?.description || 'Shop our exclusive collection of premium curtains and blinds. Discover high-quality fabrics, custom sizing, and effortless style to elevate any room.'}
           </motion.p>
-          
-          <motion.p 
+
+          <motion.p
             variants={itemVariants}
             className="md:hidden text-base text-ivory/80 font-sans mb-8 leading-relaxed"
           >
             {hero?.subtitle || 'Home, Styled with Love'}
           </motion.p>
-          
-          <motion.div 
+
+          <motion.div
             variants={itemVariants}
             className="flex gap-4 flex-wrap"
           >
@@ -90,7 +90,7 @@ export default function Hero() {
               </Link>
             )}
           </motion.div>
-          
+
         </motion.div>
       </div>
     </section>
