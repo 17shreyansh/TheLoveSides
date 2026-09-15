@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Button from '../ui/Button';
 import { useTheme } from '../../context/ThemeContext';
-import HeroImageDesktop from '../../assets/hero1.png';
+import HeroImageDesktop from '../../assets/hero1.PNG';
 import HeroImageMobile from '../../assets/images/HeroImage2.jpeg';
 
 export default function Hero() {
