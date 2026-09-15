@@ -1,20 +1,29 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { FlyToCartProvider } from './context/FlyToCartContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
-import Home from './pages/Home';
-import ProductPage from './pages/ProductPage';
-import CategoryPage from './pages/CategoryPage';
-import ProductsPage from './pages/ProductsPage';
-import CheckoutPage from './pages/CheckoutPage';
-import OrderSuccessPage from './pages/OrderSuccessPage';
-import ProfilePage from './pages/ProfilePage';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-import CmsPage from './pages/CmsPage';
-import TrackPage from './pages/TrackPage';
+
+// Lazy load pages for code splitting
+const Home = lazy(() => import('./pages/Home'));
+const ProductPage = lazy(() => import('./pages/ProductPage'));
+const CategoryPage = lazy(() => import('./pages/CategoryPage'));
+const ProductsPage = lazy(() => import('./pages/ProductsPage'));
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
+const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const CmsPage = lazy(() => import('./pages/CmsPage'));
+const TrackPage = lazy(() => import('./pages/TrackPage'));
+
+// A simple loading fallback
+const PageLoader = () => (
+  <div className="flex justify-center items-center h-[60vh]">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900 dark:border-white"></div>
+  </div>
+);
 
 function App() {
   return (
@@ -26,19 +35,21 @@ function App() {
           <div className="flex flex-col min-h-screen">
             <Navbar />
             <main className="flex-grow">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/products" element={<ProductsPage />} />
-                <Route path="/product/:slug" element={<ProductPage />} />
-                <Route path="/category/:categorySlug" element={<CategoryPage />} />
-                <Route path="/arrivals" element={<CategoryPage type="arrivals" />} />
-                <Route path="/best-sellers" element={<CategoryPage type="bestsellers" />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/order-success" element={<OrderSuccessPage />} />
-                <Route path="/track" element={<TrackPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/pages/:slug" element={<CmsPage />} />
-              </Routes>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/products" element={<ProductsPage />} />
+                  <Route path="/product/:slug" element={<ProductPage />} />
+                  <Route path="/category/:categorySlug" element={<CategoryPage />} />
+                  <Route path="/arrivals" element={<CategoryPage type="arrivals" />} />
+                  <Route path="/best-sellers" element={<CategoryPage type="bestsellers" />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/order-success" element={<OrderSuccessPage />} />
+                  <Route path="/track" element={<TrackPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/pages/:slug" element={<CmsPage />} />
+                </Routes>
+              </Suspense>
             </main>
             <Footer />
           </div>
