@@ -106,7 +106,7 @@ export interface ShiprocketProductParams {
  * Pushes an order to Shiprocket for fulfillment.
  * Converts our internal Order model to Shiprocket's payload format.
  */
-export async function createShiprocketOrder(order: IOrder, userEmail: string): Promise<ShiprocketOrderResponse> {
+export async function createShiprocketOrder(order: IOrder, userEmail: string, defaultWeight: number = 0.5): Promise<ShiprocketOrderResponse> {
   try {
     const [firstName, ...lastNameParts] = order.shippingAddress.fullName.split(' ');
     const lastName = lastNameParts.join(' ') || '-';
@@ -158,7 +158,7 @@ export async function createShiprocketOrder(order: IOrder, userEmail: string): P
       length: 10, // cm
       breadth: 10, // cm
       height: 10, // cm
-      weight: 0.5, // kg
+      weight: defaultWeight, // kg
     };
 
     const response = await shiprocketFetch('/orders/create/adhoc', {

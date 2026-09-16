@@ -22,6 +22,11 @@ export function ThemeProvider({ children }) {
       buttonText: 'Shop The Sale',
       buttonLink: '/products'
     },
+    homeSections: {
+      showFeatured: true, showBestSellers: true, bestSellersMode: 'manual'
+    },
+    signatures: [],
+    socialLinks: [],
     loading: true
   });
 
@@ -45,7 +50,8 @@ export function ThemeProvider({ children }) {
           stats: settingsMap['theme.home.stats'] || [],
           hero: settingsMap['theme.home.hero'] || {
             title: '', subtitle: '', description: '',
-            button1Text: '', button1Link: '', button2Text: '', button2Link: ''
+            button1Text: '', button1Link: '', button2Text: '', button2Link: '',
+            desktopImageUrl: '', mobileImageUrl: ''
           },
           promoBanner: settingsMap['theme.home.promo_banner'] || {
             title: 'Spring Sale Event',
@@ -53,6 +59,11 @@ export function ThemeProvider({ children }) {
             buttonText: 'Shop The Sale',
             buttonLink: '/products'
           },
+          homeSections: settingsMap['theme.home.sections'] || {
+            showFeatured: true, showBestSellers: true, bestSellersMode: 'manual'
+          },
+          signatures: settingsMap['theme.home.signatures'] || [],
+          socialLinks: settingsMap['theme.social.links'] || [],
           loading: false
         });
       } catch (error) {

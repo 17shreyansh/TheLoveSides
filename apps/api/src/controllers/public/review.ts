@@ -4,9 +4,24 @@ import { Order } from '../../models/Order.js';
 import { sendSuccess, sendPaginated } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
 
+export async function checkHasReviewed(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { productId } = req.params;
+    if (!req.user) {
+      sendSuccess({ res, data: { hasReviewed: false } });
+      return;
+    }
+    
+    const existingReview = await Review.findOne({ userId: req.user.id, productId });
+    sendSuccess({ res, data: { hasReviewed: !!existingReview } });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function submitReview(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { productId, rating, title, comment, images } = req.body;
+    const { productId, rating, title, content, images } = req.body;
 
     // Optional: Validate that the user actually purchased the product
     const hasPurchased = await Order.exists({
@@ -28,10 +43,10 @@ export async function submitReview(req: Request, res: Response, next: NextFuncti
       userId: req.user!.id,
       rating,
       title,
-      comment,
+      content,
       images: images || [],
       isVerifiedPurchase,
-      status: 'PENDING', // Needs admin approval to show up
+      status: 'pending', // Needs admin approval to show up
     });
 
     sendSuccess({ res, data: review, message: 'Review submitted and is awaiting approval', statusCode: 201 });
@@ -47,7 +62,7 @@ export async function getProductReviews(req: Request, res: Response, next: NextF
     const limit = Math.min(parseInt(req.query.limit as string) || 10, 50);
     const skip = (page - 1) * limit;
 
-    const query = { productId, status: 'APPROVED' };
+    const query = { productId, status: 'approved' };
 
     const [reviews, total] = await Promise.all([
       Review.find(query)

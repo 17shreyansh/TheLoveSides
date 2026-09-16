@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Check, ChevronDown, Info, Ruler, Truck, Shield, RefreshCw, Calendar, Star, Award, Sparkles } from 'lucide-react';
+import { ArrowLeft, Check, ChevronDown, Info, Ruler, Truck, Shield, RefreshCw, Calendar, Star, Award, Sparkles, Heart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import { useFlyToCart } from '../context/FlyToCartContext';
 import { useProduct, useProducts } from '../hooks/useProducts';
 import { api } from '../lib/api';
 import Button from '../components/ui/Button';
 import StarRating from '../components/ui/StarRating';
 import ProductCard from '../components/ui/ProductCard';
+import ProductReviews from '../components/product/ProductReviews';
 import ImageZoomViewer from '../components/ui/ImageZoomViewer';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,6 +17,7 @@ export default function ProductPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const { triggerFlyToCart } = useFlyToCart();
   const mainImageRef = React.useRef(null);
   const { product, loading } = useProduct(slug);
@@ -25,6 +28,18 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
+  const [openDropdown, setOpenDropdown] = useState(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.custom-dropdown')) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Pincode state
   const [pincode, setPincode] = useState('');
@@ -92,6 +107,7 @@ export default function ProductPage() {
   const currentPrice = selectedVariant?.price || product.price;
   const currentComparePrice = selectedVariant?.compareAtPrice || product.compareAtPrice;
   const inStock = selectedVariant ? selectedVariant.isPurchasable : true;
+  const isWishlisted = isInWishlist(product?.id || product?._id);
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -225,23 +241,50 @@ export default function ProductPage() {
                         })}
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {attr.values.map((val) => {
-                          const isSelected = selectedOptions[attr.name] === val;
-                          return (
-                            <button 
-                              key={val}
-                              onClick={() => handleOptionSelect(attr.name, val)}
-                              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all ${
-                                isSelected 
-                                  ? 'border-pink-primary bg-pink-primary text-white shadow-md' 
-                                  : 'border-charcoal/20 text-charcoal hover:border-pink-primary'
-                              }`}
+                      <div className="relative w-full sm:w-72 custom-dropdown">
+                        <button
+                          type="button"
+                          onClick={() => setOpenDropdown(openDropdown === attr.name ? null : attr.name)}
+                          className={`w-full bg-white border ${openDropdown === attr.name ? 'border-pink-primary ring-1 ring-pink-primary' : 'border-charcoal/20'} text-charcoal py-3.5 px-5 rounded-xl text-left text-sm font-medium transition-all shadow-sm hover:border-pink-primary flex items-center justify-between group`}
+                        >
+                          <span className={selectedOptions[attr.name] ? 'text-charcoal' : 'text-charcoal/50'}>
+                            {selectedOptions[attr.name] || `Select ${attr.name}`}
+                          </span>
+                          <ChevronDown className={`w-5 h-5 text-charcoal/60 transition-transform duration-300 group-hover:text-pink-primary ${openDropdown === attr.name ? 'rotate-180 text-pink-primary' : ''}`} />
+                        </button>
+                        
+                        <AnimatePresence>
+                          {openDropdown === attr.name && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute z-50 w-full mt-2 bg-white border border-charcoal/10 rounded-xl shadow-xl overflow-hidden"
                             >
-                              {val}
-                            </button>
-                          );
-                        })}
+                              <ul className="max-h-60 overflow-y-auto py-1">
+                                {attr.values.map((val) => {
+                                  const isSelected = selectedOptions[attr.name] === val;
+                                  return (
+                                    <li key={val}>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          handleOptionSelect(attr.name, val);
+                                          setOpenDropdown(null);
+                                        }}
+                                        className={`w-full text-left px-5 py-3 text-sm transition-colors flex items-center justify-between ${isSelected ? 'bg-pink-50 text-pink-primary font-semibold' : 'text-charcoal hover:bg-gray-50'}`}
+                                      >
+                                        {val}
+                                        {isSelected && <Check className="w-4 h-4 text-pink-primary" />}
+                                      </button>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     )}
                   </div>
@@ -270,47 +313,59 @@ export default function ProductPage() {
 
             </div>
 
-            {/* Add to Cart Action */}
-            <Button 
-              variant="dark" 
-              className="w-full py-4 text-lg font-medium shadow-xl hover:-translate-y-1 relative overflow-hidden mb-4 disabled:opacity-50 disabled:hover:-translate-y-0"
-              onClick={handleAddToCart}
-              disabled={added || !inStock}
-            >
-              <AnimatePresence mode="wait">
-                {added ? (
-                  <motion.span
-                    key="added"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -15 }}
-                    className="flex items-center justify-center gap-2 text-pink-primary-light"
-                  >
-                    <Check className="w-5 h-5" /> Added to Cart
-                  </motion.span>
-                ) : !inStock ? (
-                  <motion.span
-                    key="outofstock"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -15 }}
-                    className="block"
-                  >
-                    Out of Stock
-                  </motion.span>
-                ) : (
-                  <motion.span
-                    key="add"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -15 }}
-                    className="block"
-                  >
-                    Add to Cart - ₹{Number(currentPrice * quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </Button>
+            {/* Add to Cart & Wishlist Actions */}
+            <div className="flex gap-4 mb-4">
+              <Button 
+                variant="dark" 
+                className="flex-grow py-4 text-lg font-medium shadow-xl hover:-translate-y-1 relative overflow-hidden disabled:opacity-50 disabled:hover:-translate-y-0"
+                onClick={handleAddToCart}
+                disabled={added || !inStock}
+              >
+                <AnimatePresence mode="wait">
+                  {added ? (
+                    <motion.span
+                      key="added"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -15 }}
+                      className="flex items-center justify-center gap-2 text-pink-primary-light"
+                    >
+                      <Check className="w-5 h-5" /> Added to Cart
+                    </motion.span>
+                  ) : !inStock ? (
+                    <motion.span
+                      key="outofstock"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -15 }}
+                      className="block"
+                    >
+                      Out of Stock
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="add"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -15 }}
+                      className="block"
+                    >
+                      Add to Cart - ₹{Number(currentPrice * quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </Button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleWishlist(product.id || product._id);
+                }}
+                className={`w-[72px] shrink-0 flex items-center justify-center rounded-xl border transition-all shadow-sm hover:shadow-md hover:-translate-y-1 ${isWishlisted ? 'bg-pink-50 border-pink-primary' : 'bg-white border-charcoal/20 hover:border-pink-primary'}`}
+                aria-label="Toggle Wishlist"
+              >
+                <Heart className={`w-7 h-7 transition-colors ${isWishlisted ? 'fill-pink-primary text-pink-primary' : 'text-charcoal'}`} />
+              </button>
+            </div>
             
             {/* Delivery Estimate Box */}
             <div className="mb-6 p-5 rounded-2xl border border-charcoal/10 bg-white shadow-sm">
@@ -490,6 +545,11 @@ export default function ProductPage() {
         </div>
       </div>
 
+      {/* Product Reviews */}
+      <div className="max-w-7xl mx-auto px-6 md:px-10">
+        <ProductReviews productId={product.id} />
+      </div>
+
       {/* Related Products Section */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 mt-20 md:mt-32 border-t border-charcoal/10 pt-20">
         <div className="text-center mb-12">
@@ -506,15 +566,25 @@ export default function ProductPage() {
       {/* Mobile Sticky Add to Cart Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 px-6 z-50 md:hidden flex justify-between items-center shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
         <div>
-          <p className="text-xs text-gray-500 font-sans uppercase font-medium">{product.name}</p>
+          <p className="text-xs text-gray-500 font-sans uppercase font-medium line-clamp-1 max-w-[150px]">{product.name}</p>
           <p className="text-lg font-sans font-semibold text-charcoal">₹{Number(currentPrice * quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</p>
         </div>
-        <Button 
-          variant="dark" 
-          className="px-8 py-3 relative overflow-hidden disabled:opacity-50"
-          onClick={handleAddToCart}
-          disabled={added || !inStock}
-        >
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              toggleWishlist(product.id || product._id);
+            }}
+            className={`w-12 h-12 flex items-center justify-center rounded-xl border transition-all ${isWishlisted ? 'bg-pink-50 border-pink-primary' : 'bg-gray-50 border-gray-200'}`}
+          >
+            <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-pink-primary text-pink-primary' : 'text-gray-500'}`} />
+          </button>
+          <Button 
+            variant="dark" 
+            className="px-6 py-3 relative overflow-hidden disabled:opacity-50 whitespace-nowrap"
+            onClick={handleAddToCart}
+            disabled={added || !inStock}
+          >
           <AnimatePresence mode="wait">
             {added ? (
               <motion.span
@@ -549,6 +619,7 @@ export default function ProductPage() {
             )}
           </AnimatePresence>
         </Button>
+        </div>
       </div>
     </div>
   );

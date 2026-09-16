@@ -7,6 +7,7 @@ import Button from '../components/ui/Button';
 import { useProducts } from '../hooks/useProducts';
 import { useCollections } from '../hooks/useCollections';
 import { useRooms } from '../hooks/useRooms';
+import { useColors } from '../hooks/useColors';
 import clsx from 'clsx';
 
 export default function ProductsPage() {
@@ -17,6 +18,7 @@ export default function ProductsPage() {
   
   const selectedCollection = searchParams.get('collection') || '';
   const selectedRoom = searchParams.get('room') || '';
+  const selectedColor = searchParams.get('color') || '';
   const [selectedSort, setSelectedSort] = useState('newest'); // 'newest', 'price_asc', 'price_desc'
 
   const updateParam = (key, value) => {
@@ -29,10 +31,12 @@ export default function ProductsPage() {
 
   const { collections, loading: collectionsLoading } = useCollections();
   const { rooms, loading: roomsLoading } = useRooms();
+  const { colors, loading: colorsLoading } = useColors();
 
   const query = {};
   if (selectedCollection) query.collection = selectedCollection;
   if (selectedRoom) query.room = selectedRoom;
+  if (selectedColor) query.color = selectedColor;
   if (selectedSort) query.sort = selectedSort;
 
   const { products, loading: productsLoading } = useProducts(query);
@@ -47,7 +51,7 @@ export default function ProductsPage() {
   // Reset pagination when filters change
   useEffect(() => {
     setVisibleCount(12);
-  }, [selectedCollection, selectedRoom, selectedSort]);
+  }, [selectedCollection, selectedRoom, selectedSort, selectedColor]);
 
   const FilterSidebarContent = () => (
     <div className="space-y-8 font-sans">
@@ -116,6 +120,34 @@ export default function ProductsPage() {
               </button>
             ))}
           </div>
+        )}
+      </div>
+
+      {/* Colors Filter */}
+      <div>
+        <h3 className="text-sm font-semibold text-charcoal mb-4 uppercase tracking-wider">Colors</h3>
+        {colorsLoading ? (
+          <div className="flex gap-3 animate-pulse">
+            {[1, 2, 3, 4].map(i => <div key={i} className="w-8 h-8 rounded-full bg-charcoal/10"></div>)}
+          </div>
+        ) : colors.length > 0 ? (
+          <div className="flex flex-wrap gap-3">
+            {colors.map(color => (
+              <button
+                key={color.id}
+                onClick={() => updateParam('color', selectedColor === color.label ? '' : color.label)}
+                className={clsx(
+                  "w-8 h-8 rounded-full border-2 transition-all duration-300",
+                  selectedColor === color.label ? "border-pink-primary scale-110" : "border-transparent hover:scale-110 shadow-sm"
+                )}
+                style={{ backgroundColor: color.hex }}
+                title={color.label}
+                aria-label={`Filter by ${color.label}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-charcoal/60">No colors available</p>
         )}
       </div>
     </div>
@@ -245,6 +277,7 @@ export default function ProductsPage() {
                   onClick={() => {
                     updateParam('collection', '');
                     updateParam('room', '');
+                    updateParam('color', '');
                   }}
                 >
                   Clear Filters

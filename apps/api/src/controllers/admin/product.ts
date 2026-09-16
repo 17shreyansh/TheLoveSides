@@ -151,6 +151,8 @@ export async function listProducts(req: Request, res: Response, next: NextFuncti
 
     if (req.query.status) query.status = req.query.status;
     if (req.query.room) query.roomIds = new mongoose.Types.ObjectId(req.query.room as string);
+    if (req.query.category) query.categoryIds = new mongoose.Types.ObjectId(req.query.category as string);
+    if (req.query.subcategory) query.subCategoryIds = new mongoose.Types.ObjectId(req.query.subcategory as string);
     if (req.query.search) {
       query.$text = { $search: req.query.search as string };
     }
@@ -161,6 +163,7 @@ export async function listProducts(req: Request, res: Response, next: NextFuncti
         .skip(skip)
         .limit(limit)
         .populate('roomIds', 'name slug')
+        .populate('categoryIds', 'name slug')
         .lean(),
       Product.countDocuments(query),
     ]);
@@ -212,6 +215,8 @@ export async function getProductById(req: Request, res: Response, next: NextFunc
     const product = await Product.findOne({ _id: id, deletedAt: null })
       .populate('roomIds', 'name slug')
       .populate('collectionIds', 'name slug')
+      .populate('categoryIds', 'name slug')
+      .populate('subCategoryIds', 'name slug')
       .lean();
 
     if (!product) {

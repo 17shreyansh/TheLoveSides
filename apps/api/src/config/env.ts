@@ -37,6 +37,7 @@ const envSchema = z.object({
   SHIPROCKET_PASSWORD: z.string().optional(),
   SHIPROCKET_API_URL: z.string().url().optional(),
   SHIPROCKET_WEBHOOK_TOKEN: z.string().optional(),
+  SHIPROCKET_PICKUP_PINCODE: z.string().optional(),
 
   // Email
   SMTP_HOST: z.string().optional(),

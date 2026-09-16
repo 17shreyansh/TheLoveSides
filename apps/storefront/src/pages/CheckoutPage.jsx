@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
+import { Truck } from 'lucide-react';
 
 export default function CheckoutPage() {
   const { state, fetchCart } = useCart();
@@ -49,10 +50,10 @@ export default function CheckoutPage() {
         try {
           // In a real app, calculate total weight from cart
           const { data } = await api.get(`/shipping/rates?pincode=${formData.postalCode}&weight=0.5`);
-          if (data.data?.rates?.length > 0) {
-            setShippingRates(data.data.rates);
+          if (data.rates && data.rates.length > 0) {
+            setShippingRates(data.rates);
             // Auto-select the cheapest rate
-            const cheapest = data.data.rates.reduce((prev, curr) => prev.rate < curr.rate ? prev : curr);
+            const cheapest = data.rates.reduce((prev, curr) => prev.rate < curr.rate ? prev : curr);
             setSelectedRate(cheapest);
           } else {
             setShippingRates([]);
@@ -60,7 +61,7 @@ export default function CheckoutPage() {
             setRatesError('No shipping rates found for this PIN code');
           }
         } catch (err) {
-          setRatesError('Failed to fetch shipping rates');
+          setRatesError(err.response?.data?.error?.message || 'Failed to fetch shipping rates');
           setShippingRates([]);
           setSelectedRate(null);
         } finally {
@@ -97,7 +98,8 @@ export default function CheckoutPage() {
     try {
       // 1. Create order on backend (which creates Razorpay order)
       const shippingAddress = {
-        fullName: `${formData.firstName} ${formData.lastName}`,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         addressLine1: formData.addressLine1,
         addressLine2: formData.addressLine2,
         city: formData.city,
@@ -118,11 +120,11 @@ export default function CheckoutPage() {
         } : null
       }, { withCredentials: true });
 
-      const { orderId } = data.data;
+      const { orderId, orderNumber } = data;
 
       // 2. Initialize Razorpay Order
-      const { data: paymentData } = await api.post(`/payment/${orderId}/initiate`, {}, { withCredentials: true });
-      const razorpayOrder = paymentData.data;
+      const { data: paymentData } = await api.post(`/payments/${orderId}/initiate`, {}, { withCredentials: true });
+      const razorpayOrder = paymentData;
 
       // Ensure Razorpay script is loaded
       if (!window.Razorpay) {
@@ -140,7 +142,7 @@ export default function CheckoutPage() {
         handler: async function (response) {
           // 4. Verify Payment on Backend
           try {
-            await api.post(`/payment/${orderId}/verify`, {
+            await api.post(`/payments/${orderId}/verify`, {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
@@ -148,7 +150,11 @@ export default function CheckoutPage() {
             
             // Payment successful, clear cart and redirect
             fetchCart(); // This will clear the cart from state (since backend clears it)
-            navigate('/order-success');
+            navigate(`/order/${orderId}`, {
+              state: {
+                paymentSuccessful: true
+              }
+            });
           } catch (err) {
             console.error('Payment verification failed', err);
             alert('Payment verification failed. Please contact support.');
@@ -173,7 +179,8 @@ export default function CheckoutPage() {
 
     } catch (error) {
       console.error('Checkout failed:', error);
-      alert(error.response?.data?.message || 'Failed to initiate checkout.');
+      console.error('Response data:', error.response?.data);
+      alert(error.response?.data?.error?.message || error.response?.data?.message || 'Failed to initiate checkout.');
     } finally {
       setLoading(false);
     }
@@ -304,41 +311,35 @@ export default function CheckoutPage() {
                     <p className="text-sm text-red-500 font-sans">{ratesError}</p>
                   ) : shippingRates.length > 0 ? (
                     <div className="space-y-3">
-                      {shippingRates.map((rate) => (
-                        <label 
-                          key={rate.courierId} 
-                          className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
-                            selectedRate?.courierId === rate.courierId 
-                              ? 'border-pink-primary bg-pink-primary/5 shadow-sm' 
-                              : 'border-charcoal/10 hover:border-pink-primary/50'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <input 
-                              type="radio" 
-                              name="shippingRate"
-                              checked={selectedRate?.courierId === rate.courierId}
-                              onChange={() => setSelectedRate(rate)}
-                              className="w-4 h-4 text-pink-primary focus:ring-pink-primary border-gray-300"
-                            />
+                      {selectedRate && (
+                        <div className="flex items-center justify-between p-4 rounded-xl border border-pink-primary bg-pink-primary/5 shadow-sm transition-all duration-300">
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-pink-primary/10 text-pink-primary shrink-0">
+                              <Truck className="w-5 h-5" />
+                            </div>
                             <div>
-                              <p className="font-medium font-sans text-charcoal text-sm">{rate.courierName}</p>
-                              {rate.estimatedDays && (
-                                <p className="text-xs text-charcoal/60 font-sans mt-0.5">Est. delivery: {rate.estimatedDays} days</p>
+                              <p className="font-medium font-sans text-charcoal text-base">Standard Delivery</p>
+                              {selectedRate.estimatedDays ? (
+                                <p className="text-xs text-charcoal/60 font-sans mt-1">Estimated delivery: {selectedRate.estimatedDays} business days</p>
+                              ) : (
+                                <p className="text-xs text-charcoal/60 font-sans mt-1">Safe and secure delivery</p>
                               )}
                             </div>
                           </div>
-                          <p className="font-semibold font-sans text-charcoal text-sm">
-                            ₹{rate.rate}
-                          </p>
-                        </label>
-                      ))}
+                          <div className="flex flex-col items-end">
+                            <p className="font-semibold font-sans text-charcoal text-base">
+                              ₹{selectedRate.rate}
+                            </p>
+                            <span className="text-[10px] uppercase tracking-wider text-green-600 font-semibold mt-1 bg-green-50 px-2 py-0.5 rounded-full">Best Price</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : null}
                 </div>
               )}
 
-              <Button type="submit" variant="dark" className="w-full py-4 text-lg shadow-lg" disabled={loading || (!selectedRate && shippingRates.length > 0)}>
+              <Button type="submit" variant="dark" className="w-full py-4 text-lg shadow-lg" disabled={loading || !selectedRate}>
                 {loading ? 'Processing...' : 'Pay Now'}
               </Button>
             </form>

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticateCustomer } from '../middleware/auth.js';
+
 import { checkDeliveryAvailability, getCheckoutShippingRates, trackByAWB } from '../controllers/public/shipping.js';
 
 const router = Router();
@@ -7,8 +7,8 @@ const router = Router();
 // Public — no auth required (used on product pages)
 router.get('/check', checkDeliveryAvailability);
 
-// Authenticated — used during checkout
-router.get('/rates', authenticateCustomer, getCheckoutShippingRates);
+// Public or Guest checkout — used during checkout
+router.get('/rates', getCheckoutShippingRates);
 
 // Public — track AWB
 router.get('/track/:awb', trackByAWB);

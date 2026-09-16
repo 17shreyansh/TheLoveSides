@@ -26,6 +26,8 @@ export interface IProduct extends Document {
   brand?: string;
   roomIds: Types.ObjectId[];
   collectionIds: Types.ObjectId[];
+  categoryIds: Types.ObjectId[];
+  subCategoryIds: Types.ObjectId[];
   tags: string[];
   // Attributes are the variant-defining dimensions or generic properties (e.g., Color, Size)
   attributes: { name: string; values: string[] }[];
@@ -37,6 +39,7 @@ export interface IProduct extends Document {
   isBestSeller: boolean;
   isNewArrival: boolean;
   publishedAt?: Date;
+  salesCount: number;
   // Tax
   taxRate?: number;
   hsnCode?: string;
@@ -97,6 +100,16 @@ const productSchema = new Schema<IProduct>(
       ref: 'Collection',
       index: true,
     }],
+    categoryIds: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+      index: true,
+    }],
+    subCategoryIds: [{
+      type: Schema.Types.ObjectId,
+      ref: 'SubCategory',
+      index: true,
+    }],
     tags: [{ type: String, lowercase: true, trim: true }],
     attributes: [{
       name: { type: String, required: true },
@@ -115,6 +128,7 @@ const productSchema = new Schema<IProduct>(
     isBestSeller: { type: Boolean, default: false },
     isNewArrival: { type: Boolean, default: false },
     publishedAt: { type: Date },
+    salesCount: { type: Number, default: 0, min: 0, index: true },
     taxRate: { type: Number, min: 0, max: 100 },
     hsnCode: { type: String, trim: true },
     isTaxInclusive: { type: Boolean, default: true },
@@ -142,6 +156,8 @@ productSchema.index({ status: 1, isBestSeller: 1 });
 productSchema.index({ status: 1, isNewArrival: 1 });
 productSchema.index({ status: 1, roomIds: 1 });
 productSchema.index({ status: 1, collectionIds: 1 });
+productSchema.index({ status: 1, categoryIds: 1 });
+productSchema.index({ status: 1, subCategoryIds: 1 });
 productSchema.index({ createdAt: -1 });
 
 export const Product = mongoose.model<IProduct>('Product', productSchema);

@@ -63,16 +63,31 @@ export default function MobileMenu({ isOpen, onClose, onAuthClick }) {
               </button>
             </div>
             
-            <nav className="flex flex-col gap-6 font-sans text-lg text-charcoal font-medium">
+            <nav className="flex flex-col gap-6 font-sans text-lg text-charcoal font-medium overflow-y-auto max-h-[60vh] no-scrollbar">
               {(navbarLinks || []).map((link) => (
-                <Link 
-                  key={link.title} 
-                  to={link.href} 
-                  className="hover:text-pink-primary transition-colors w-fit tracking-wide uppercase text-sm"
-                  onClick={onClose}
-                >
-                  {link.title}
-                </Link>
+                <div key={link.title} className="flex flex-col gap-4">
+                  <Link 
+                    to={link.href} 
+                    className="hover:text-pink-primary transition-colors w-fit tracking-wide uppercase text-sm"
+                    onClick={onClose}
+                  >
+                    {link.title}
+                  </Link>
+                  {link.subLinks && link.subLinks.length > 0 && (
+                    <div className="flex flex-col gap-3 pl-4 border-l-2 border-charcoal/10 ml-1">
+                      {link.subLinks.map(sub => (
+                        <Link
+                          key={sub.name}
+                          to={sub.href}
+                          className="text-sm text-charcoal/70 hover:text-pink-primary transition-colors w-fit"
+                          onClick={onClose}
+                        >
+                          {sub.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </nav>
 

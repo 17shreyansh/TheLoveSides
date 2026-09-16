@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, ShoppingBag, Search, User } from 'lucide-react';
+import { Menu, ShoppingBag, Search, User, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 import { useCart } from '../../context/CartContext';
 import { useFlyToCart } from '../../context/FlyToCartContext';
+import { useWishlist } from '../../context/WishlistContext';
 import { useTheme } from '../../context/ThemeContext';
 import MobileMenu from './MobileMenu';
 import NavbarRibbon from './NavbarRibbon';
@@ -19,6 +20,7 @@ export default function Navbar() {
   const { navbarLinks } = useTheme();
   const { scrollY, showRibbon } = useScrollDirection();
   const { state } = useCart();
+  const { state: wishlistState } = useWishlist();
   const { cartIconRef } = useFlyToCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -107,7 +109,7 @@ export default function Navbar() {
               </span>
             </Link>
 
-            {/* RIGHT: User & Cart */}
+            {/* RIGHT: User & Wishlist & Cart */}
             <div className="flex items-center gap-3 md:gap-5">
               <button 
                 onClick={() => isAuthenticated ? navigate('/profile') : setIsAuthOpen(true)}
@@ -115,6 +117,19 @@ export default function Navbar() {
                 aria-label="Account"
               >
                 <User className="w-5 h-5 md:w-6 md:h-6 lg:w-5 lg:h-5" />
+              </button>
+
+              <button 
+                onClick={() => isAuthenticated ? navigate('/wishlist') : setIsAuthOpen(true)}
+                className="relative p-1 text-charcoal hover:text-pink-primary transition-colors focus:outline-none hidden sm:block"
+                aria-label="Wishlist"
+              >
+                <Heart className="w-5 h-5 md:w-6 md:h-6 lg:w-5 lg:h-5" />
+                {wishlistState.items.length > 0 && (
+                  <Badge>
+                    {wishlistState.items.length}
+                  </Badge>
+                )}
               </button>
               
               <button 
@@ -135,16 +150,46 @@ export default function Navbar() {
         </div>
 
         {/* ROW 3: Categories (Desktop Only) */}
-        <div className="hidden md:flex w-full md:py-3 lg:py-2 border-b border-charcoal/10 bg-cream">
-          <nav className="max-w-7xl mx-auto px-4 md:px-6 lg:px-10 flex justify-start xl:justify-center gap-6 lg:gap-8 xl:gap-10 w-full overflow-x-auto no-scrollbar">
+        <div className="hidden md:flex w-full md:py-3 lg:py-2 border-b border-charcoal/10 bg-cream relative">
+          <nav className="max-w-7xl mx-auto px-4 md:px-6 lg:px-10 flex flex-wrap justify-start xl:justify-center gap-6 lg:gap-8 xl:gap-10 w-full overflow-visible">
             {(navbarLinks || []).map((link) => (
-              <Link 
-                key={link.title} 
-                to={link.href}
-                className="text-xs lg:text-sm font-medium tracking-wider uppercase text-charcoal hover:text-pink-primary relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[2px] after:bg-pink-primary hover:after:w-full after:transition-all after:duration-300 whitespace-nowrap shrink-0"
-              >
-                {link.title}
-              </Link>
+              <div key={link.title} className="group py-2">
+                <Link 
+                  to={link.href}
+                  className="text-xs lg:text-sm font-medium tracking-wider uppercase text-charcoal hover:text-pink-primary relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[2px] after:bg-pink-primary hover:after:w-full after:transition-all after:duration-300 whitespace-nowrap shrink-0 inline-block"
+                >
+                  {link.title}
+                </Link>
+                {link.subLinks && link.subLinks.length > 0 && (
+                  <div className="absolute top-full left-0 w-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60]">
+                    <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-10 pb-4">
+                      <div className="bg-white/95 backdrop-blur-md shadow-2xl shadow-charcoal/5 border border-charcoal/10 rounded-2xl p-8 flex transform origin-top -translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                        <div className="w-1/4 pr-8 border-r border-charcoal/10 flex flex-col justify-center">
+                           <h3 className="text-xl font-serif text-charcoal mb-3">{link.title}</h3>
+                           <p className="text-sm text-charcoal/60 leading-relaxed">
+                             Explore our curated selection of {link.title.toLowerCase()}.
+                           </p>
+                           <Link to={link.href} className="mt-4 text-sm font-medium text-pink-primary hover:text-pink-primary/80 transition-colors uppercase tracking-wider">
+                             View All &rarr;
+                           </Link>
+                        </div>
+                        <div className="w-3/4 pl-8 columns-1 sm:columns-2 lg:columns-3 gap-8">
+                          {link.subLinks.map(subLink => (
+                            <Link 
+                               key={subLink.name} 
+                               to={subLink.href}
+                               className="text-sm font-medium text-charcoal/80 hover:text-pink-primary transition-colors flex items-center gap-2 group/link break-inside-avoid mb-4"
+                            >
+                               <span className="w-1.5 h-1.5 rounded-full bg-pink-primary/0 group-hover/link:bg-pink-primary transition-colors"></span>
+                               {subLink.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             ))}
           </nav>
         </div>

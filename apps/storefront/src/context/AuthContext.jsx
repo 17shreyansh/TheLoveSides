@@ -1,9 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
-
-// Configure axios base URL and credentials
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-axios.defaults.withCredentials = true;
+import { api } from '../lib/api';
 
 const AuthContext = createContext();
 
@@ -16,9 +12,9 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get('/auth/me');
-        if (response.data.success) {
-          setUser(response.data.data);
+        const data = await api.get('/auth/me');
+        if (data.success) {
+          setUser(data.data);
           setIsAuthenticated(true);
         }
       } catch (error) {
@@ -32,23 +28,32 @@ export function AuthProvider({ children }) {
     fetchUser();
   }, []);
 
+  useEffect(() => {
+    const handleLogout = () => {
+      setUser(null);
+      setIsAuthenticated(false);
+    };
+
+    window.addEventListener('auth:logout', handleLogout);
+    return () => window.removeEventListener('auth:logout', handleLogout);
+  }, []);
+
   const requestOtp = async (email) => {
-    const response = await axios.post('/auth/request-otp', { email });
-    return response.data;
+    return await api.post('/auth/request-otp', { email });
   };
 
   const verifyOtp = async (email, otp) => {
-    const response = await axios.post('/auth/verify-otp', { email, otp });
-    if (response.data.success) {
-      setUser(response.data.data);
+    const data = await api.post('/auth/verify-otp', { email, otp });
+    if (data.success) {
+      setUser(data.data);
       setIsAuthenticated(true);
     }
-    return response.data;
+    return data;
   };
 
   const logout = async () => {
     try {
-      await axios.post('/auth/logout');
+      await api.post('/auth/logout');
     } finally {
       setUser(null);
       setIsAuthenticated(false);
@@ -60,11 +65,11 @@ export function AuthProvider({ children }) {
     // If the API had a PUT /auth/me or PUT /users/me, we would call it here.
     // Let's implement a fallback state update.
     try {
-      const response = await axios.patch('/account/profile', profileData);
-      if (response.data.success) {
-        setUser(response.data.data);
+      const data = await api.patch('/account/profile', profileData);
+      if (data.success) {
+        setUser(data.data);
       }
-      return response.data;
+      return data;
     } catch (error) {
       throw error;
     }

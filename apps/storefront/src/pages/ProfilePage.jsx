@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { User, Package, MapPin, LogOut, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
 
 export default function ProfilePage() {
@@ -18,6 +18,10 @@ export default function ProfilePage() {
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
 
+  // Orders state
+  const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       navigate('/');
@@ -25,6 +29,23 @@ export default function ProfilePage() {
       setFirstName(user.firstName || '');
       setLastName(user.lastName || '');
       setPhone(user.phone || '');
+      
+      // Fetch orders
+      const fetchOrders = async () => {
+        setLoadingOrders(true);
+        try {
+          // api.js handles baseURL and token via interceptors
+          const { api } = await import('../lib/api.js');
+          const data = await api.get('/orders', { withCredentials: true });
+          setOrders(data.data || []);
+        } catch (err) {
+          console.error('Failed to fetch orders:', err);
+        } finally {
+          setLoadingOrders(false);
+        }
+      };
+      
+      fetchOrders();
     }
   }, [user, isAuthenticated, isLoading, navigate]);
 
@@ -205,16 +226,87 @@ export default function ProfilePage() {
               {activeTab === 'orders' && (
                 <div>
                   <h2 className="text-3xl font-serif text-charcoal mb-8">Order History</h2>
-                  <div className="flex flex-col items-center justify-center py-24 text-center bg-ivory/50 rounded-2xl border border-dashed border-pink-soft/50">
-                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
-                      <Package className="w-8 h-8 text-pink-primary" />
+                  
+                  {loadingOrders ? (
+                    <div className="flex justify-center py-12">
+                      <Loader2 className="w-8 h-8 animate-spin text-pink-primary" />
                     </div>
-                    <h3 className="text-xl font-serif text-charcoal mb-2">No orders yet</h3>
-                    <p className="text-charcoal/60 font-sans">When you place orders, they will appear here.</p>
-                    <Button className="mt-6 rounded-xl" onClick={() => navigate('/products')}>
-                      Start Shopping
-                    </Button>
-                  </div>
+                  ) : orders.length > 0 ? (
+                    <div className="space-y-6">
+                      {orders.map((order) => (
+                        <div key={order._id || order.id} className="border border-pink-soft/20 rounded-2xl p-6 bg-ivory/30 shadow-sm transition-all hover:shadow-md">
+                          <div className="flex flex-col md:flex-row justify-between md:items-center border-b border-pink-soft/20 pb-4 mb-4 gap-4">
+                            <div>
+                              <div className="text-sm text-charcoal/60 mb-1">
+                                Order Placed
+                              </div>
+                              <div className="font-medium text-charcoal">
+                                {new Date(order.createdAt).toLocaleDateString('en-US', {
+                                  year: 'numeric', month: 'long', day: 'numeric'
+                                })}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-charcoal/60 mb-1">
+                                Total
+                              </div>
+                              <div className="font-medium text-charcoal">
+                                ₹{order.grandTotal?.toFixed(2) || (order.amount || 0).toFixed(2)}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-charcoal/60 mb-1">
+                                Order Number
+                              </div>
+                              <Link 
+                                to={`/order/${order._id}`}
+                                className="font-medium text-pink-primary hover:text-pink-primary/80 font-mono underline underline-offset-4"
+                              >
+                                {order.orderNumber || order.id}
+                              </Link>
+                            </div>
+                            <div className="md:text-right">
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-pink-primary/10 text-pink-primary border border-pink-primary/20">
+                                {order.status?.replace(/_/g, ' ') || 'PROCESSING'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-4">
+                            {order.items?.map((item, index) => (
+                              <div key={index} className="flex gap-4 items-center">
+                                {item.image ? (
+                                  <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-xl border border-pink-soft/20" />
+                                ) : (
+                                  <div className="w-16 h-16 bg-gray-100 flex items-center justify-center rounded-xl border border-pink-soft/20">
+                                    <Package className="w-6 h-6 text-gray-400" />
+                                  </div>
+                                )}
+                                <div className="flex-1">
+                                  <h4 className="font-serif text-charcoal">{item.name}</h4>
+                                  <p className="text-sm text-charcoal/60">Qty: {item.quantity}</p>
+                                </div>
+                                <div className="text-right font-medium text-charcoal">
+                                  ₹{(item.price * item.quantity).toFixed(2)}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-24 text-center bg-ivory/50 rounded-2xl border border-dashed border-pink-soft/50">
+                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
+                        <Package className="w-8 h-8 text-pink-primary" />
+                      </div>
+                      <h3 className="text-xl font-serif text-charcoal mb-2">No orders yet</h3>
+                      <p className="text-charcoal/60 font-sans">When you place orders, they will appear here.</p>
+                      <Button className="mt-6 rounded-xl" onClick={() => navigate('/products')}>
+                        Start Shopping
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
 

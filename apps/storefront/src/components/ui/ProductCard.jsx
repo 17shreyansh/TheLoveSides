@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Heart } from 'lucide-react';
 import StarRating from './StarRating';
 import Button from './Button';
 import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 import { useFlyToCart } from '../../context/FlyToCartContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProductCard({ product, layout = 'auto' }) {
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const { triggerFlyToCart } = useFlyToCart();
   const [added, setAdded] = useState(false);
   const imageRef = React.useRef(null);
+  
+  const isWishlisted = isInWishlist(product.id || product._id);
   
   const inStock = product.variants?.length > 0 
     ? product.variants[0].isPurchasable !== false 
@@ -31,14 +36,28 @@ export default function ProductCard({ product, layout = 'auto' }) {
   if (layout === 'vertical') {
     return (
       <div className="group rounded-xl bg-ivory shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden flex flex-col h-full border border-charcoal/5">
-        <Link to={`/product/${product.slug}`} className="relative w-full shrink-0 aspect-square md:aspect-[4/5] block cursor-pointer">
-          <img 
-            ref={imageRef}
-            src={product.image} 
-            alt={product.name} 
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        </Link>
+        <div className="relative w-full shrink-0 aspect-square md:aspect-[4/5] block">
+          <Link to={`/product/${product.slug}`} className="cursor-pointer block h-full w-full">
+            <img 
+              ref={imageRef}
+              src={product.image} 
+              alt={product.name} 
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </Link>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              toggleWishlist(product.id || product._id);
+            }}
+            className="absolute top-2 right-2 p-2 rounded-full bg-white/80 backdrop-blur hover:bg-white transition-colors z-10"
+            aria-label="Toggle Wishlist"
+          >
+            <Heart 
+              className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${isWishlisted ? 'fill-pink-primary text-pink-primary' : 'text-charcoal hover:text-pink-primary'}`} 
+            />
+          </button>
+        </div>
         <div className="flex flex-col flex-grow p-3 md:p-4 justify-between">
           <div>
             <Link to={`/product/${product.slug}`} className="hover:text-pink-primary transition-colors block mb-1">
@@ -104,14 +123,28 @@ export default function ProductCard({ product, layout = 'auto' }) {
   // Original layout ('auto')
   return (
     <div className="group rounded-2xl bg-ivory shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden flex flex-row sm:flex-col h-full">
-      <Link to={`/product/${product.slug}`} className="relative w-1/2 sm:w-full shrink-0 sm:aspect-[4/3] overflow-hidden rounded-l-2xl sm:rounded-l-none sm:rounded-t-2xl min-h-[150px] block cursor-pointer">
-        <img 
-          ref={imageRef}
-          src={product.image} 
-          alt={product.name} 
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      </Link>
+      <div className="relative w-1/2 sm:w-full shrink-0 sm:aspect-[4/3] overflow-hidden rounded-l-2xl sm:rounded-l-none sm:rounded-t-2xl min-h-[150px] block">
+        <Link to={`/product/${product.slug}`} className="cursor-pointer block h-full w-full">
+          <img 
+            ref={imageRef}
+            src={product.image} 
+            alt={product.name} 
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </Link>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            toggleWishlist(product.id || product._id);
+          }}
+          className="absolute top-2 right-2 sm:top-3 sm:right-3 p-2 rounded-full bg-white/80 backdrop-blur hover:bg-white transition-colors z-10"
+          aria-label="Toggle Wishlist"
+        >
+          <Heart 
+            className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${isWishlisted ? 'fill-pink-primary text-pink-primary' : 'text-charcoal hover:text-pink-primary'}`} 
+          />
+        </button>
+      </div>
       <div className="flex flex-col flex-grow w-1/2 sm:w-full p-4 sm:p-6 justify-between">
         <div>
           <Link to={`/product/${product.slug}`} className="hover:text-pink-primary transition-colors">

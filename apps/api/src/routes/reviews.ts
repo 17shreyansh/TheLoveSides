@@ -1,13 +1,21 @@
 import { Router } from 'express';
 import { authenticateCustomer } from '../middleware/auth.js';
-import { submitReview, getProductReviews } from '../controllers/public/review.js';
+import { submitReview, getProductReviews, checkHasReviewed } from '../controllers/public/review.js';
+import { uploadService } from '../services/storage.service.js';
+import { uploadSingle } from '../controllers/admin/upload.js';
 
 const router = Router();
+
+// Check if user has reviewed
+router.get('/check/:productId', authenticateCustomer, checkHasReviewed);
 
 // Publicly accessible for viewing reviews
 router.get('/:productId', getProductReviews);
 
 // Protected route for submitting reviews
 router.post('/', authenticateCustomer, submitReview);
+
+// Protected route for uploading review images
+router.post('/upload', authenticateCustomer, uploadService.single('file'), uploadSingle);
 
 export default router;

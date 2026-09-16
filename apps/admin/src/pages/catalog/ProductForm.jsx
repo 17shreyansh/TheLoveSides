@@ -65,6 +65,8 @@ export default function ProductForm() {
   const [loading, setLoading] = useState(isEditing);
   const [rooms, setRooms] = useState([]);
   const [collections, setCollections] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [formError, setFormError] = useState(null);
   
@@ -73,8 +75,12 @@ export default function ProductForm() {
     slug: '',
     description: '',
     status: 'draft',
+    isFeatured: false,
+    isBestSeller: false,
     roomIds: [],
     collectionIds: [],
+    categoryIds: [],
+    subCategoryIds: [],
     tags: [],
     images: [],
     attributes: [],
@@ -103,12 +109,16 @@ export default function ProductForm() {
   useEffect(() => {
     const init = async () => {
       try {
-        const [roomRes, colRes] = await Promise.all([
+        const [roomRes, colRes, catRes, subCatRes] = await Promise.all([
           api.get('/admin/catalog/rooms'),
-          api.get('/admin/catalog/collections')
+          api.get('/admin/catalog/collections'),
+          api.get('/admin/catalog/categories'),
+          api.get('/admin/catalog/subcategories')
         ]);
         setRooms(roomRes.data.data || []);
         setCollections(colRes.data.data || []);
+        setCategories(catRes.data.data || []);
+        setSubCategories(subCatRes.data.data || []);
         
         if (isEditing) {
           const res = await api.get(`/admin/catalog/products/${id}`);
@@ -126,8 +136,12 @@ export default function ProductForm() {
           
           setFormData({ 
             ...product,
+            isFeatured: !!product.isFeatured,
+            isBestSeller: !!product.isBestSeller,
             roomIds: (product.roomIds || []).map(r => typeof r === 'object' ? r._id : r),
             collectionIds: (product.collectionIds || []).map(c => typeof c === 'object' ? c._id : c),
+            categoryIds: (product.categoryIds || []).map(c => typeof c === 'object' ? c._id : c),
+            subCategoryIds: (product.subCategoryIds || []).map(c => typeof c === 'object' ? c._id : c),
             highlights: product.highlights || [],
             specifications: product.specifications || '',
             specificationTable: product.specificationTable || [],
@@ -354,6 +368,12 @@ export default function ProductForm() {
       }
       if (payload.collectionIds) {
         payload.collectionIds = payload.collectionIds.map(c => typeof c === 'object' ? c._id : c).filter(Boolean);
+      }
+      if (payload.categoryIds) {
+        payload.categoryIds = payload.categoryIds.map(c => typeof c === 'object' ? c._id : c).filter(Boolean);
+      }
+      if (payload.subCategoryIds) {
+        payload.subCategoryIds = payload.subCategoryIds.map(c => typeof c === 'object' ? c._id : c).filter(Boolean);
       }
 
       // Clean up empty highlights and attributes
@@ -822,6 +842,28 @@ export default function ProductForm() {
             <p className="text-xs text-gray-500 mt-2">
               Published products are immediately visible to customers.
             </p>
+
+            <div className="mt-6 space-y-4 pt-4 border-t border-gray-100">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.isFeatured}
+                  onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                  className="rounded border-gray-300 text-pink-primary focus:ring-pink-primary"
+                />
+                <span className="text-sm font-medium text-charcoal">Featured Product</span>
+              </label>
+              
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.isBestSeller}
+                  onChange={(e) => setFormData({ ...formData, isBestSeller: e.target.checked })}
+                  className="rounded border-gray-300 text-pink-primary focus:ring-pink-primary"
+                />
+                <span className="text-sm font-medium text-charcoal">Best Seller</span>
+              </label>
+            </div>
           </div>
 
           {/* Organization Card */}
@@ -829,6 +871,26 @@ export default function ProductForm() {
             <h2 className="text-base font-serif font-bold text-charcoal mb-2">Organization</h2>
             
             <div>
+              <label className="block text-xs font-semibold text-charcoal mb-2 uppercase tracking-wider">Categories</label>
+              <MultiSelect 
+                options={categories}
+                selectedIds={formData.categoryIds || []}
+                onChange={(ids) => setFormData(prev => ({ ...prev, categoryIds: ids }))}
+                placeholder="Assign to categories..."
+              />
+            </div>
+            
+            <div className="pt-2">
+              <label className="block text-xs font-semibold text-charcoal mb-2 uppercase tracking-wider">Sub-Categories</label>
+              <MultiSelect 
+                options={subCategories}
+                selectedIds={formData.subCategoryIds || []}
+                onChange={(ids) => setFormData(prev => ({ ...prev, subCategoryIds: ids }))}
+                placeholder="Assign to sub-categories..."
+              />
+            </div>
+
+            <div className="pt-2">
               <label className="block text-xs font-semibold text-charcoal mb-2 uppercase tracking-wider">Rooms</label>
               <MultiSelect 
                 options={rooms}

@@ -27,6 +27,10 @@ import CollectionsList from './pages/catalog/CollectionsList';
 import CollectionForm from './pages/catalog/CollectionForm';
 import RoomsList from './pages/catalog/RoomsList';
 import RoomForm from './pages/catalog/RoomForm';
+import CategoriesList from './pages/catalog/CategoriesList';
+import CategoryForm from './pages/catalog/CategoryForm';
+import SubCategoriesList from './pages/catalog/SubCategoriesList';
+import SubCategoryForm from './pages/catalog/SubCategoryForm';
 import ReviewsList from './pages/catalog/ReviewsList';
 
 function App() {
@@ -49,6 +53,12 @@ function App() {
             <Route path="/collections" element={<CollectionsList />} />
             <Route path="/collections/new" element={<CollectionForm />} />
             <Route path="/collections/:id" element={<CollectionForm />} />
+            <Route path="/categories" element={<CategoriesList />} />
+            <Route path="/categories/new" element={<CategoryForm />} />
+            <Route path="/categories/:id" element={<CategoryForm />} />
+            <Route path="/subcategories" element={<SubCategoriesList />} />
+            <Route path="/subcategories/new" element={<SubCategoryForm />} />
+            <Route path="/subcategories/:id" element={<SubCategoryForm />} />
             <Route path="/reviews" element={<ReviewsList />} />
             
             {/* Inventory */}

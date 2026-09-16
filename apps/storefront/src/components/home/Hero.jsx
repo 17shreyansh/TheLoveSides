@@ -30,12 +30,12 @@ export default function Hero() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
-          src={HeroImageMobile}
+          src={hero?.mobileImageUrl || HeroImageMobile}
           alt=""
           className="w-full h-full object-cover object-[85%_center] md:hidden"
         />
         <img
-          src={HeroImageDesktop}
+          src={hero?.desktopImageUrl || HeroImageDesktop}
           alt=""
           className="w-full h-full object-cover object-center hidden md:block"
         />

@@ -5,13 +5,8 @@ import RevealOnScroll from '../ui/RevealOnScroll';
 import ResponsiveCardSlider from '../ui/ResponsiveCardSlider';
 import { useProducts } from '../../hooks/useProducts';
 
-export default function BestSellers({ mode = 'manual' }) {
-  const query = { limit: 8 };
-  if (mode === 'auto') {
-    query.bestseller_auto = true;
-  } else {
-    query.bestseller = true;
-  }
+export default function FeaturedProducts() {
+  const query = { limit: 8, featured: true };
   const { products, loading } = useProducts(query);
 
   const renderProduct = (product, idx) => (
@@ -21,12 +16,12 @@ export default function BestSellers({ mode = 'manual' }) {
   );
 
   return (
-    <section className="py-10 md:py-16 bg-ivory/50" id="bestsellers">
+    <section className="py-10 md:py-16 bg-cream" id="featured">
       <div className="max-w-7xl mx-auto px-6 md:px-10 overflow-hidden md:overflow-visible">
         <RevealOnScroll>
           <SectionHeading 
-            title="Best Sellers" 
-            subtitle="Our most loved items" 
+            title="Featured Products" 
+            subtitle="Handpicked for you" 
           />
         </RevealOnScroll>
 

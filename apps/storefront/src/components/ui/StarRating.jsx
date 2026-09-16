@@ -2,10 +2,11 @@ import React from 'react';
 import { Star, StarHalf } from 'lucide-react';
 import clsx from 'clsx';
 
-export default function StarRating({ value, className }) {
-  const fullStars = Math.floor(value);
-  const hasHalfStar = value % 1 >= 0.5;
-  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+export default function StarRating({ value = 0, className }) {
+  const safeValue = Math.max(0, Math.min(5, Number(value) || 0));
+  const fullStars = Math.floor(safeValue);
+  const hasHalfStar = safeValue % 1 >= 0.5;
+  const emptyStars = Math.max(0, 5 - fullStars - (hasHalfStar ? 1 : 0));
 
   return (
     <div className={clsx('flex items-center gap-0.5 text-gold', className)} aria-label={`${value} out of 5 stars`}>

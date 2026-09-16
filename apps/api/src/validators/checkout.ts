@@ -18,4 +18,10 @@ export const initiateCheckoutSchema = z.object({
   billingAddress: addressSchema.optional(),
   couponCode: z.string().trim().toUpperCase().optional(),
   customerNotes: z.string().max(500).optional(),
+  email: z.string().email('Invalid email').optional(),
+  shippingMethod: z.object({
+    courierId: z.number(),
+    courierName: z.string(),
+    rate: z.number()
+  }).optional(),
 });

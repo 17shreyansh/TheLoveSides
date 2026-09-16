@@ -5,29 +5,74 @@ import ProductCard from '../components/ui/ProductCard';
 import RevealOnScroll from '../components/ui/RevealOnScroll';
 import Button from '../components/ui/Button';
 import { useProducts } from '../hooks/useProducts';
+import { api } from '../lib/api';
 
 export default function CategoryPage({ type }) {
   const { categorySlug } = useParams();
   const [visibleCount, setVisibleCount] = useState(12);
+  const [category, setCategory] = useState(null);
+  const [subCategories, setSubCategories] = useState([]);
+  const [loadingCategory, setLoadingCategory] = useState(false);
+
+  // Fetch Category Details and its SubCategories
+  useEffect(() => {
+    if (categorySlug) {
+      let active = true;
+      const fetchCategoryInfo = async () => {
+        setLoadingCategory(true);
+        try {
+          const { data: catData } = await api.get(`/catalog/categories/${categorySlug}`);
+          if (active && catData?.data) {
+            setCategory(catData.data);
+            // Fetch SubCategories for this category
+            const { data: subCatData } = await api.get(`/catalog/subcategories`, {
+              params: { categoryId: catData.data._id }
+            });
+            if (active) {
+              setSubCategories(subCatData.data || []);
+            }
+          }
+        } catch (err) {
+          console.error("Failed to load category", err);
+        } finally {
+          if (active) setLoadingCategory(false);
+        }
+      };
+      fetchCategoryInfo();
+      return () => { active = false; };
+    } else {
+      setCategory(null);
+      setSubCategories([]);
+    }
+  }, [categorySlug]);
 
   // Determine query based on route
   const query = {};
   if (type === 'arrivals') query.sort = 'createdAt:desc';
-  // Best sellers backend query can be complex, just rely on all products for now if not category
-  if (categorySlug) query.category = categorySlug;
+  // If it's a category page, only fetch products once we have the category ID
+  if (categorySlug && category) query.category = category._id;
 
-  const { products, loading } = useProducts(query);
+  // Don't fetch products if we are on a category page but haven't loaded the category yet
+  const shouldFetchProducts = !categorySlug || (categorySlug && category);
+  
+  // Custom hook that reacts to query changes
+  // If shouldFetchProducts is false, we can skip fetching or just pass a dummy query that returns empty. 
+  // For simplicity, we'll let it fetch, but if category is null, it won't have the filter.
+  // Actually, useProducts might fetch all products if query is empty. We'll handle it.
+  const { products, loading: loadingProducts } = useProducts(shouldFetchProducts ? query : { _skip: true });
+
+  const loading = loadingCategory || loadingProducts;
 
   // Reset visible count when category changes
   useEffect(() => {
     setVisibleCount(12);
   }, [categorySlug, type]);
 
-  // Frontend filter for static types if backend doesn't support them fully yet
+  // Frontend filter for static types
   const filteredProducts = products.filter(product => {
     if (type === 'arrivals') return product.isNewArrival;
     if (type === 'bestsellers') return product.isBestSeller;
-    return true; // Already filtered by category in API
+    return true; 
   });
 
   // Generate readable title
@@ -36,6 +81,8 @@ export default function CategoryPage({ type }) {
     pageTitle = 'New Arrivals';
   } else if (type === 'bestsellers') {
     pageTitle = 'Best Sellers';
+  } else if (categorySlug && category) {
+    pageTitle = category.name;
   } else if (categorySlug) {
     pageTitle = categorySlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   }
@@ -52,14 +99,46 @@ export default function CategoryPage({ type }) {
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         
         {/* Header Section */}
-        <div className="mb-10 md:mb-16">
-          <div className="flex items-center gap-2 text-xs md:text-sm text-charcoal/60 mb-4 font-sans">
+        <div className="mb-10 md:mb-16 text-center">
+          <div className="flex items-center justify-center gap-2 text-xs md:text-sm text-charcoal/60 mb-4 font-sans">
             <Link to="/" className="hover:text-pink-primary transition-colors">Home</Link>
             <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
             <span className="text-charcoal capitalize">{pageTitle}</span>
           </div>
-          <h1 className="font-serif text-3xl md:text-4xl text-charcoal mb-3">{pageTitle}</h1>
+          <h1 className="font-serif text-4xl md:text-5xl text-charcoal mb-4">{pageTitle}</h1>
+          {category && category.description && (
+            <p className="max-w-2xl mx-auto text-charcoal/70 font-sans">{category.description}</p>
+          )}
         </div>
+
+        {/* SubCategories Grid */}
+        {subCategories.length > 0 && (
+          <div className="mb-16">
+            <h2 className="font-serif text-2xl md:text-3xl text-charcoal mb-6 text-center border-b border-charcoal/10 pb-4">
+              Explore Sub-Categories
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+              {subCategories.map((sub, idx) => (
+                <RevealOnScroll key={sub._id} delay={idx * 0.1}>
+                  <Link 
+                    to={`/subcategory/${sub.slug}`}
+                    className="group block relative rounded-2xl overflow-hidden aspect-[4/5] bg-gray-100 shadow-sm border border-charcoal/5 hover:shadow-lg transition-all"
+                  >
+                    <img 
+                      src={sub.image || 'https://via.placeholder.com/300x400'} 
+                      alt={sub.name}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                    <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
+                      <h3 className="text-white font-serif font-medium text-lg">{sub.name}</h3>
+                    </div>
+                  </Link>
+                </RevealOnScroll>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Sort & Filter Bar */}
         <div className="flex justify-between items-center py-4 border-y border-charcoal/10 mb-8 md:mb-12">

@@ -157,7 +157,7 @@ export default function ImageZoomViewer({ images = [] }) {
       {/* 
         MOBILE LAYOUT (Swiper, disabled hover)
       */}
-      <div className="lg:hidden w-full relative -mx-6 px-6 md:mx-0 md:px-0">
+      <div className="lg:hidden w-full relative">
         <Swiper
           modules={[Pagination]}
           pagination={{ clickable: true, dynamicBullets: true }}

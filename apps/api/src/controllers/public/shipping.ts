@@ -1,6 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import { Shipment } from '../../models/Shipment.js';
 import { Order } from '../../models/Order.js';
+import { Setting } from '../../models/Setting.js';
+import { env } from '../../config/env.js';
 import { isShiprocketConfigured } from '../../integrations/shiprocket/client.js';
 import {
   checkPincodeServiceability,
@@ -9,6 +11,36 @@ import {
 } from '../../integrations/shiprocket/shiprocket.service.js';
 import { sendSuccess } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
+
+/**
+ * Helper to get the active pickup/warehouse pincode
+ */
+async function getPickupPincode(): Promise<string> {
+  try {
+    const setting = await Setting.findOne({ key: 'shiprocket.pickup_pincode' }).lean();
+    if (setting && setting.value) {
+      return String(setting.value);
+    }
+  } catch (error) {
+    // Ignore db error, fallback to env
+  }
+  return env.SHIPROCKET_PICKUP_PINCODE || '110001';
+}
+
+/**
+ * Helper to get the default package weight
+ */
+export async function getDefaultWeight(): Promise<number> {
+  try {
+    const setting = await Setting.findOne({ key: 'shiprocket.default_weight' }).lean();
+    if (setting && setting.value) {
+      return parseFloat(String(setting.value)) || 0.5;
+    }
+  } catch (error) {
+    // Ignore db error
+  }
+  return 0.5; // Default to 500g
+}
 
 /**
  * GET /shipping/check?pincode=110001
@@ -20,17 +52,7 @@ import { ApiError } from '../../utils/ApiError.js';
 export async function checkDeliveryAvailability(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     if (!isShiprocketConfigured) {
-      // Graceful fallback when Shiprocket isn't configured
-      sendSuccess({
-        res,
-        data: {
-          serviceable: true,
-          estimatedDays: null,
-          codAvailable: false,
-          message: 'Delivery serviceability check is not configured',
-        },
-      });
-      return;
+      throw ApiError.badRequest('Delivery serviceability check is not configured');
     }
 
     const pincode = req.query.pincode as string;
@@ -38,26 +60,19 @@ export async function checkDeliveryAvailability(req: Request, res: Response, nex
       throw ApiError.badRequest('Valid 6-digit pincode is required');
     }
 
-    // Use a default pickup pincode. In production, this should come from
-    // the primary warehouse/pickup location settings.
-    const DEFAULT_PICKUP_PINCODE = '110001'; // TODO: Fetch from settings/warehouse
+    const pickupPincode = await getPickupPincode();
+    const defaultWeight = await getDefaultWeight();
 
     let data;
     try {
       data = await checkPincodeServiceability({
-        pickupPincode: DEFAULT_PICKUP_PINCODE,
+        pickupPincode,
         deliveryPincode: pincode,
-        weight: 0.5, // Default weight for serviceability check
+        weight: defaultWeight,
         cod: false,
       });
     } catch (err) {
-      // Fallback for local development or API failures
-      data = {
-        serviceable: true,
-        estimatedDays: 3,
-        codAvailable: true,
-        courierCount: 1,
-      };
+      throw ApiError.badRequest('Failed to check serviceability from Shiprocket');
     }
 
     sendSuccess({
@@ -84,14 +99,7 @@ export async function checkDeliveryAvailability(req: Request, res: Response, nex
 export async function getCheckoutShippingRates(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     if (!isShiprocketConfigured) {
-      sendSuccess({
-        res,
-        data: {
-          rates: [],
-          message: 'Shipping rate calculation is not configured',
-        },
-      });
-      return;
+      throw ApiError.badRequest('Shipping rate calculation is not configured');
     }
 
     const pincode = req.query.pincode as string;
@@ -103,32 +111,23 @@ export async function getCheckoutShippingRates(req: Request, res: Response, next
     const cod = req.query.cod === 'true' || req.query.cod === '1';
     const declaredValue = req.query.declaredValue ? parseFloat(req.query.declaredValue as string) : undefined;
 
-    const DEFAULT_PICKUP_PINCODE = '110001'; // TODO: Fetch from settings/warehouse
+    const pickupPincode = await getPickupPincode();
+    const defaultWeight = await getDefaultWeight();
+    
+    // Use requested weight or fallback to default
+    const finalWeight = req.query.weight ? weight : defaultWeight;
 
     let data;
     try {
       data = await getShippingRates({
-        pickupPincode: DEFAULT_PICKUP_PINCODE,
+        pickupPincode,
         deliveryPincode: pincode,
-        weight,
+        weight: finalWeight,
         cod,
         declaredValue,
       });
     } catch (err) {
-      // Fallback dummy rate for local development or API failures
-      sendSuccess({
-        res,
-        data: {
-          rates: [{
-            courierId: 999,
-            courierName: 'Standard Delivery',
-            rate: 49,
-            estimatedDays: 3,
-            cod: true,
-          }]
-        }
-      });
-      return;
+      throw ApiError.badRequest('Failed to fetch shipping rates from Shiprocket');
     }
 
     // Transform to a customer-friendly format

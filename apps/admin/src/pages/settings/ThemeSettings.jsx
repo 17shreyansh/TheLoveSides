@@ -92,6 +92,12 @@ export default function ThemeSettings() {
     links: (col.links || []).map(link => ({ ...link, _id: link._id || generateId() }))
   }));
 
+  const navbarWithId = (navbarArr) => (navbarArr || []).map(link => ({
+    ...link,
+    _id: link._id || generateId(),
+    subLinks: (link.subLinks || []).map(sub => ({ ...sub, _id: sub._id || generateId() }))
+  }));
+
   const fetchSettings = async () => {
     try {
       const { data } = await api.get('/admin/settings', { params: { group: 'theme' } });
@@ -101,7 +107,7 @@ export default function ThemeSettings() {
       }, {});
       
       setSettings({
-        navbar: withId(settingsMap['theme.navbar.links']),
+        navbar: navbarWithId(settingsMap['theme.navbar.links']),
         footer: footerWithId(settingsMap['theme.footer.links']),
         promo: withId(settingsMap['theme.promo.offers']),
         promoBanner: settingsMap['theme.home.promo_banner'] || { title: 'Spring Sale Event', description: 'Refresh your home with up to <span class="text-charcoal font-bold">40% off</span> our premium bespoke curtains.', buttonText: 'Shop The Sale', buttonLink: '/products' },
@@ -114,6 +120,11 @@ export default function ThemeSettings() {
           button1Text: '', button1Link: '', button2Text: '', button2Link: '',
           desktopImageUrl: '', mobileImageUrl: ''
         },
+        homeSections: settingsMap['theme.home.sections'] || {
+          showFeatured: true, showBestSellers: true, bestSellersMode: 'manual'
+        },
+        signatures: withId(settingsMap['theme.home.signatures'] || []),
+        socialLinks: withId(settingsMap['theme.social.links'] || []),
       });
     } catch (error) {
       console.error('Failed to fetch theme settings', error);
@@ -159,7 +170,11 @@ export default function ThemeSettings() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       const newArray = [...settings[fieldName]];
-      newArray[idx].value = data.data.url;
+      if (fieldName === 'signatures') {
+        newArray[idx].imageUrl = data.data.url;
+      } else {
+        newArray[idx].value = data.data.url;
+      }
       setSettings(prev => ({ ...prev, [fieldName]: newArray }));
     } catch (err) {
       alert('Upload failed');
@@ -178,12 +193,18 @@ export default function ThemeSettings() {
     return rest;
   });
 
+  const navbarWithoutId = (navbarArr) => navbarArr.map(link => {
+    const { _id, ...rest } = link;
+    rest.subLinks = (rest.subLinks || []).map(sub => { const { _id, ...srest } = sub; return srest; });
+    return rest;
+  });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
       const payload = [
-        { key: 'theme.navbar.links', value: withoutId(settings.navbar) },
+        { key: 'theme.navbar.links', value: navbarWithoutId(settings.navbar) },
         { key: 'theme.footer.links', value: footerWithoutId(settings.footer) },
         { key: 'theme.promo.offers', value: withoutId(settings.promo) },
         { key: 'theme.home.promo_banner', value: settings.promoBanner },
@@ -192,6 +213,9 @@ export default function ThemeSettings() {
         { key: 'theme.home.social_feed', value: withoutId(settings.socialFeed) },
         { key: 'theme.home.stats', value: withoutId(settings.stats) },
         { key: 'theme.home.hero', value: settings.hero },
+        { key: 'theme.home.sections', value: settings.homeSections },
+        { key: 'theme.home.signatures', value: withoutId(settings.signatures) },
+        { key: 'theme.social.links', value: withoutId(settings.socialLinks) },
       ];
       await api.patch('/admin/settings', { settings: payload });
       alert('Theme settings saved successfully');
@@ -213,6 +237,9 @@ export default function ThemeSettings() {
     { id: 'testimonials', label: 'Testimonials' },
     { id: 'stats', label: 'Statistics' },
     { id: 'socialFeed', label: 'Social Feed' },
+    { id: 'homeSections', label: 'Home Sections' },
+    { id: 'signatures', label: 'Signatures' },
+    { id: 'socialLinks', label: 'Social Links' },
     { id: 'footer', label: 'Footer (Advanced)' },
   ];
 
@@ -340,6 +367,57 @@ export default function ThemeSettings() {
                 />
               </div>
             </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-sm text-gray-600">Desktop Image URL (Aspect Ratio: 16:9 recommended)</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={settings.hero.desktopImageUrl}
+                    onChange={(e) => setSettings({ ...settings, hero: { ...settings.hero, desktopImageUrl: e.target.value } })}
+                    className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                  />
+                  <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md flex items-center justify-center border border-gray-200">
+                    <Upload className="w-4 h-4 text-gray-600" />
+                    <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+                      const fd = new FormData();
+                      fd.append('file', file);
+                      try {
+                        const { data } = await api.post('/admin/upload/single', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+                        setSettings({ ...settings, hero: { ...settings.hero, desktopImageUrl: data.data.url } });
+                      } catch (err) { alert('Upload failed'); }
+                    }} />
+                  </label>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm text-gray-600">Mobile Image URL (Aspect Ratio: 4:5 or 1:1 recommended)</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={settings.hero.mobileImageUrl}
+                    onChange={(e) => setSettings({ ...settings, hero: { ...settings.hero, mobileImageUrl: e.target.value } })}
+                    className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                  />
+                  <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md flex items-center justify-center border border-gray-200">
+                    <Upload className="w-4 h-4 text-gray-600" />
+                    <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+                      const fd = new FormData();
+                      fd.append('file', file);
+                      try {
+                        const { data } = await api.post('/admin/upload/single', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+                        setSettings({ ...settings, hero: { ...settings.hero, mobileImageUrl: data.data.url } });
+                      } catch (err) { alert('Upload failed'); }
+                    }} />
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -348,39 +426,102 @@ export default function ThemeSettings() {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-medium">Navbar Links</h2>
-              <button type="button" onClick={() => setSettings(p => ({ ...p, navbar: [...p.navbar, { _id: generateId(), title: '', href: '' }] }))} className="text-sm text-brand flex items-center gap-1"><Plus className="w-4 h-4"/> Add Link</button>
+              <button type="button" onClick={() => setSettings(p => ({ ...p, navbar: [...p.navbar, { _id: generateId(), title: '', href: '', subLinks: [] }] }))} className="text-sm text-brand flex items-center gap-1"><Plus className="w-4 h-4"/> Add Link</button>
             </div>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleDragEnd(e, 'navbar')}>
               <SortableContext items={settings.navbar.map(i => i._id)} strategy={verticalListSortingStrategy}>
                 {settings.navbar.map((link, idx) => (
                   <SortableItem key={link._id} id={link._id}>
-                    <div className="flex gap-4 items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                      <input
-                        type="text"
-                        placeholder="Title"
-                        value={link.title}
-                        onChange={(e) => {
-                          const newNavbar = [...settings.navbar];
-                          newNavbar[idx].title = e.target.value;
-                          setSettings({ ...settings, navbar: newNavbar });
-                        }}
-                        className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                      />
-                      <input
-                        type="text"
-                        list="available-pages"
-                        placeholder="Link URL"
-                        value={link.href}
-                        onChange={(e) => {
-                          const newLinks = [...settings.navbar];
-                          newLinks[idx].href = e.target.value;
-                          setSettings({ ...settings, navbar: newLinks });
-                        }}
-                        className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                      />
-                      <button type="button" onClick={() => setSettings(p => ({ ...p, navbar: p.navbar.filter((_, i) => i !== idx) }))} className="p-2 text-red-500 hover:bg-red-50 rounded-md">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                    <div className="flex flex-col gap-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                      <div className="flex gap-4 items-center">
+                        <input
+                          type="text"
+                          placeholder="Title"
+                          value={link.title}
+                          onChange={(e) => {
+                            const newNavbar = [...settings.navbar];
+                            newNavbar[idx].title = e.target.value;
+                            setSettings({ ...settings, navbar: newNavbar });
+                          }}
+                          className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                        />
+                        <input
+                          type="text"
+                          list="available-pages"
+                          placeholder="Link URL"
+                          value={link.href}
+                          onChange={(e) => {
+                            const newLinks = [...settings.navbar];
+                            newLinks[idx].href = e.target.value;
+                            setSettings({ ...settings, navbar: newLinks });
+                          }}
+                          className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                        />
+                        <button type="button" onClick={() => setSettings(p => ({ ...p, navbar: p.navbar.filter((_, i) => i !== idx) }))} className="p-2 text-red-500 hover:bg-red-50 rounded-md">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      
+                      {/* Sub-links section */}
+                      <div className="pl-8 border-l-2 border-gray-200 space-y-3 mt-2">
+                        <div className="flex justify-between items-center">
+                          <h3 className="text-sm font-medium text-gray-600">Dropdown Sub-links</h3>
+                          <button 
+                            type="button" 
+                            onClick={() => {
+                              const newNavbar = [...settings.navbar];
+                              if (!newNavbar[idx].subLinks) newNavbar[idx].subLinks = [];
+                              newNavbar[idx].subLinks.push({ _id: generateId(), name: '', href: '' });
+                              setSettings({ ...settings, navbar: newNavbar });
+                            }} 
+                            className="text-xs text-brand flex items-center gap-1"
+                          >
+                            <Plus className="w-3 h-3"/> Add Sub-link
+                          </button>
+                        </div>
+                        
+                        {(link.subLinks || []).map((sub, subIdx) => (
+                          <div key={sub._id} className="flex gap-3 items-center">
+                            <input
+                              type="text"
+                              placeholder="Sub-link Name"
+                              value={sub.name}
+                              onChange={(e) => {
+                                const newNavbar = [...settings.navbar];
+                                newNavbar[idx].subLinks[subIdx].name = e.target.value;
+                                setSettings({ ...settings, navbar: newNavbar });
+                              }}
+                              className="flex-1 px-3 py-1.5 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                            />
+                            <input
+                              type="text"
+                              list="available-pages"
+                              placeholder="Sub-link URL"
+                              value={sub.href}
+                              onChange={(e) => {
+                                const newNavbar = [...settings.navbar];
+                                newNavbar[idx].subLinks[subIdx].href = e.target.value;
+                                setSettings({ ...settings, navbar: newNavbar });
+                              }}
+                              className="flex-1 px-3 py-1.5 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                            />
+                            <button 
+                              type="button" 
+                              onClick={() => {
+                                const newNavbar = [...settings.navbar];
+                                newNavbar[idx].subLinks = newNavbar[idx].subLinks.filter((_, i) => i !== subIdx);
+                                setSettings({ ...settings, navbar: newNavbar });
+                              }} 
+                              className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-500 rounded-md"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                        {(!link.subLinks || link.subLinks.length === 0) && (
+                          <p className="text-xs text-gray-400 italic py-1">No dropdown sub-links added yet.</p>
+                        )}
+                      </div>
                     </div>
                   </SortableItem>
                 ))}
@@ -658,6 +799,222 @@ export default function ThemeSettings() {
                         className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
                       />
                       <button type="button" onClick={() => setSettings(p => ({ ...p, socialFeed: p.socialFeed.filter((_, i) => i !== idx) }))} className="p-2 text-red-500 hover:bg-red-50 rounded-md">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </SortableItem>
+                ))}
+              </SortableContext>
+            </DndContext>
+          </div>
+        )}
+
+        {/* Home Sections */}
+        {activeTab === 'homeSections' && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-medium">Home Page Sections</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings.homeSections?.showFeatured !== false}
+                    onChange={(e) => setSettings({ ...settings, homeSections: { ...settings.homeSections, showFeatured: e.target.checked } })}
+                    className="rounded border-gray-300 text-brand focus:ring-brand"
+                  />
+                  <span className="font-medium text-gray-700">Show Featured Products</span>
+                </label>
+                <p className="text-sm text-gray-500 pl-6">
+                  Displays products marked as 'Featured' in the product editor.
+                </p>
+              </div>
+
+              <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings.homeSections?.showBestSellers !== false}
+                    onChange={(e) => setSettings({ ...settings, homeSections: { ...settings.homeSections, showBestSellers: e.target.checked } })}
+                    className="rounded border-gray-300 text-brand focus:ring-brand"
+                  />
+                  <span className="font-medium text-gray-700">Show Best Sellers</span>
+                </label>
+                
+                {settings.homeSections?.showBestSellers !== false && (
+                  <div className="pl-6 space-y-2 pt-2 border-t border-gray-200 mt-2">
+                    <label className="text-sm font-medium text-gray-700">Selection Mode:</label>
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-2 text-sm cursor-pointer">
+                        <input
+                          type="radio"
+                          name="bestSellersMode"
+                          value="manual"
+                          checked={settings.homeSections?.bestSellersMode === 'manual'}
+                          onChange={(e) => setSettings({ ...settings, homeSections: { ...settings.homeSections, bestSellersMode: e.target.value } })}
+                          className="text-brand focus:ring-brand"
+                        />
+                        Manual (Marked via Product Edit)
+                      </label>
+                      <label className="flex items-center gap-2 text-sm cursor-pointer">
+                        <input
+                          type="radio"
+                          name="bestSellersMode"
+                          value="auto"
+                          checked={settings.homeSections?.bestSellersMode === 'auto'}
+                          onChange={(e) => setSettings({ ...settings, homeSections: { ...settings.homeSections, bestSellersMode: e.target.value } })}
+                          className="text-brand focus:ring-brand"
+                        />
+                        Auto (Highest Sales Count)
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Signatures */}
+        {activeTab === 'signatures' && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-medium">Signature Sections</h2>
+              <button type="button" onClick={() => setSettings(p => ({ ...p, signatures: [...(p.signatures || []), { _id: generateId(), title: '', text: '', imageUrl: '', buttonText: '', buttonLink: '', imagePosition: 'left' }] }))} className="text-sm text-brand flex items-center gap-1"><Plus className="w-4 h-4"/> Add Signature</button>
+            </div>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleDragEnd(e, 'signatures')}>
+              <SortableContext items={(settings.signatures || []).map(i => i._id)} strategy={verticalListSortingStrategy}>
+                {(settings.signatures || []).map((sig, idx) => (
+                  <SortableItem key={sig._id} id={sig._id}>
+                    <div className="flex flex-col gap-3 bg-gray-50 p-4 rounded-lg border border-gray-100 relative">
+                      <button type="button" onClick={() => setSettings(p => ({ ...p, signatures: p.signatures.filter((_, i) => i !== idx) }))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-50 rounded-md">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mr-8">
+                        <input
+                          type="text"
+                          placeholder="Title"
+                          value={sig.title}
+                          onChange={(e) => {
+                            const newSigs = [...settings.signatures];
+                            newSigs[idx].title = e.target.value;
+                            setSettings({ ...settings, signatures: newSigs });
+                          }}
+                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                        />
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Image URL"
+                            value={sig.imageUrl}
+                            onChange={(e) => {
+                              const newSigs = [...settings.signatures];
+                              newSigs[idx].imageUrl = e.target.value;
+                              setSettings({ ...settings, signatures: newSigs });
+                            }}
+                            className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                          />
+                          <label className="cursor-pointer bg-white hover:bg-gray-100 px-3 py-2 rounded-md flex items-center justify-center border border-gray-200">
+                            <Upload className="w-4 h-4 text-gray-600" />
+                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, idx, 'signatures')} />
+                          </label>
+                        </div>
+                      </div>
+                      <textarea
+                          placeholder="Text/Description"
+                          value={sig.text}
+                          onChange={(e) => {
+                            const newSigs = [...settings.signatures];
+                            newSigs[idx].text = e.target.value;
+                            setSettings({ ...settings, signatures: newSigs });
+                          }}
+                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand resize-y"
+                          rows={2}
+                      />
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input
+                          type="text"
+                          placeholder="Button Text"
+                          value={sig.buttonText || ''}
+                          onChange={(e) => {
+                            const newSigs = [...settings.signatures];
+                            newSigs[idx].buttonText = e.target.value;
+                            setSettings({ ...settings, signatures: newSigs });
+                          }}
+                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Button Link (/collections/new)"
+                          value={sig.buttonLink || ''}
+                          onChange={(e) => {
+                            const newSigs = [...settings.signatures];
+                            newSigs[idx].buttonLink = e.target.value;
+                            setSettings({ ...settings, signatures: newSigs });
+                          }}
+                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                        />
+                        <select
+                          value={sig.imagePosition || 'left'}
+                          onChange={(e) => {
+                            const newSigs = [...settings.signatures];
+                            newSigs[idx].imagePosition = e.target.value;
+                            setSettings({ ...settings, signatures: newSigs });
+                          }}
+                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                        >
+                          <option value="left">Image on Left</option>
+                          <option value="right">Image on Right</option>
+                        </select>
+                      </div>
+                    </div>
+                  </SortableItem>
+                ))}
+              </SortableContext>
+            </DndContext>
+          </div>
+        )}
+
+        {/* Social Links */}
+        {activeTab === 'socialLinks' && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-medium">Footer Social Links</h2>
+              <button type="button" onClick={() => setSettings(p => ({ ...p, socialLinks: [...(p.socialLinks || []), { _id: generateId(), platform: '', url: '' }] }))} className="text-sm text-brand flex items-center gap-1"><Plus className="w-4 h-4"/> Add Link</button>
+            </div>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleDragEnd(e, 'socialLinks')}>
+              <SortableContext items={(settings.socialLinks || []).map(i => i._id)} strategy={verticalListSortingStrategy}>
+                {(settings.socialLinks || []).map((link, idx) => (
+                  <SortableItem key={link._id} id={link._id}>
+                    <div className="flex gap-4 items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                      <select
+                        value={link.platform}
+                        onChange={(e) => {
+                          const newLinks = [...settings.socialLinks];
+                          newLinks[idx].platform = e.target.value;
+                          setSettings({ ...settings, socialLinks: newLinks });
+                        }}
+                        className="w-1/3 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                      >
+                        <option value="">Select Platform</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="twitter">Twitter / X</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="pinterest">Pinterest</option>
+                        <option value="tiktok">TikTok</option>
+                      </select>
+                      <input
+                        type="url"
+                        placeholder="Profile URL"
+                        value={link.url}
+                        onChange={(e) => {
+                          const newLinks = [...settings.socialLinks];
+                          newLinks[idx].url = e.target.value;
+                          setSettings({ ...settings, socialLinks: newLinks });
+                        }}
+                        className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                      />
+                      <button type="button" onClick={() => setSettings(p => ({ ...p, socialLinks: p.socialLinks.filter((_, i) => i !== idx) }))} className="p-2 text-red-500 hover:bg-red-50 rounded-md">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

@@ -11,6 +11,37 @@ const seoSchema = z.object({
   ogImage: z.string().url().optional(),
 });
 
+// Category
+export const createCategorySchema = z.object({
+  name: z.string().min(1),
+  slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
+  description: z.string().optional(),
+  image: z.string().url().optional(),
+  banner: z.string().url().optional(),
+  seo: seoSchema.optional(),
+  sortOrder: z.number().int().default(0),
+  isActive: z.boolean().default(true),
+  showInNavigation: z.boolean().default(true),
+});
+
+export const updateCategorySchema = createCategorySchema.partial();
+
+// SubCategory
+export const createSubCategorySchema = z.object({
+  name: z.string().min(1),
+  slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
+  description: z.string().optional(),
+  image: z.string().url().optional(),
+  banner: z.string().url().optional(),
+  seo: seoSchema.optional(),
+  sortOrder: z.number().int().default(0),
+  isActive: z.boolean().default(true),
+  showInNavigation: z.boolean().default(true),
+  categoryIds: z.array(z.string().length(24)).default([]),
+});
+
+export const updateSubCategorySchema = createSubCategorySchema.partial();
+
 // Collection
 export const createCollectionSchema = z.object({
   name: z.string().min(1),
@@ -97,6 +128,8 @@ export const createProductSchema = z.object({
   brand: z.string().optional(),
   roomIds: z.array(z.string().length(24)).default([]),
   collectionIds: z.array(z.string().length(24)).default([]),
+  categoryIds: z.array(z.string().length(24)).default([]),
+  subCategoryIds: z.array(z.string().length(24)).default([]),
   tags: z.array(z.string()).default([]),
   attributes: z.array(z.object({
     name: z.string(),

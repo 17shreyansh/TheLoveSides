@@ -66,8 +66,20 @@ async function handleCreateShiprocketOrder(job: Job): Promise<void> {
     throw new Error(`User not found for order: ${orderId}`);
   }
 
+  // Fetch default weight
+  let defaultWeight = 0.5;
+  try {
+    const { Setting } = await import('../models/Setting.js');
+    const setting = await Setting.findOne({ key: 'shiprocket.default_weight' }).lean();
+    if (setting && setting.value) {
+      defaultWeight = parseFloat(String(setting.value)) || 0.5;
+    }
+  } catch (error) {
+    // Ignore db error
+  }
+
   // Call Shiprocket
-  const shiprocketResponse = await createShiprocketOrder(order, user.email);
+  const shiprocketResponse = await createShiprocketOrder(order, user.email, defaultWeight);
 
   // Save Shipment record
   await Shipment.create({
