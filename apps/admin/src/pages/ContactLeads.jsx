@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 import { Eye, Trash2, CheckCircle, Clock, Search, ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react';
 import clsx from 'clsx';
-import dayjs from 'dayjs';
 
 export default function ContactLeads() {
   const [leads, setLeads] = useState([]);
@@ -114,7 +113,7 @@ export default function ContactLeads() {
                       {lead.subject || <span className="text-gray-400 italic">No subject</span>}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-500" onClick={() => setSelectedLead(lead)}>
-                      {dayjs(lead.createdAt).format('MMM D, YYYY h:mm A')}
+                      {new Date(lead.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -186,7 +185,7 @@ export default function ContactLeads() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Date Received</label>
-                  <p className="text-gray-900">{dayjs(selectedLead.createdAt).format('MMMM D, YYYY at h:mm A')}</p>
+                  <p className="text-gray-900">{new Date(selectedLead.createdAt).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</p>
                 </div>
               </div>
               
