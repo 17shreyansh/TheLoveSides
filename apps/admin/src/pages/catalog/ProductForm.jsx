@@ -8,7 +8,7 @@ import { TagInput } from '../../components/TagInput';
 import { SortableGridItem } from '../../components/SortableGridItem';
 import { MultiSelect } from '../../components/MultiSelect';
 
-const ColorAttributeInput = ({ values, onChange }) => {
+const ColorAttributeInput = ({ values, onChange, usedColors = [] }) => {
   const [colorValue, setColorValue] = useState('#000000');
   const [colorName, setColorName] = useState('');
 
@@ -21,8 +21,37 @@ const ColorAttributeInput = ({ values, onChange }) => {
     }
   };
 
+  const handleAddExisting = (colorStr) => {
+    if (!values.includes(colorStr)) {
+      onChange([...values, colorStr]);
+    }
+  };
+
+  const availableColors = usedColors.filter(c => !values.includes(c));
+
   return (
-    <div className="flex flex-col gap-2 w-full">
+    <div className="flex flex-col gap-3 w-full">
+      {availableColors.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {availableColors.map(colorStr => {
+            const hexMatch = colorStr.match(/\((#[0-9A-Fa-f]{6})\)/i);
+            const hex = hexMatch ? hexMatch[1] : '#cccccc';
+            return (
+              <button
+                key={colorStr}
+                type="button"
+                onClick={() => handleAddExisting(colorStr)}
+                className="flex items-center gap-1.5 px-2 py-1 text-xs bg-white border border-gray-200 rounded-md hover:border-pink-primary transition-colors"
+                title={`Add ${colorStr}`}
+              >
+                <span className="w-3 h-3 rounded-full border border-gray-300 shadow-inner" style={{ backgroundColor: hex }} />
+                <span className="font-medium text-gray-700">{colorStr.replace(/\s*\([^)]*\)/, '')}</span>
+                <Plus className="w-3 h-3 text-gray-400" />
+              </button>
+            );
+          })}
+        </div>
+      )}
       <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg p-2">
         <input 
           type="color" 
@@ -67,6 +96,7 @@ export default function ProductForm() {
   const [collections, setCollections] = useState([]);
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
+  const [usedColors, setUsedColors] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [formError, setFormError] = useState(null);
   
@@ -109,16 +139,18 @@ export default function ProductForm() {
   useEffect(() => {
     const init = async () => {
       try {
-        const [roomRes, colRes, catRes, subCatRes] = await Promise.all([
+        const [roomRes, colRes, catRes, subCatRes, colorsRes] = await Promise.all([
           api.get('/admin/catalog/rooms'),
           api.get('/admin/catalog/collections'),
           api.get('/admin/catalog/categories'),
-          api.get('/admin/catalog/subcategories')
+          api.get('/admin/catalog/subcategories'),
+          api.get('/admin/catalog/products/colors')
         ]);
         setRooms(roomRes.data.data || []);
         setCollections(colRes.data.data || []);
         setCategories(catRes.data.data || []);
         setSubCategories(subCatRes.data.data || []);
+        setUsedColors(colorsRes.data.data || []);
         
         if (isEditing) {
           const res = await api.get(`/admin/catalog/products/${id}`);
@@ -660,6 +692,7 @@ export default function ProductForm() {
                           <ColorAttributeInput 
                             values={attr.values || []}
                             onChange={(newTags) => handleUpdateAttribute(index, 'values', newTags)}
+                            usedColors={usedColors}
                           />
                         ) : (
                           <TagInput 

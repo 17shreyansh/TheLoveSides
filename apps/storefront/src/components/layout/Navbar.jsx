@@ -14,7 +14,7 @@ import CartDrawer from '../cart/CartDrawer';
 import { useAuth } from '../../context/AuthContext';
 import AuthModal from '../auth/AuthModal';
 import { useNavigate } from 'react-router-dom';
-import LogoImage from '../../assets/images/LogoTransparent.png';
+import LogoImage from '../../assets/images/LogoProcessed.png';
 
 export default function Navbar() {
   const { navbarLinks } = useTheme();

@@ -6,7 +6,7 @@ import { createCollection, updateCollection, deleteCollection, reorderCollection
 import { createRoom, updateRoom, deleteRoom, reorderRooms } from '../../controllers/admin/room.js';
 import { createCategory, updateCategory, deleteCategory, reorderCategories } from '../../controllers/admin/category.js';
 import { createSubCategory, updateSubCategory, deleteSubCategory, reorderSubCategories } from '../../controllers/admin/subCategory.js';
-import { createProduct, updateProduct, updateProductVariants, listProducts, getProductById, deleteProduct } from '../../controllers/admin/product.js';
+import { createProduct, updateProduct, updateProductVariants, listProducts, getProductById, deleteProduct, getUniqueColors } from '../../controllers/admin/product.js';
 import {
   createCollectionSchema, updateCollectionSchema,
   createRoomSchema, updateRoomSchema,
@@ -116,6 +116,7 @@ router.delete('/subcategories/:id', authorize('collections.delete'), deleteSubCa
 // Products (Admin)
 // ========================================
 router.get('/products', authorize('products.read'), listProducts);
+router.get('/products/colors', authorize('products.read'), getUniqueColors);
 router.get('/products/:id', authorize('products.read'), getProductById);
 router.post('/products', authorize('products.create'), validate({ body: createProductSchema }), createProduct);
 router.patch('/products/:id', authorize('products.update'), validate({ body: updateProductSchema }), updateProduct);

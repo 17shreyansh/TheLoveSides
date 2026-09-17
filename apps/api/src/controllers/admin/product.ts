@@ -206,6 +206,27 @@ export async function listProducts(req: Request, res: Response, next: NextFuncti
 }
 
 /**
+ * Get unique colors used in product attributes across all products.
+ */
+export async function getUniqueColors(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const result = await Product.aggregate([
+      { $match: { deletedAt: null } },
+      { $unwind: "$attributes" },
+      { $match: { "attributes.name": { $regex: /^colou?r$/i } } },
+      { $unwind: "$attributes.values" },
+      { $group: { _id: "$attributes.values" } },
+      { $sort: { _id: 1 } },
+      { $project: { _id: 0, color: "$_id" } }
+    ]);
+    const colors = result.map(r => r.color).filter(Boolean);
+    sendSuccess({ res, data: colors });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
  * Get single product by ID (admin) — includes variants and inventory.
  */
 export async function getProductById(req: Request, res: Response, next: NextFunction): Promise<void> {

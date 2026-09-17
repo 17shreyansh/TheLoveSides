@@ -114,7 +114,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                           +
                         </button>
                       </div>
-                      <p className="font-sans font-semibold text-charcoal">₹{Number(item.price).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</p>
+                      <p className="font-sans font-semibold text-charcoal">₹{Number(item.price * item.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</p>
                     </div>
                   </div>
                 </div>

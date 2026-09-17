@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import LogoImage from '../../assets/images/LogoProcessed.png';
 import { 
   LayoutDashboard, 
   Package, 
@@ -117,10 +118,11 @@ export default function AdminLayout() {
       )}>
         <div className="h-16 flex items-center justify-between px-6 bg-[#0B1120] shrink-0 sticky top-0 z-10 border-b border-white/5">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center shadow-lg shadow-brand-accent/20">
-              <span className="font-bold text-white text-lg leading-none">T</span>
-            </div>
-            <span className="font-bold text-[15px] text-white tracking-wide">TheLoveSides</span>
+            <img 
+              src={LogoImage} 
+              alt="Logo" 
+              className="h-12 w-auto object-contain" 
+            />
           </div>
           <button className="lg:hidden text-gray-400 hover:text-white transition-colors" onClick={() => setSidebarOpen(false)}>
             <X className="w-5 h-5" />

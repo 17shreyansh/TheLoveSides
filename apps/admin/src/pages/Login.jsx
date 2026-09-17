@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import LogoImage from '../assets/images/LogoProcessed.png';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -27,9 +28,14 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white p-10 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100">
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 flex flex-col items-center justify-center">
+          <img 
+            src={LogoImage} 
+            alt="TheLoveSides Admin" 
+            className="h-16 w-auto object-contain mb-4" 
+          />
           <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
-            TheLoveSides Admin
+            Admin Login
           </h2>
           <p className="mt-2 text-sm text-gray-500 font-medium">
             Sign in to your account
