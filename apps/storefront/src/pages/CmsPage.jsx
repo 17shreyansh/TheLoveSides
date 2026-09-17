@@ -16,13 +16,13 @@ export default function CmsPage() {
       try {
         setLoading(true);
         const { data } = await api.get(`/pages/${slug}`);
-        setPage(data.data);
+        setPage(data);
         setError(false);
         // Update document title and meta description dynamically
-        if (data.data.seo?.metaTitle) {
-          document.title = `${data.data.seo.metaTitle} | The Love Sides`;
+        if (data.seo?.metaTitle) {
+          document.title = `${data.seo.metaTitle} | The Love Sides`;
         } else {
-          document.title = `${data.data.title} | The Love Sides`;
+          document.title = `${data.title} | The Love Sides`;
         }
       } catch (err) {
         console.error('Failed to fetch CMS page:', err);

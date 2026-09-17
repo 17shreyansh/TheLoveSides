@@ -35,9 +35,9 @@ const DEFAULT_THEME_SETTINGS = [
       {
         title: 'Policies',
         links: [
-          { name: 'Exchange & Refund', href: '/policies/exchange-refund' },
-          { name: 'Privacy Policy', href: '/policies/privacy' },
-          { name: 'Shipping Policy', href: '/policies/shipping' },
+          { name: 'Exchange & Refund', href: '/pages/exchange-refund' },
+          { name: 'Privacy Policy', href: '/pages/privacy-policy' },
+          { name: 'Shipping Policy', href: '/pages/shipping-policy' },
         ]
       }
     ]

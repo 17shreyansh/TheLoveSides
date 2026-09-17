@@ -140,7 +140,7 @@ export default function ThemeSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('navbar');
-  const [dynamicLinks, setDynamicLinks] = useState({ products: [], collections: [], rooms: [] });
+  const [dynamicLinks, setDynamicLinks] = useState({ products: [], collections: [], rooms: [], cmsPages: [] });
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -163,7 +163,10 @@ export default function ThemeSettings() {
       const prodsRes = await api.get('/admin/catalog/products?limit=100');
       const products = (prodsRes.data?.data?.products || prodsRes.data?.data || []).map(p => ({ title: `Product: ${p.title}`, href: `/product/${p.slug}` }));
 
-      setDynamicLinks({ collections, rooms, products });
+      const cmsRes = await api.get('/admin/cms');
+      const cmsPages = (cmsRes.data?.data || []).map(p => ({ title: `Page: ${p.title}`, href: `/pages/${p.slug}` }));
+
+      setDynamicLinks({ collections, rooms, products, cmsPages });
     } catch (err) {
       console.error('Failed to fetch dynamic links', err);
     }
@@ -374,6 +377,9 @@ export default function ThemeSettings() {
           <option key={link.href} value={link.href}>{link.title}</option>
         ))}
         {dynamicLinks.products.map(link => (
+          <option key={link.href} value={link.href}>{link.title}</option>
+        ))}
+        {dynamicLinks.cmsPages.map(link => (
           <option key={link.href} value={link.href}>{link.title}</option>
         ))}
       </datalist>
