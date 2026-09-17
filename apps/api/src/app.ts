@@ -29,6 +29,8 @@ import reviewsRouter from './routes/reviews.js';
 import settingsRouter from './routes/settings.js';
 import pagesRouter from './routes/pages.js';
 import shippingRouter from './routes/shipping.js';
+import contactRouter from './routes/contact.js';
+import adminContactRouter from './routes/admin/contact.js';
 
 export const app = express();
 
@@ -93,6 +95,7 @@ app.use('/api/v1/reviews', reviewsRouter);
 app.use('/api/v1/settings', settingsRouter);
 app.use('/api/v1/pages', pagesRouter);
 app.use('/api/v1/shipping', shippingRouter);
+app.use('/api/v1/contact', contactRouter);
 app.use('/api/v1/admin/catalog', adminCatalogRouter);
 app.use('/api/v1/admin/inventory', adminInventoryRouter);
 app.use('/api/v1/admin/upload', adminUploadRouter);
@@ -100,6 +103,7 @@ app.use('/api/v1/admin/reviews', adminReviewsRouter);
 app.use('/api/v1/admin', adminSystemRouter);
 app.use('/api/v1/admin', adminOrdersRouter);
 app.use('/api/v1/admin', adminShippingRouter);
+app.use('/api/v1/admin', adminContactRouter);
 
 // Global Error Handler (must be last)
 app.use(errorHandler);

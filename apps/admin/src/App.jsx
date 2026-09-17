@@ -32,6 +32,7 @@ import CategoryForm from './pages/catalog/CategoryForm';
 import SubCategoriesList from './pages/catalog/SubCategoriesList';
 import SubCategoryForm from './pages/catalog/SubCategoryForm';
 import ReviewsList from './pages/catalog/ReviewsList';
+import ContactLeads from './pages/ContactLeads';
 
 function App() {
   return (
@@ -71,6 +72,7 @@ function App() {
             <Route path="/returns/:id" element={<ReturnDetails />} />
             <Route path="/customers" element={<CustomersList />} />
             <Route path="/customers/:id" element={<CustomerDetails />} />
+            <Route path="/contact-leads" element={<ContactLeads />} />
             
             {/* Marketing */}
             <Route path="/coupons" element={<CouponsList />} />

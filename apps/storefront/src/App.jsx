@@ -21,6 +21,8 @@ const OrderDetailsPage = lazy(() => import('./pages/OrderDetailsPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const CmsPage = lazy(() => import('./pages/CmsPage'));
 const TrackPage = lazy(() => import('./pages/TrackPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
 
 // A simple loading fallback
 const PageLoader = () => (
@@ -55,6 +57,8 @@ function App() {
                   <Route path="/order/:id" element={<OrderDetailsPage />} />
                   <Route path="/track" element={<TrackPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
                   <Route path="/pages/:slug" element={<CmsPage />} />
                 </Routes>
               </Suspense>

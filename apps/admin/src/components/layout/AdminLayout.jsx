@@ -25,7 +25,8 @@ import {
   Ticket,
   Palette,
   ChevronDown,
-  KeyRound
+  KeyRound,
+  MessageSquare
 } from 'lucide-react';
 import clsx from 'clsx';
 import ChangePasswordModal from './ChangePasswordModal';
@@ -79,6 +80,7 @@ export default function AdminLayout() {
         { name: 'Orders', href: '/orders', icon: ShoppingCart },
         { name: 'Returns', href: '/returns', icon: RotateCcw },
         { name: 'Customers', href: '/customers', icon: Users },
+        { name: 'Contact Leads', href: '/contact-leads', icon: MessageSquare },
       ]
     },
     {

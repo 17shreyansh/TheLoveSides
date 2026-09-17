@@ -216,6 +216,7 @@ export default function ThemeSettings() {
         },
         signatures: withId(settingsMap['theme.home.signatures'] || []),
         socialLinks: withId(settingsMap['theme.social.links'] || []),
+        contactInfo: settingsMap['theme.contact.info'] || { email: '', phone: '', address: '', hours: '' },
       });
     } catch (error) {
       console.error('Failed to fetch theme settings', error);
@@ -307,6 +308,7 @@ export default function ThemeSettings() {
         { key: 'theme.home.sections', value: settings.homeSections },
         { key: 'theme.home.signatures', value: withoutId(settings.signatures) },
         { key: 'theme.social.links', value: withoutId(settings.socialLinks) },
+        { key: 'theme.contact.info', value: settings.contactInfo },
       ];
       await api.patch('/admin/settings', { settings: payload });
       alert('Theme settings saved successfully');
@@ -331,6 +333,7 @@ export default function ThemeSettings() {
     { id: 'homeSections', label: 'Home Sections' },
     { id: 'signatures', label: 'Signatures' },
     { id: 'socialLinks', label: 'Social Links' },
+    { id: 'contactInfo', label: 'Contact Info' },
     { id: 'footer', label: 'Footer (Advanced)' },
   ];
 
@@ -621,6 +624,55 @@ export default function ThemeSettings() {
                 ))}
               </SortableContext>
             </DndContext>
+          </div>
+        )}
+
+        {/* Contact Info */}
+        {activeTab === 'contactInfo' && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-medium">Contact Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-sm text-gray-600">Email Address</label>
+                <input
+                  type="email"
+                  value={settings.contactInfo?.email || ''}
+                  onChange={(e) => setSettings({ ...settings, contactInfo: { ...settings.contactInfo, email: e.target.value } })}
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                  placeholder="hello@thelovesides.com"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm text-gray-600">Phone Number</label>
+                <input
+                  type="text"
+                  value={settings.contactInfo?.phone || ''}
+                  onChange={(e) => setSettings({ ...settings, contactInfo: { ...settings.contactInfo, phone: e.target.value } })}
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                  placeholder="+1 (234) 567-890"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm text-gray-600">Studio Address</label>
+                <textarea
+                  value={settings.contactInfo?.address || ''}
+                  onChange={(e) => setSettings({ ...settings, contactInfo: { ...settings.contactInfo, address: e.target.value } })}
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand resize-y"
+                  placeholder="123 Design Avenue..."
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm text-gray-600">Working Hours</label>
+                <textarea
+                  value={settings.contactInfo?.hours || ''}
+                  onChange={(e) => setSettings({ ...settings, contactInfo: { ...settings.contactInfo, hours: e.target.value } })}
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand resize-y"
+                  placeholder="Monday - Friday: 9am - 6pm..."
+                  rows={3}
+                />
+              </div>
+            </div>
           </div>
         )}
 

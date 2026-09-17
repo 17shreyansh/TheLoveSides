@@ -27,6 +27,7 @@ export function ThemeProvider({ children }) {
     },
     signatures: [],
     socialLinks: [],
+    contactInfo: { email: '', phone: '', address: '', hours: '' },
     loading: true
   });
 
@@ -64,6 +65,7 @@ export function ThemeProvider({ children }) {
           },
           signatures: settingsMap['theme.home.signatures'] || [],
           socialLinks: settingsMap['theme.social.links'] || [],
+          contactInfo: settingsMap['theme.contact.info'] || { email: '', phone: '', address: '', hours: '' },
           loading: false
         });
       } catch (error) {
