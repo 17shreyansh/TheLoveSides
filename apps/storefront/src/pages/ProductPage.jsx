@@ -109,14 +109,18 @@ export default function ProductPage() {
   const inStock = selectedVariant ? selectedVariant.isPurchasable : true;
   const isWishlisted = isInWishlist(product?.id || product?._id);
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.preventDefault();
-    if (mainImageRef.current) {
-      triggerFlyToCart(mainImageRef.current.getBoundingClientRect(), product.image);
+    try {
+      await addToCart(product, quantity, selectedVariant?._id || selectedVariant?.id);
+      if (mainImageRef.current) {
+        triggerFlyToCart(mainImageRef.current.getBoundingClientRect(), product.image);
+      }
+      setAdded(true);
+      setTimeout(() => setAdded(false), 1500);
+    } catch (error) {
+      alert(error.response?.data?.error?.message || 'Failed to add to cart. Out of stock?');
     }
-    addToCart(product, quantity, selectedVariant?._id || selectedVariant?.id);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
   };
 
   const handleCheckPincode = async () => {

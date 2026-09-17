@@ -62,9 +62,10 @@ export function CartProvider({ children }) {
       }, { withCredentials: true });
       
       dispatch({ type: 'SET_CART', payload: data });
+      return data;
     } catch (error) {
       console.error('Failed to add to cart:', error);
-      // Depending on requirements, we could also fetchCart() here or show toast
+      throw error;
     }
   };
 
@@ -81,8 +82,10 @@ export function CartProvider({ children }) {
     try {
       const { data } = await api.patch(`/cart/items/${itemId}`, { quantity }, { withCredentials: true });
       dispatch({ type: 'SET_CART', payload: data });
+      return data;
     } catch (error) {
       console.error('Failed to update cart quantity:', error);
+      throw error;
     }
   };
 

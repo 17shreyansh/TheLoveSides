@@ -230,9 +230,6 @@ export async function transitionOrderStatus(
   // Set timestamp fields based on status
   if (newStatus === 'PAID') {
     updateFields.paidAt = new Date();
-    await enqueueShipment(order.id).catch(err => {
-      logger.error({ err, orderId: order.id }, 'Failed to enqueue shipment job');
-    });
   }
   if (newStatus === 'SHIPPED') updateFields.shippedAt = new Date();
   if (newStatus === 'DELIVERED') updateFields.deliveredAt = new Date();
@@ -241,6 +238,14 @@ export async function transitionOrderStatus(
   }
 
   await Order.findByIdAndUpdate(orderId, updateFields);
+
+  // Side effects based on status change
+  if (newStatus === 'PAID') {
+    // Fire and forget shipment enqueue to prevent hanging if Redis is down
+    enqueueShipment(order.id).catch(err => {
+      logger.error({ err, orderId: order.id }, 'Failed to enqueue shipment job');
+    });
+  }
 
   // Side effects based on status change
   if (newStatus === 'CANCELLED') {

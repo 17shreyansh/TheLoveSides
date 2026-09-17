@@ -89,14 +89,26 @@ export default function CartDrawer({ isOpen, onClose }) {
                     <div className="mt-auto flex items-center justify-between">
                       <div className="flex items-center border border-charcoal/20 rounded-lg bg-white h-8">
                         <button 
-                          onClick={() => updateQuantity(item._id, Math.max(1, item.quantity - 1))}
+                          onClick={async () => {
+                            try {
+                              await updateQuantity(item._id, Math.max(1, item.quantity - 1));
+                            } catch (err) {
+                              alert(err.response?.data?.error?.message || 'Failed to update quantity');
+                            }
+                          }}
                           className="w-8 flex items-center justify-center hover:text-pink-primary transition-colors"
                         >
                           -
                         </button>
                         <span className="w-8 text-center text-sm font-sans">{item.quantity}</span>
                         <button 
-                          onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                          onClick={async () => {
+                            try {
+                              await updateQuantity(item._id, item.quantity + 1);
+                            } catch (err) {
+                              alert(err.response?.data?.error?.message || 'Failed to update quantity. Out of stock?');
+                            }
+                          }}
                           className="w-8 flex items-center justify-center hover:text-pink-primary transition-colors"
                         >
                           +

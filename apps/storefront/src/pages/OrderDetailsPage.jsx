@@ -94,6 +94,26 @@ export default function OrderDetailsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main content - Items */}
           <div className="lg:col-span-2 space-y-8">
+            
+            {/* Order Timeline */}
+            <div className="bg-white p-6 rounded-2xl border border-charcoal/5 shadow-sm">
+              <h2 className="font-serif text-xl text-charcoal mb-6 border-b border-charcoal/5 pb-4 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-pink-primary" /> Order History
+              </h2>
+              <div className="space-y-6 pl-2">
+                {order.timeline?.map((event, index) => (
+                  <div key={index} className="relative pl-6 pb-2 border-l-2 border-pink-soft/50 last:border-0 last:pb-0">
+                    <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 border-pink-primary"></div>
+                    <div className="-mt-1">
+                      <p className="font-medium text-charcoal text-sm">{event.status.replace(/_/g, ' ')}</p>
+                      <p className="text-charcoal/60 text-xs mt-1">{event.message}</p>
+                      <p className="text-charcoal/40 text-xs mt-1">{new Date(event.timestamp).toLocaleString('en-IN')}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="bg-white p-6 rounded-2xl border border-charcoal/5 shadow-sm">
               <h2 className="font-serif text-xl text-charcoal mb-6 border-b border-charcoal/5 pb-4">Items in your order</h2>
               <div className="space-y-6">
@@ -127,16 +147,47 @@ export default function OrderDetailsPage() {
                   <Truck className="w-5 h-5 text-pink-primary" />
                   Shipment Information
                 </h2>
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {order.shipments.map((shipment, index) => (
-                    <div key={index} className="bg-cream/50 p-4 rounded-xl border border-charcoal/5 flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-charcoal">AWB: <span className="font-mono">{shipment.awbCode || 'Pending'}</span></p>
-                        <p className="text-xs text-charcoal/60 mt-1">Courier: {shipment.courierName || 'Shiprocket'}</p>
+                    <div key={index} className="bg-cream/50 p-4 rounded-xl border border-charcoal/5">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <p className="text-sm font-medium text-charcoal">AWB: <span className="font-mono">{shipment.awbCode || 'Pending'}</span></p>
+                          <p className="text-xs text-charcoal/60 mt-1">Courier: {shipment.courierName || 'Shiprocket'}</p>
+                          <p className="text-xs text-charcoal/60 mt-1">Status: {shipment.status.replace(/_/g, ' ')}</p>
+                        </div>
+                        {shipment.trackingUrl ? (
+                          <a href={shipment.trackingUrl} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" size="sm" className="text-xs">
+                              Track Package
+                            </Button>
+                          </a>
+                        ) : (
+                          <Button variant="outline" size="sm" onClick={() => navigate(`/track?awb=${shipment.awbCode || ''}`)} className="text-xs">
+                            Track Package
+                          </Button>
+                        )}
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => navigate('/track')} className="text-xs">
-                        Track Package
-                      </Button>
+                      
+                      {/* Shipment Tracking History */}
+                      {shipment.trackingHistory && shipment.trackingHistory.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-charcoal/10">
+                          <h4 className="text-sm font-medium text-charcoal mb-3">Delivery History</h4>
+                          <div className="space-y-4 pl-2">
+                            {shipment.trackingHistory.map((history, idx) => (
+                              <div key={idx} className="relative pl-6 pb-2 border-l border-charcoal/20 last:border-0 last:pb-0">
+                                <div className="absolute -left-[5px] top-0.5 w-2.5 h-2.5 rounded-full bg-charcoal/20"></div>
+                                <div className="-mt-1">
+                                  <p className="font-medium text-charcoal text-xs">{history.status}</p>
+                                  {history.description && <p className="text-charcoal/60 text-xs mt-0.5">{history.description}</p>}
+                                  {history.location && <p className="text-charcoal/60 text-xs mt-0.5">{history.location}</p>}
+                                  <p className="text-charcoal/40 text-[10px] mt-0.5">{new Date(history.timestamp).toLocaleString('en-IN')}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

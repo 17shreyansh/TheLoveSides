@@ -81,7 +81,7 @@ async function processRazorpayEvent(event: any) {
       // Handle async capture if frontend missed it
       const order = await Order.findById(orderId);
       if (order && order.status === 'PENDING_PAYMENT') {
-        const existingPayment = await Payment.findOne({ providerPaymentId: paymentEntity.id });
+        const existingPayment = await Payment.findOne({ razorpayPaymentId: paymentEntity.id });
         if (!existingPayment) {
           await Payment.create({
             orderId: order._id,
@@ -89,10 +89,10 @@ async function processRazorpayEvent(event: any) {
             amount: paymentEntity.amount / 100, // convert back from paise
             currency: paymentEntity.currency,
             provider: 'RAZORPAY',
-            providerPaymentId: paymentEntity.id,
-            providerOrderId: paymentEntity.order_id,
+            razorpayPaymentId: paymentEntity.id,
+            razorpayOrderId: paymentEntity.order_id,
             status: 'CAPTURED',
-            paymentMethod: paymentEntity.method,
+            method: paymentEntity.method,
           });
 
           await transitionOrderStatus(
@@ -117,11 +117,11 @@ async function processRazorpayEvent(event: any) {
           amount: paymentEntity.amount / 100,
           currency: paymentEntity.currency,
           provider: 'RAZORPAY',
-          providerPaymentId: paymentEntity.id,
-          providerOrderId: paymentEntity.order_id,
+          razorpayPaymentId: paymentEntity.id,
+          razorpayOrderId: paymentEntity.order_id,
           status: 'FAILED',
-          paymentMethod: paymentEntity.method,
-          errorMessage: paymentEntity.error_description,
+          method: paymentEntity.method,
+          failureReason: paymentEntity.error_description,
         });
 
         await transitionOrderStatus(

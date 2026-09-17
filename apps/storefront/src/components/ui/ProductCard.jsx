@@ -17,20 +17,26 @@ export default function ProductCard({ product, layout = 'auto' }) {
   
   const isWishlisted = isInWishlist(product.id || product._id);
   
+  const image = product.image || product.images?.[0] || product.variants?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500';
+  
   const inStock = product.variants?.length > 0 
     ? product.variants[0].isPurchasable !== false 
     : product.isPurchasable !== false;
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.preventDefault(); // In case it's inside a Link or prevents event bubbling
-    if (imageRef.current) {
-      triggerFlyToCart(imageRef.current.getBoundingClientRect(), product.image);
+    try {
+      await addToCart(product);
+      if (imageRef.current) {
+        triggerFlyToCart(imageRef.current.getBoundingClientRect(), image);
+      }
+      setAdded(true);
+      setTimeout(() => {
+        setAdded(false);
+      }, 1200);
+    } catch (error) {
+      alert(error.response?.data?.error?.message || 'Failed to add to cart. Out of stock?');
     }
-    addToCart(product);
-    setAdded(true);
-    setTimeout(() => {
-      setAdded(false);
-    }, 1200);
   };
 
   if (layout === 'vertical') {
@@ -40,7 +46,7 @@ export default function ProductCard({ product, layout = 'auto' }) {
           <Link to={`/product/${product.slug}`} className="cursor-pointer block h-full w-full">
             <img 
               ref={imageRef}
-              src={product.image} 
+              src={image} 
               alt={product.name} 
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
@@ -64,7 +70,7 @@ export default function ProductCard({ product, layout = 'auto' }) {
               <h3 className="font-serif text-sm md:text-lg text-charcoal line-clamp-1 leading-snug">{product.name}</h3>
             </Link>
             <div className="flex justify-between items-center mt-1 md:mt-2 gap-1">
-              <span className="font-sans font-semibold text-sm md:text-lg text-charcoal shrink-0">₹{Number(product.price).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+              <span className="font-sans font-semibold text-sm md:text-lg text-charcoal shrink-0">₹{Number(product.price || product.variants?.[0]?.price || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
               <div className="scale-[0.6] sm:scale-75 md:scale-100 origin-right">
                 <StarRating value={product.rating} />
               </div>
@@ -127,7 +133,7 @@ export default function ProductCard({ product, layout = 'auto' }) {
         <Link to={`/product/${product.slug}`} className="cursor-pointer block h-full w-full">
           <img 
             ref={imageRef}
-            src={product.image} 
+            src={image} 
             alt={product.name} 
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
@@ -151,7 +157,7 @@ export default function ProductCard({ product, layout = 'auto' }) {
             <h3 className="font-serif text-base sm:text-lg md:text-xl text-charcoal mb-1 sm:mb-2 line-clamp-2 sm:line-clamp-1 leading-snug">{product.name}</h3>
           </Link>
           <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-3 sm:mb-6 gap-1 sm:gap-0">
-            <span className="font-sans font-medium text-sm sm:text-lg text-charcoal">₹{Number(product.price).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+            <span className="font-sans font-medium text-sm sm:text-lg text-charcoal">₹{Number(product.price || product.variants?.[0]?.price || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
             <div className="scale-[0.70] origin-left sm:scale-100 sm:origin-center">
               <StarRating value={product.rating} />
             </div>

@@ -114,12 +114,19 @@ export default function OrderSuccessPage() {
           </div>
         )}
 
-        <div className="mt-12 text-center">
+        <div className="mt-12 flex justify-center gap-4">
           <Link to="/">
-            <Button variant="dark" className="px-10 py-4 shadow-lg hover:shadow-xl transition-all">
+            <Button variant="outline" className="px-10 py-4 shadow-sm hover:shadow transition-all">
               Continue Shopping
             </Button>
           </Link>
+          {orderId && (
+            <Link to={`/order/${orderId}`}>
+              <Button variant="dark" className="px-10 py-4 shadow-lg hover:shadow-xl transition-all">
+                View Order
+              </Button>
+            </Link>
+          )}
         </div>
 
       </div>

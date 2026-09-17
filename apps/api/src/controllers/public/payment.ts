@@ -91,11 +91,11 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
       amount: order.grandTotal,
       currency: 'INR',
       provider: 'RAZORPAY',
-      providerPaymentId: razorpay_payment_id,
-      providerOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
+      razorpayOrderId: razorpay_order_id,
       razorpaySignature: razorpay_signature,
       status: 'CAPTURED',
-      paymentMethod: 'ONLINE', // We can refine this via webhook later
+      method: 'ONLINE', // We can refine this via webhook later
     }]);
 
     await transitionOrderStatus(

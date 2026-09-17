@@ -150,9 +150,14 @@ export default function CheckoutPage() {
             
             // Payment successful, clear cart and redirect
             fetchCart(); // This will clear the cart from state (since backend clears it)
-            navigate(`/order/${orderId}`, {
+            navigate('/order-success', {
               state: {
-                paymentSuccessful: true
+                paymentSuccessful: true,
+                orderId,
+                orderNumber,
+                amount: razorpayOrder.amount,
+                items: state.items,
+                shippingAddress
               }
             });
           } catch (err) {
