@@ -144,7 +144,7 @@ const colorHexMap: Record<string, string> = {
   'Brown': '#A52A2A',
 };
 
-export async function getAvailableColors(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getAvailableColors(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const products = await Product.find({ status: 'published', deletedAt: null }).select('attributes').lean();
     
