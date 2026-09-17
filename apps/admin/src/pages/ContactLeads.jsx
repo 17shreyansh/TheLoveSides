@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../../lib/api';
+import { api } from '../lib/api';
 import { Eye, Trash2, CheckCircle, Clock, Search, ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
