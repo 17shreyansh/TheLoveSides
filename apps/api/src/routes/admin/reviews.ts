@@ -14,6 +14,6 @@ const updateReviewSchema = z.object({
 });
 
 router.get('/', authorize('reviews.read'), listReviews);
-router.patch('/:id/status', authorize('reviews.update'), validate({ body: updateReviewSchema }), updateReviewStatus);
+router.patch('/:id/status', authorize('reviews.moderate'), validate({ body: updateReviewSchema }), updateReviewStatus);
 
 export default router;

@@ -28,7 +28,7 @@ export default function OrderDetailsPage() {
 
   if (loading) {
     return (
-      <div className="bg-cream min-h-screen pt-32 pb-24 flex items-center justify-center">
+      <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-24 flex items-center justify-center">
         <div className="flex items-center gap-3 text-charcoal/60">
           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-pink-primary"></div>
           Loading order details...
@@ -39,7 +39,7 @@ export default function OrderDetailsPage() {
 
   if (error || !order) {
     return (
-      <div className="bg-cream min-h-screen pt-32 pb-24 flex flex-col items-center justify-center px-6">
+      <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-24 flex flex-col items-center justify-center px-6">
         <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
         <h2 className="text-2xl font-serif text-charcoal mb-2">Order Not Found</h2>
         <p className="text-charcoal/70 font-sans mb-8">{error}</p>
@@ -67,7 +67,7 @@ export default function OrderDetailsPage() {
   const isShipped = order.shipments && order.shipments.length > 0;
 
   return (
-    <div className="bg-cream min-h-screen pt-24 md:pt-32 pb-16 md:pb-24">
+    <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-16 md:pb-24">
       <div className="max-w-4xl mx-auto px-6 md:px-10">
         <button 
           onClick={() => navigate('/profile')}

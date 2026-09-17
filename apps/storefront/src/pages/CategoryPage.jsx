@@ -49,6 +49,7 @@ export default function CategoryPage({ type }) {
   // Determine query based on route
   const query = {};
   if (type === 'arrivals') query.sort = 'createdAt:desc';
+  if (type === 'bestsellers') query.isBestSeller = true;
   // If it's a category page, only fetch products once we have the category ID
   if (categorySlug && category) query.category = category._id;
 
@@ -70,7 +71,7 @@ export default function CategoryPage({ type }) {
 
   // Frontend filter for static types
   const filteredProducts = products.filter(product => {
-    if (type === 'arrivals') return product.isNewArrival;
+    if (type === 'arrivals') return true; // Already sorted by newest in the API query
     if (type === 'bestsellers') return product.isBestSeller;
     return true; 
   });
@@ -95,7 +96,7 @@ export default function CategoryPage({ type }) {
   };
 
   return (
-    <div className="bg-cream min-h-screen pt-24 md:pt-32 pb-16 md:pb-24">
+    <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-16 md:pb-24">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         
         {/* Header Section */}

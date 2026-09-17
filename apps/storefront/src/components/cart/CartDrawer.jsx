@@ -65,13 +65,13 @@ export default function CartDrawer({ isOpen, onClose }) {
               {state.items.map((item) => (
                 <div key={item._id} className="flex gap-4 border-b border-charcoal/10 pb-6">
                   <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shrink-0 bg-ivory">
-                    <img src={item.variant?.images?.[0] || 'https://via.placeholder.com/150'} alt={item.product?.name} className="w-full h-full object-cover" />
+                    <img src={item.image || 'https://via.placeholder.com/150'} alt={item.name} className="w-full h-full object-cover" />
                   </div>
                   
                   <div className="flex-1 flex flex-col">
                     <div className="flex justify-between items-start gap-2">
-                      <Link to={`/product/${item.product?.slug}`} onClick={onClose} className="hover:text-pink-primary transition-colors">
-                        <h3 className="font-serif text-charcoal line-clamp-2">{item.product?.name}</h3>
+                      <Link to={`/product/${item.productId}`} onClick={onClose} className="hover:text-pink-primary transition-colors">
+                        <h3 className="font-serif text-charcoal line-clamp-2">{item.name}</h3>
                       </Link>
                       <button onClick={() => removeFromCart(item._id)} className="text-charcoal/40 hover:text-red-500 transition-colors p-1">
                         <Trash2 className="w-4 h-4" />
@@ -79,7 +79,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                     </div>
                     
                     <p className="font-sans text-xs text-charcoal/60 mt-1 mb-2">
-                      {item.variant?.attributes?.map(attr => {
+                      {item.attributes?.map(attr => {
                         const isColor = attr.name.toLowerCase().includes('color');
                         const displayVal = isColor ? attr.value.replace(/\s*\(#[^\)]+\)\s*/g, '') : attr.value;
                         return `${attr.name}: ${displayVal}`;

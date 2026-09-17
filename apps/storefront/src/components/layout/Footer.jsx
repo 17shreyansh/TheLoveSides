@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import NewsletterCTA from './NewsletterCTA';
 import LogoImage from '../../assets/images/LogoProcessed.png';
+import SocialIcon from '../ui/SocialIcon';
 
 export default function Footer() {
   const { footerLinks, socialLinks } = useTheme();
@@ -32,7 +33,7 @@ export default function Footer() {
                     aria-label={link.platform} 
                     className="text-ivory/60 hover:text-pink-primary transition-colors capitalize text-sm font-medium"
                   >
-                    {link.platform}
+                    <SocialIcon platform={link.platform} className="w-5 h-5" />
                   </a>
                 );
               })}

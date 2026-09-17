@@ -195,7 +195,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="bg-cream min-h-screen pt-24 md:pt-32 pb-16 md:pb-24">
+    <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-16 md:pb-24">
       <div className="max-w-6xl mx-auto px-6 md:px-10">
         <h1 className="font-serif text-3xl md:text-4xl text-charcoal mb-8">Checkout</h1>
         
@@ -354,12 +354,12 @@ export default function CheckoutPage() {
                 {state.items.map((item) => (
                   <div key={item._id} className="flex gap-4">
                     <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-white border border-charcoal/10">
-                      <img src={item.variant?.images?.[0] || 'https://via.placeholder.com/150'} alt={item.product?.name} className="w-full h-full object-cover" />
+                      <img src={item.image || 'https://via.placeholder.com/150'} alt={item.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-serif text-charcoal text-sm">{item.product?.name}</h3>
+                      <h3 className="font-serif text-charcoal text-sm">{item.name}</h3>
                       <p className="font-sans text-xs text-charcoal/60 mt-1">
-                        {item.variant?.attributes?.map(attr => {
+                        {item.attributes?.map(attr => {
                            const isColor = attr.name.toLowerCase().includes('color');
                            const displayVal = isColor ? attr.value.replace(/\s*\(#[^\)]+\)\s*/g, '') : attr.value;
                            return `${attr.name}: ${displayVal}`;

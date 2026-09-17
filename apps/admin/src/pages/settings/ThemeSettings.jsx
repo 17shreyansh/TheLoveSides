@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { Save, Loader2, Plus, Trash2, Upload, GripVertical } from 'lucide-react';
+import * as Icons from 'lucide-react';
 import clsx from 'clsx';
 import {
   DndContext,
@@ -46,6 +47,93 @@ function SortableItem({ id, children, className }) {
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
+
+const AVAILABLE_ICONS = [
+  { name: 'AlertCircle', emoji: '⚠️' },
+  { name: 'ArrowLeft', emoji: '⬅️' },
+  { name: 'Award', emoji: '🏆' },
+  { name: 'Calendar', emoji: '📅' },
+  { name: 'Check', emoji: '✔️' },
+  { name: 'CheckCircle', emoji: '✅' },
+  { name: 'CheckCircle2', emoji: '☑️' },
+  { name: 'ChevronDown', emoji: '🔽' },
+  { name: 'ChevronLeft', emoji: '◀️' },
+  { name: 'ChevronRight', emoji: '▶️' },
+  { name: 'Clock', emoji: '🕒' },
+  { name: 'FileText', emoji: '📄' },
+  { name: 'Gem', emoji: '💎' },
+  { name: 'Gift', emoji: '🎁' },
+  { name: 'Heart', emoji: '❤️' },
+  { name: 'Image', emoji: '🖼️' },
+  { name: 'Info', emoji: 'ℹ️' },
+  { name: 'KeyRound', emoji: '🔑' },
+  { name: 'Loader2', emoji: '🔄' },
+  { name: 'LogOut', emoji: '🚪' },
+  { name: 'Mail', emoji: '✉️' },
+  { name: 'MapPin', emoji: '📍' },
+  { name: 'Menu', emoji: '☰' },
+  { name: 'MessageCircle', emoji: '💬' },
+  { name: 'Package', emoji: '📦' },
+  { name: 'Play', emoji: '▶️' },
+  { name: 'RefreshCw', emoji: '🔄' },
+  { name: 'Ruler', emoji: '📏' },
+  { name: 'Search', emoji: '🔍' },
+  { name: 'Shield', emoji: '🛡️' },
+  { name: 'ShoppingBag', emoji: '🛍️' },
+  { name: 'SlidersHorizontal', emoji: '🎛️' },
+  { name: 'Sparkles', emoji: '✨' },
+  { name: 'Star', emoji: '⭐' },
+  { name: 'StarHalf', emoji: '⭐' },
+  { name: 'Trash2', emoji: '🗑️' },
+  { name: 'Truck', emoji: '🚚' },
+  { name: 'Upload', emoji: '📤' },
+  { name: 'User', emoji: '👤' },
+  { name: 'X', emoji: '❌' }
+];
+
+function IconSelect({ value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const SelectedIcon = Icons[value] || Icons.MousePointer2;
+
+  return (
+    <div className="relative">
+      <button 
+        type="button" 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand text-sm"
+      >
+        <SelectedIcon className="w-4 h-4 text-gray-500" />
+        <span className="flex-1 text-left truncate">{value || 'Select Icon...'}</span>
+        <Icons.ChevronDown className="w-4 h-4 text-gray-400" />
+      </button>
+      
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2">
+          <div className="grid grid-cols-6 sm:grid-cols-8 gap-1 max-h-48 overflow-y-auto hide-scrollbar">
+            {AVAILABLE_ICONS.map(icon => {
+               const Icon = Icons[icon.name];
+               return (
+                 <button
+                   key={icon.name}
+                   type="button"
+                   title={icon.name}
+                   onClick={() => { onChange(icon.name); setIsOpen(false); }}
+                   className={clsx(
+                     "p-2 flex items-center justify-center rounded hover:bg-gray-100 transition-colors",
+                     value === icon.name ? "bg-pink-50 text-brand ring-1 ring-brand/30" : "text-gray-600"
+                   )}
+                 >
+                   {Icon && <Icon className="w-5 h-5" />}
+                 </button>
+               );
+            })}
+          </div>
+          <div className="fixed inset-0 z-[-1]" onClick={() => setIsOpen(false)} />
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ThemeSettings() {
   const [settings, setSettings] = useState({});
@@ -639,16 +727,13 @@ export default function ThemeSettings() {
                           }}
                           className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
                         />
-                        <input
-                          type="text"
-                          placeholder="Icon Name (e.g. Award, Gem, Heart)"
+                        <IconSelect 
                           value={feature.icon}
-                          onChange={(e) => {
+                          onChange={(val) => {
                             const newFeatures = [...settings.features];
-                            newFeatures[idx].icon = e.target.value;
+                            newFeatures[idx].icon = val;
                             setSettings({ ...settings, features: newFeatures });
                           }}
-                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
                         />
                       </div>
                       <textarea
@@ -682,31 +767,66 @@ export default function ThemeSettings() {
                 {settings.testimonials.map((test, idx) => (
                   <SortableItem key={test._id} id={test._id}>
                     <div className="flex flex-col gap-3 bg-gray-50 p-4 rounded-lg border border-gray-100 relative">
-                      <button type="button" onClick={() => setSettings(p => ({ ...p, testimonials: p.testimonials.filter((_, i) => i !== idx) }))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-50 rounded-md">
+                      <button type="button" onClick={() => setSettings(p => ({ ...p, testimonials: p.testimonials.filter((_, i) => i !== idx) }))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-50 rounded-md z-10">
                         <Trash2 className="w-4 h-4" />
                       </button>
-                      <input
-                        type="text"
-                        placeholder="Author Name"
-                        value={test.author}
-                        onChange={(e) => {
-                          const newTests = [...settings.testimonials];
-                          newTests[idx].author = e.target.value;
-                          setSettings({ ...settings, testimonials: newTests });
-                        }}
-                        className="w-1/2 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                      />
-                      <textarea
-                          placeholder="Quote"
-                          value={test.quote}
-                          onChange={(e) => {
-                            const newTests = [...settings.testimonials];
-                            newTests[idx].quote = e.target.value;
-                            setSettings({ ...settings, testimonials: newTests });
-                          }}
-                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand resize-y"
-                          rows={2}
-                      />
+                      <div className="flex flex-col md:flex-row gap-4 items-start mt-2">
+                        <div className="w-full md:w-1/3 h-32 rounded-lg bg-gray-200 flex-shrink-0 relative group overflow-hidden border border-gray-300">
+                          {test.image ? (
+                            <img src={test.image} alt={test.author || 'Testimonial'} className="w-full h-full object-cover object-top" />
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 p-2 text-center">
+                              <Upload className="w-6 h-6 mb-2" />
+                              <span className="text-xs">Upload Screenshot</span>
+                              <span className="text-[10px] text-gray-400 mt-1">(1:1 Square recommended)</span>
+                            </div>
+                          )}
+                          <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-opacity text-white">
+                            <Upload className="w-5 h-5 mb-1" />
+                            <span className="text-xs font-medium">Change</span>
+                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, idx, 'testimonials')} />
+                          </label>
+                          {test.image && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                const newTests = [...settings.testimonials];
+                                newTests[idx].image = '';
+                                setSettings({ ...settings, testimonials: newTests });
+                              }}
+                              className="absolute top-2 right-2 p-1 bg-white/80 hover:bg-white text-red-500 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex-1 w-full space-y-3 md:pr-8">
+                          <p className="text-xs text-gray-500 italic">If a screenshot is uploaded, it will take over the entire card on the storefront.</p>
+                          <input
+                            type="text"
+                            placeholder="Author Name (Optional if screenshot)"
+                            value={test.author || ''}
+                            onChange={(e) => {
+                              const newTests = [...settings.testimonials];
+                              newTests[idx].author = e.target.value;
+                              setSettings({ ...settings, testimonials: newTests });
+                            }}
+                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
+                          />
+                          <textarea
+                              placeholder="Quote (Optional if screenshot)"
+                              value={test.quote || ''}
+                              onChange={(e) => {
+                                const newTests = [...settings.testimonials];
+                                newTests[idx].quote = e.target.value;
+                                setSettings({ ...settings, testimonials: newTests });
+                              }}
+                              className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand resize-y"
+                              rows={2}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </SortableItem>
                 ))}

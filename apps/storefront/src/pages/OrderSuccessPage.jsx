@@ -12,7 +12,7 @@ export default function OrderSuccessPage() {
   }, []);
 
   return (
-    <div className="bg-cream min-h-screen pt-32 pb-24 font-sans text-charcoal">
+    <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-24 font-sans text-charcoal">
       <div className="max-w-4xl mx-auto px-6">
         
         {/* Header Section */}
@@ -54,16 +54,16 @@ export default function OrderSuccessPage() {
                     <div key={index} className="flex gap-4">
                       <div className="w-20 h-20 rounded-xl overflow-hidden bg-ivory border border-pink-soft/20 shrink-0">
                         <img 
-                          src={item.variant?.images?.[0] || 'https://via.placeholder.com/150'} 
-                          alt={item.product?.name} 
+                          src={item.image || 'https://via.placeholder.com/150'} 
+                          alt={item.name} 
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-medium text-charcoal mb-1 line-clamp-1">{item.product?.name}</h4>
+                        <h4 className="font-medium text-charcoal mb-1 line-clamp-1">{item.name}</h4>
                         <p className="text-sm text-charcoal/60 mb-2">
                           Qty: {item.quantity} 
-                          {item.variant?.attributes?.map(attr => {
+                          {item.attributes?.map(attr => {
                             const isColor = attr.name.toLowerCase().includes('color');
                             const displayVal = isColor ? attr.value.replace(/\s*\([^)]+\)\s*/g, '') : attr.value;
                             return ` | ${attr.name}: ${displayVal}`;

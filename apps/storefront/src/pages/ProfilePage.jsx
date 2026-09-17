@@ -86,7 +86,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="bg-cream min-h-screen pt-32 pb-16 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-16 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-6xl mx-auto">
         
         {/* Header */}

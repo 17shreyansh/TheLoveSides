@@ -205,16 +205,7 @@ export default function SubCategoryForm() {
               )}
             </div>
 
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-charcoal">Sort Order</label>
-              <input
-                type="number"
-                name="sortOrder"
-                value={formData.sortOrder ?? 0}
-                onChange={handleChange}
-                className="w-full px-4 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition-colors"
-              />
-            </div>
+
           
           <div className="flex gap-6 items-end pb-2">
             <label className="flex items-center gap-2 cursor-pointer">

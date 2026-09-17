@@ -38,7 +38,7 @@ export default function TrackPage() {
   };
 
   return (
-    <div className="bg-cream min-h-screen pt-32 pb-24">
+    <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-24">
       <div className="max-w-3xl mx-auto px-6">
         <div className="text-center mb-10">
           <h1 className="font-serif text-3xl md:text-4xl text-charcoal mb-4">Track Your Order</h1>

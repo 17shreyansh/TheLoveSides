@@ -58,7 +58,7 @@ export default function SubCategoryPage() {
   };
 
   return (
-    <div className="bg-cream min-h-screen pt-24 md:pt-32 pb-16 md:pb-24">
+    <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-16 md:pb-24">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         
         {/* Header Section */}

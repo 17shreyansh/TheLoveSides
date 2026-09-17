@@ -8,25 +8,37 @@ import { Star } from 'lucide-react';
 export default function Testimonials() {
   const { testimonials = [] } = useTheme();
 
-  const renderTestimonial = (testimonial, idx) => (
-    <RevealOnScroll delay={idx * 0.1} className="h-full w-full flex justify-center">
-      <div className="bg-ivory rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow flex-1 flex flex-col border border-pink-primary/10 max-w-sm mx-auto min-h-[260px]">
-        <div className="flex gap-1 mb-4 text-gold">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} className="w-4 h-4 md:w-5 md:h-5 fill-current" />
-          ))}
-        </div>
-        <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-6 italic flex-grow">
-          "{testimonial.quote}"
-        </p>
-        <div className="mt-auto">
-          <p className="font-serif text-base md:text-lg text-charcoal font-medium">
-            — {testimonial.author}
+  const renderTestimonial = (testimonial, idx) => {
+    if (testimonial.image) {
+      return (
+        <RevealOnScroll delay={idx * 0.1} className="h-full w-full flex justify-center">
+          <div className="rounded-2xl shadow-sm hover:shadow-md transition-shadow w-full max-w-sm mx-auto overflow-hidden border border-pink-primary/10 flex flex-col bg-white aspect-square">
+            <img src={testimonial.image} alt="Customer Review" className="w-full h-full object-cover" />
+          </div>
+        </RevealOnScroll>
+      );
+    }
+
+    return (
+      <RevealOnScroll delay={idx * 0.1} className="h-full w-full flex justify-center">
+        <div className="bg-ivory rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col border border-pink-primary/10 w-full max-w-sm mx-auto aspect-square">
+          <div className="flex gap-1 mb-4 text-gold">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-4 h-4 md:w-5 md:h-5 fill-current" />
+            ))}
+          </div>
+          <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-6 italic flex-grow">
+            "{testimonial.quote}"
           </p>
+          <div className="mt-auto">
+            <p className="font-serif text-base md:text-lg text-charcoal font-medium">
+              — {testimonial.author}
+            </p>
+          </div>
         </div>
-      </div>
-    </RevealOnScroll>
-  );
+      </RevealOnScroll>
+    );
+  };
 
   return (
     <section className="py-10 md:py-16 bg-ivory/50">
