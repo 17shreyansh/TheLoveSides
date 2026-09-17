@@ -184,6 +184,34 @@ export async function logoutAdmin(_req: Request, res: Response): Promise<void> {
   sendSuccess({ res, message: 'Admin logged out successfully' });
 }
 
+export async function changeAdminPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const adminId = req.user?.id;
+
+    if (!adminId) {
+      throw ApiError.unauthorized('Not authenticated');
+    }
+
+    const admin = await AdminUser.findById(adminId).select('+passwordHash');
+    if (!admin) {
+      throw ApiError.notFound('Admin User');
+    }
+
+    const isValid = await verifyPassword(currentPassword, admin.passwordHash);
+    if (!isValid) {
+      throw ApiError.badRequest('Incorrect current password');
+    }
+
+    admin.passwordHash = await hashPassword(newPassword);
+    await admin.save();
+
+    sendSuccess({ res, message: 'Password changed successfully' });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function getMe(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const user = await User.findById(req.user?.id).select('-__v');

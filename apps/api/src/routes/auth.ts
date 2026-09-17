@@ -5,7 +5,8 @@ import { authenticateCustomer, authenticateAdmin } from '../middleware/auth.js';
 import { 
   requestOtpSchema, 
   verifyOtpSchema, 
-  adminLoginSchema 
+  adminLoginSchema,
+  changeAdminPasswordSchema
 } from '../validators/auth.js';
 import {
   requestOtp,
@@ -19,6 +20,7 @@ import {
   refreshAdminToken,
   forgotPassword,
   resetPassword,
+  changeAdminPassword,
 } from '../controllers/auth.js';
 
 const router = Router();
@@ -64,5 +66,12 @@ router.post('/admin/logout', logoutAdmin);
 router.post('/admin/refresh', rateLimitAuth, refreshAdminToken);
 
 router.get('/admin/me', authenticateAdmin, getAdminMe);
+
+router.put(
+  '/admin/password',
+  authenticateAdmin,
+  validate({ body: changeAdminPasswordSchema }),
+  changeAdminPassword
+);
 
 export default router;

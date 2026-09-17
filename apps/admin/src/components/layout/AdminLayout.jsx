@@ -23,14 +23,19 @@ import {
   FileText,
   History,
   Ticket,
-  Palette
+  Palette,
+  ChevronDown,
+  KeyRound
 } from 'lucide-react';
 import clsx from 'clsx';
+import ChangePasswordModal from './ChangePasswordModal';
 
 export default function AdminLayout() {
   const { user, loading, logout } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
 
   if (loading) {
     return (
@@ -182,24 +187,55 @@ export default function AdminLayout() {
             </div>
           </div>
 
-          <div className="flex items-center gap-5">
-            <div className="flex items-center gap-3 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer py-1.5 px-2.5 rounded-full border border-gray-200/60">
+          <div className="flex items-center gap-5 relative">
+            <div 
+              className="flex items-center gap-3 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer py-1.5 px-2.5 rounded-full border border-gray-200/60"
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+            >
               <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-brand-accent to-blue-500 flex items-center justify-center text-white font-bold text-xs shadow-sm">
                 {user.firstName?.charAt(0)}
               </div>
-              <div className="hidden sm:block text-left pr-2">
+              <div className="hidden sm:block text-left pr-1">
                 <p className="text-[13px] font-semibold text-gray-900 leading-tight">{user.firstName} {user.lastName}</p>
                 <p className="text-[11px] text-gray-500 font-medium">{user.role?.name || 'Administrator'}</p>
               </div>
+              <ChevronDown className={clsx(
+                "w-4 h-4 text-gray-400 transition-transform duration-200 hidden sm:block",
+                userMenuOpen && "rotate-180"
+              )} />
             </div>
-            <div className="h-5 w-px bg-gray-200"></div>
-            <button 
-              onClick={logout}
-              className="flex items-center gap-2 p-2 text-sm font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-              title="Logout"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+
+            {userMenuOpen && (
+              <>
+                <div 
+                  className="fixed inset-0 z-40"
+                  onClick={() => setUserMenuOpen(false)}
+                />
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <button
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      setPasswordModalOpen(true);
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                  >
+                    <KeyRound className="w-4 h-4" />
+                    Change Password
+                  </button>
+                  <div className="h-px bg-gray-100 my-1.5"></div>
+                  <button
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      logout();
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </header>
 
@@ -210,6 +246,11 @@ export default function AdminLayout() {
           </div>
         </main>
       </div>
+
+      <ChangePasswordModal 
+        isOpen={passwordModalOpen}
+        onClose={() => setPasswordModalOpen(false)}
+      />
       
       {/* Custom Styles for hiding scrollbar cleanly on sidebar */}
       <style dangerouslySetInnerHTML={{__html: `

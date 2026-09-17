@@ -16,7 +16,7 @@ export default function Footer() {
           {/* Brand Col */}
           <div className="md:col-span-1 flex flex-col items-start">
             <Link to="/" className="mb-6 inline-block">
-              <img src={LogoImage} alt="THELOVESIDES" className="h-10 md:h-12 object-contain brightness-0 invert" />
+              <img src={LogoImage} alt="THELOVESIDES" className="h-10 md:h-12 object-contain" />
             </Link>
             <p className="text-ivory/60 text-sm leading-relaxed max-w-xs mb-6">
               Premium window treatments with expert installation since 2018.
