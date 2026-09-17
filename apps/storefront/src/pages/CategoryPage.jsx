@@ -114,25 +114,38 @@ export default function CategoryPage({ type }) {
 
         {/* SubCategories Grid */}
         {subCategories.length > 0 && (
-          <div className="mb-16">
-            <h2 className="font-serif text-2xl md:text-3xl text-charcoal mb-6 text-center border-b border-charcoal/10 pb-4">
-              Explore Sub-Categories
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+          <div className="mb-20 md:mb-24">
+            <div className="text-center mb-10 md:mb-12">
+              <span className="text-pink-primary font-sans text-xs uppercase tracking-[0.2em] font-semibold mb-2 block">
+                Collections
+              </span>
+              <h2 className="font-serif text-3xl md:text-4xl text-charcoal">
+                Shop by Category
+              </h2>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {subCategories.map((sub, idx) => (
                 <RevealOnScroll key={sub._id} delay={idx * 0.1}>
                   <Link 
                     to={`/subcategory/${sub.slug}`}
-                    className="group block relative rounded-2xl overflow-hidden aspect-[4/5] bg-gray-100 shadow-sm border border-charcoal/5 hover:shadow-lg transition-all"
+                    className="group block relative overflow-hidden bg-ivory aspect-[3/4]"
                   >
                     <img 
-                      src={sub.image || 'https://via.placeholder.com/300x400'} 
+                      src={sub.image || 'https://via.placeholder.com/400x533'} 
                       alt={sub.name}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                    <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
-                      <h3 className="text-white font-serif font-medium text-lg">{sub.name}</h3>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-500"></div>
+                    
+                    <div className="absolute inset-0 p-5 md:p-6 flex flex-col justify-end items-center text-center">
+                      <h3 className="text-white font-serif text-xl md:text-2xl tracking-wide mb-1 md:mb-2 transform translate-y-3 group-hover:translate-y-0 transition-transform duration-500">
+                        {sub.name}
+                      </h3>
+                      <div className="flex items-center gap-1 md:gap-2 opacity-0 group-hover:opacity-100 transform translate-y-3 group-hover:translate-y-0 transition-all duration-500 delay-75">
+                        <span className="text-[10px] md:text-xs text-white font-sans uppercase tracking-widest">Explore</span>
+                        <ChevronRight className="w-3 h-3 md:w-4 md:h-4 text-white" />
+                      </div>
                     </div>
                   </Link>
                 </RevealOnScroll>
