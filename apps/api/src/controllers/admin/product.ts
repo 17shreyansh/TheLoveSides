@@ -208,7 +208,7 @@ export async function listProducts(req: Request, res: Response, next: NextFuncti
 /**
  * Get unique colors used in product attributes across all products.
  */
-export async function getUniqueColors(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getUniqueColors(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const result = await Product.aggregate([
       { $match: { deletedAt: null } },
