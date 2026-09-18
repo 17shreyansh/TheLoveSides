@@ -18,10 +18,10 @@ router.use(authenticateAdmin);
 // ========================================
 // Coupons
 // ========================================
-router.get('/coupons', authorize('marketing.read'), listCoupons);
-router.post('/coupons', authorize('marketing.write'), createCoupon);
-router.patch('/coupons/:id', authorize('marketing.write'), updateCoupon);
-router.delete('/coupons/:id', authorize('marketing.delete'), deleteCoupon);
+router.get('/coupons', authorize('coupons.read'), listCoupons);
+router.post('/coupons', authorize('coupons.create'), createCoupon);
+router.patch('/coupons/:id', authorize('coupons.update'), updateCoupon);
+router.delete('/coupons/:id', authorize('coupons.delete'), deleteCoupon);
 
 // ========================================
 // Returns
@@ -33,8 +33,8 @@ router.patch('/returns/:id/status', authorize('orders.update'), updateReturnStat
 // ========================================
 // Reviews
 // ========================================
-router.get('/reviews', authorize('catalog.read'), listReviews);
-router.patch('/reviews/:id/status', authorize('catalog.update'), updateReviewStatus);
+router.get('/reviews', authorize('reviews.read'), listReviews);
+router.patch('/reviews/:id/status', authorize('reviews.moderate'), updateReviewStatus);
 
 // ========================================
 // CMS Pages
@@ -55,8 +55,8 @@ router.delete('/media/:id', authorize('media.delete'), deleteMedia);
 // ========================================
 // Audit Logs
 // ========================================
-router.get('/audit-logs', authorize('settings.read'), listAuditLogs);
-router.get('/audit-logs/:id', authorize('settings.read'), getAuditLogById);
+router.get('/audit-logs', authorize('audit.read'), listAuditLogs);
+router.get('/audit-logs/:id', authorize('audit.read'), getAuditLogById);
 
 // ========================================
 // Settings
@@ -67,8 +67,8 @@ router.patch('/settings', authorize('settings.write'), updateSettings);
 // ========================================
 // Admin Users
 // ========================================
-router.get('/users', authorize('settings.read'), listAdminUsers);
-router.post('/users', authorize('settings.write'), createAdminUser);
-router.patch('/users/:id', authorize('settings.write'), updateAdminUser);
+router.get('/users', authorize('admin_users.read'), listAdminUsers);
+router.post('/users', authorize('admin_users.create'), createAdminUser);
+router.patch('/users/:id', authorize('admin_users.update'), updateAdminUser);
 
 export default router;

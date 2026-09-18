@@ -258,9 +258,7 @@ export default function ThemeSettings() {
     fd.append('file', file);
 
     try {
-      const { data } = await api.post('/admin/upload/single', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const { data } = await api.post('/admin/upload/single', fd);
       const newArray = [...settings[fieldName]];
       if (fieldName === 'signatures') {
         newArray[idx].imageUrl = data.data.url;
@@ -483,7 +481,7 @@ export default function ThemeSettings() {
                       const fd = new FormData();
                       fd.append('file', file);
                       try {
-                        const { data } = await api.post('/admin/upload/single', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+                        const { data } = await api.post('/admin/upload/single', fd);
                         setSettings({ ...settings, hero: { ...settings.hero, desktopImageUrl: data.data.url } });
                       } catch (err) { alert('Upload failed'); }
                     }} />
@@ -507,7 +505,7 @@ export default function ThemeSettings() {
                       const fd = new FormData();
                       fd.append('file', file);
                       try {
-                        const { data } = await api.post('/admin/upload/single', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+                        const { data } = await api.post('/admin/upload/single', fd);
                         setSettings({ ...settings, hero: { ...settings.hero, mobileImageUrl: data.data.url } });
                       } catch (err) { alert('Upload failed'); }
                     }} />

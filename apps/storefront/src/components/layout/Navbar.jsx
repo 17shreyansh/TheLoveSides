@@ -58,7 +58,7 @@ export default function Navbar() {
         <div className="w-full py-4 lg:py-2 border-b border-charcoal/10 relative">
           <div className="max-w-7xl mx-auto px-6 md:px-10 flex items-center justify-between">
             {/* LEFT: Search / Mobile Menu */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <button 
                 className="md:hidden p-1 -ml-1 text-charcoal hover:text-pink-primary transition-colors focus:outline-none"
                 onClick={() => setIsMobileMenuOpen(true)}
@@ -95,25 +95,25 @@ export default function Navbar() {
             <Link 
               to="/" 
               className={clsx(
-                "absolute left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 transition-opacity duration-300",
+                "absolute left-1/2 -translate-x-1/2 flex items-center justify-center gap-1 sm:gap-3 transition-opacity duration-300",
                 isSearchOpen ? "opacity-0 sm:opacity-100 pointer-events-none sm:pointer-events-auto" : "opacity-100"
               )}
             >
               <img 
                 src={LogoImage} 
                 alt="Logo" 
-                className="h-8 sm:h-10 md:h-12 lg:h-10 object-contain" 
+                className="h-5 sm:h-10 md:h-12 lg:h-10 object-contain" 
               />
-              <span className="font-serif text-lg sm:text-2xl md:text-3xl lg:text-2xl tracking-[0.1em] sm:tracking-[0.2em] text-charcoal uppercase text-center whitespace-nowrap hidden sm:inline-block">
+              <span className="font-serif text-xs sm:text-2xl md:text-3xl lg:text-2xl tracking-widest sm:tracking-[0.2em] text-charcoal uppercase text-center whitespace-nowrap inline-block">
                 THELOVESIDES
               </span>
             </Link>
 
             {/* RIGHT: User & Wishlist & Cart */}
-            <div className="flex items-center gap-3 md:gap-5">
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-5">
               <button 
                 onClick={() => isAuthenticated ? navigate('/profile') : setIsAuthOpen(true)}
-                className="p-1 text-charcoal hover:text-pink-primary transition-colors focus:outline-none hidden sm:block"
+                className="p-1 text-charcoal hover:text-pink-primary transition-colors focus:outline-none"
                 aria-label="Account"
               >
                 <User className="w-5 h-5 md:w-6 md:h-6 lg:w-5 lg:h-5" />
@@ -121,7 +121,7 @@ export default function Navbar() {
 
               <button 
                 onClick={() => isAuthenticated ? navigate('/wishlist') : setIsAuthOpen(true)}
-                className="relative p-1 text-charcoal hover:text-pink-primary transition-colors focus:outline-none hidden sm:block"
+                className="relative p-1 text-charcoal hover:text-pink-primary transition-colors focus:outline-none"
                 aria-label="Wishlist"
               >
                 <Heart className="w-5 h-5 md:w-6 md:h-6 lg:w-5 lg:h-5" />

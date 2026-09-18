@@ -31,9 +31,7 @@ export default function MediaList() {
     formData.append('file', file);
     
     try {
-      const uploadRes = await api.post('/admin/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const uploadRes = await api.post('/admin/upload/single', formData);
       const url = uploadRes.data?.data?.url || uploadRes.data?.url;
 
       await api.post('/admin/media', {

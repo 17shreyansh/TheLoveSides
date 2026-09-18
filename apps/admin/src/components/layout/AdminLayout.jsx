@@ -61,7 +61,6 @@ export default function AdminLayout() {
       label: 'Catalog',
       items: [
         { name: 'Products', href: '/products', icon: Package },
-        { name: 'Categories', href: '/categories', icon: FolderTree },
         { name: 'Sub-Categories', href: '/subcategories', icon: Layers },
         { name: 'Rooms', href: '/rooms', icon: FolderTree },
         { name: 'Collections', href: '/collections', icon: Layers },

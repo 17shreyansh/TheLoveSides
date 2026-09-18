@@ -338,9 +338,7 @@ export default function ProductForm() {
       const uploadPromises = files.map(async (file) => {
         const fd = new FormData();
         fd.append('file', file);
-        const { data } = await api.post('/admin/upload/single', fd, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const { data } = await api.post('/admin/upload/single', fd);
         return data.data.url;
       });
 

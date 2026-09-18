@@ -115,7 +115,7 @@ export default function CmsPageForm() {
               type="text"
               name="slug"
               required
-              pattern="[a-z0-9-]+"
+              pattern="[a-z0-9\-]+"
               value={formData.slug || ''}
               onChange={handleChange}
               className="w-full px-4 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition-colors"

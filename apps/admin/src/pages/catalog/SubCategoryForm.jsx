@@ -75,9 +75,7 @@ export default function SubCategoryForm() {
     fd.append('file', file);
 
     try {
-      const { data } = await api.post('/admin/upload/single', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const { data } = await api.post('/admin/upload/single', fd);
       setFormData(prev => ({ ...prev, image: data.data.url }));
     } catch (err) {
       alert('Upload failed');
@@ -143,7 +141,7 @@ export default function SubCategoryForm() {
               type="text"
               name="slug"
               required
-              pattern="[a-z0-9-]+"
+              pattern="[a-z0-9\-]+"
               title="Only lowercase letters, numbers, and hyphens"
               value={formData.slug || ''}
               onChange={handleChange}

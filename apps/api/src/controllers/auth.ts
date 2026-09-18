@@ -20,8 +20,8 @@ const getMs = (val: string) => {
 
 const cookieOptions = {
   httpOnly: true,
-  secure: false, // Forced to false for HTTP environments
-  sameSite: 'lax' as const,
+  secure: env.NODE_ENV === 'production',
+  sameSite: env.NODE_ENV === 'production' ? ('none' as const) : ('lax' as const),
   path: '/',
 };
 
