@@ -14,7 +14,7 @@ export default function OrdersList() {
   const fetchOrders = async () => {
     try {
       const { data } = await api.get('/admin/orders');
-      setOrders(data.data.orders || []);
+      setOrders(data.data || []);
     } catch (error) {
       console.error('Failed to fetch orders', error);
     } finally {

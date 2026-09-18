@@ -348,7 +348,9 @@ export default function ProductForm() {
         images: [...(prev.images || []), ...uploadedUrls]
       }));
     } catch (err) {
-      alert('Upload failed for some images');
+      console.error('Image upload error:', err);
+      const errorMsg = err.response?.data?.error?.message || err.message || 'Unknown error';
+      alert(`Upload failed: ${errorMsg}`);
     } finally {
       setUploading(false);
     }
