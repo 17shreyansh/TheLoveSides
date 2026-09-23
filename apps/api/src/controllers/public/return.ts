@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { Order } from '../../models/Order.js';
 import { Return } from '../../models/Return.js';
+import { Setting } from '../../models/Setting.js';
 import { sendSuccess } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
 
@@ -10,7 +11,7 @@ import { ApiError } from '../../utils/ApiError.js';
 export async function requestReturn(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { orderId } = req.params;
-    const { variantId, quantity, reason, notes, images } = req.body;
+    const { type, variantId, quantity, reason, notes, images } = req.body;
 
     const order = await Order.findOne({ _id: orderId, userId: req.user!.id });
     
@@ -20,7 +21,24 @@ export async function requestReturn(req: Request, res: Response, next: NextFunct
 
     // Only delivered orders can be returned (typically)
     if (order.status !== 'DELIVERED') {
-      throw ApiError.badRequest('Only delivered orders can be returned');
+      throw ApiError.badRequest('Only delivered orders can be returned or replaced');
+    }
+
+    // Enforce policy days based on type
+    const requestType = type === 'REPLACEMENT' ? 'REPLACEMENT' : 'RETURN';
+    const returnSetting = await Setting.findOne({ key: 'returnPolicyDays' });
+    const replacementSetting = await Setting.findOne({ key: 'replacementPolicyDays' });
+    
+    const returnPolicyDays = returnSetting ? Number(returnSetting.value) : 7;
+    const replacementPolicyDays = replacementSetting ? Number(replacementSetting.value) : 7;
+    
+    const policyDays = requestType === 'REPLACEMENT' ? replacementPolicyDays : returnPolicyDays;
+
+    if (order.deliveredAt) {
+      const daysSinceDelivery = (Date.now() - order.deliveredAt.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceDelivery > policyDays) {
+        throw ApiError.badRequest(`The window for ${requestType.toLowerCase()} has expired (Allowed: ${policyDays} days)`);
+      }
     }
 
     // Check if the item exists in the order and the quantity is valid
@@ -47,6 +65,7 @@ export async function requestReturn(req: Request, res: Response, next: NextFunct
       reason,
       notes,
       images: images || [],
+      type: requestType,
     });
 
     sendSuccess({ res, data: returnRequest, message: 'Return requested successfully', statusCode: 201 });

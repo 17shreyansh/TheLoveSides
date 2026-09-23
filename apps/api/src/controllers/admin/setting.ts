@@ -29,7 +29,10 @@ export async function updateSettings(req: Request, res: Response, next: NextFunc
       const setting = await Setting.findOneAndUpdate(
         { key: item.key },
         { 
-          $set: { value: item.value },
+          $set: { 
+            value: item.value,
+            ...( ['returnPolicyDays', 'replacementPolicyDays'].includes(item.key) ? { isPublic: true } : {} )
+          },
           $setOnInsert: { 
             group: item.key.startsWith('theme.') ? 'theme' : 'general',
             isPublic: item.key.startsWith('theme.') 

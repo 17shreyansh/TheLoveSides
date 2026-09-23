@@ -15,6 +15,7 @@ export interface IReturn extends Document {
   reason: string;
   notes?: string;
   images: string[];
+  type: 'RETURN' | 'REPLACEMENT';
   status: ReturnStatus;
   adminNotes?: string;
   shiprocketReturnId?: string;
@@ -34,6 +35,12 @@ const returnSchema = new Schema<IReturn>(
     reason: { type: String, required: true, trim: true },
     notes: { type: String, trim: true },
     images: [{ type: String }],
+    type: {
+      type: String,
+      enum: ['RETURN', 'REPLACEMENT'],
+      required: true,
+      default: 'RETURN'
+    },
     status: {
       type: String,
       enum: [

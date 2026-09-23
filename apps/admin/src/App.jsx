@@ -8,6 +8,8 @@ import ProductsList from './pages/catalog/ProductsList';
 import ProductForm from './pages/catalog/ProductForm';
 import OrdersList from './pages/orders/OrdersList';
 import OrderDetails from './pages/orders/OrderDetails';
+import ReturnsList from './pages/orders/ReturnsList';
+import ReturnDetails from './pages/orders/ReturnDetails';
 import CustomersList from './pages/customers/CustomersList';
 import CustomerDetails from './pages/customers/CustomerDetails';
 import CouponsList from './pages/marketing/CouponsList';
@@ -66,6 +68,8 @@ function App() {
             {/* Sales & Customers */}
             <Route path="/orders" element={<OrdersList />} />
             <Route path="/orders/:id" element={<OrderDetails />} />
+            <Route path="/orders/returns" element={<ReturnsList />} />
+            <Route path="/orders/returns/:id" element={<ReturnDetails />} />
             <Route path="/customers" element={<CustomersList />} />
             <Route path="/customers/:id" element={<CustomerDetails />} />
             <Route path="/contact-leads" element={<ContactLeads />} />

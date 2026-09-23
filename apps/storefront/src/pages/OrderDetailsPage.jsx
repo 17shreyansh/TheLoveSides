@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../lib/api';
-import { Package, ArrowLeft, Truck, Clock, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { Package, ArrowLeft, Truck, Clock, CheckCircle, AlertCircle, FileText, RotateCcw } from 'lucide-react';
 import Button from '../components/ui/Button';
 import ReviewForm from '../components/product/ReviewForm';
+import ReturnRequestModal from '../components/orders/ReturnRequestModal';
 
 export default function OrderDetailsPage() {
   const { id } = useParams();
@@ -13,12 +14,23 @@ export default function OrderDetailsPage() {
   const [error, setError] = useState(null);
   const [reviewingItem, setReviewingItem] = useState(null);
   const [reviewedItems, setReviewedItems] = useState({});
+  const [returningItem, setReturningItem] = useState(null);
+  const [settings, setSettings] = useState({});
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const { data } = await api.get(`/orders/${id}`);
-        setOrder(data);
+        const [orderRes, settingsRes] = await Promise.all([
+          api.get(`/orders/${id}`),
+          api.get('/settings')
+        ]);
+        setOrder(orderRes.data);
+        
+        const settingsMap = (settingsRes.data.data || []).reduce((acc, curr) => {
+          acc[curr.key] = curr.value;
+          return acc;
+        }, {});
+        setSettings(settingsMap);
       } catch (err) {
         console.error('Failed to fetch order details:', err);
         setError(err.response?.data?.error?.message || err.response?.data?.message || 'Failed to load order details');
@@ -68,6 +80,19 @@ export default function OrderDetailsPage() {
   };
 
   const isShipped = order.shipments && order.shipments.length > 0;
+
+  // Calculate return/replacement eligibility
+  const isEligibleForReturn = (item) => {
+    if (order.status !== 'DELIVERED' || !order.deliveredAt) return false;
+    
+    // Simplification: we use the max of return/replacement policy days to show the button
+    const returnDays = Number(settings.returnPolicyDays) || 7;
+    const replacementDays = Number(settings.replacementPolicyDays) || 7;
+    const maxDays = Math.max(returnDays, replacementDays);
+    
+    const daysSinceDelivery = (Date.now() - new Date(order.deliveredAt).getTime()) / (1000 * 60 * 60 * 24);
+    return daysSinceDelivery <= maxDays;
+  };
 
   return (
     <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-16 md:pb-24">
@@ -140,31 +165,49 @@ export default function OrderDetailsPage() {
                       <p className="font-medium text-charcoal font-sans">₹{(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                   </div>
-                  {/* Review Section */}
+                  {/* Actions Section */}
                   {['DELIVERED', 'SHIPPED', 'PAID'].includes(order.status) && (
-                    <div className="mt-4 pt-4 border-t border-gray-100">
-                      {reviewedItems[item.productId] ? (
-                        <div className="flex items-center text-green-600 gap-2 bg-green-50 px-4 py-2 rounded-lg text-sm font-medium w-max">
-                          <CheckCircle className="w-4 h-4" /> Thanks for your review!
-                        </div>
-                      ) : reviewingItem === item.productId ? (
-                        <div className="bg-gray-50 p-6 rounded-2xl">
-                          <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-serif font-semibold">Write your review</h3>
-                            <button onClick={() => setReviewingItem(null)} className="text-gray-500 hover:text-charcoal text-sm font-medium">Cancel</button>
+                    <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col sm:flex-row gap-4">
+                      {/* Review */}
+                      <div className="flex-1">
+                        {reviewedItems[item.productId] ? (
+                          <div className="flex items-center text-green-600 gap-2 bg-green-50 px-4 py-2 rounded-lg text-sm font-medium w-max">
+                            <CheckCircle className="w-4 h-4" /> Thanks for your review!
                           </div>
-                          <ReviewForm 
-                            productId={item.productId} 
-                            onSubmitSuccess={() => {
-                              setReviewedItems(prev => ({ ...prev, [item.productId]: true }));
-                              setReviewingItem(null);
-                            }} 
-                          />
+                        ) : reviewingItem === item.productId ? (
+                          <div className="bg-gray-50 p-6 rounded-2xl w-full">
+                            <div className="flex justify-between items-center mb-4">
+                              <h3 className="text-lg font-serif font-semibold">Write your review</h3>
+                              <button onClick={() => setReviewingItem(null)} className="text-gray-500 hover:text-charcoal text-sm font-medium">Cancel</button>
+                            </div>
+                            <ReviewForm 
+                              productId={item.productId} 
+                              onSubmitSuccess={() => {
+                                setReviewedItems(prev => ({ ...prev, [item.productId]: true }));
+                                setReviewingItem(null);
+                              }} 
+                            />
+                          </div>
+                        ) : (
+                          <Button variant="outline" size="sm" onClick={() => setReviewingItem(item.productId)}>
+                            Write a Review
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* Return / Replace */}
+                      {isEligibleForReturn(item) && (
+                        <div>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => setReturningItem(item)}
+                            className="text-brand border-brand/20 hover:bg-brand/5"
+                          >
+                            <RotateCcw className="w-4 h-4 mr-1.5" />
+                            Return / Replace
+                          </Button>
                         </div>
-                      ) : (
-                        <Button variant="outline" size="sm" onClick={() => setReviewingItem(item.productId)}>
-                          Write a Review
-                        </Button>
                       )}
                     </div>
                   )}
@@ -172,6 +215,18 @@ export default function OrderDetailsPage() {
                 ))}
               </div>
             </div>
+
+            <ReturnRequestModal
+              isOpen={!!returningItem}
+              onClose={() => setReturningItem(null)}
+              orderId={order._id}
+              item={returningItem}
+              onSuccess={() => {
+                alert('Return/Replacement request submitted successfully. We will review it shortly.');
+                setReturningItem(null);
+                // Optionally reload order to update status
+              }}
+            />
 
             {/* Tracking / Shipments */}
             {isShipped && (

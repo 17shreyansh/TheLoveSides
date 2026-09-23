@@ -21,6 +21,8 @@ export default function GeneralSettings() {
       if (!settingsMap.storeName) settingsMap.storeName = '';
       if (!settingsMap.contactEmail) settingsMap.contactEmail = '';
       if (!settingsMap.currency) settingsMap.currency = 'INR';
+      if (!settingsMap.returnPolicyDays) settingsMap.returnPolicyDays = '7';
+      if (!settingsMap.replacementPolicyDays) settingsMap.replacementPolicyDays = '7';
       
       setSettings(settingsMap);
     } catch (error) {
@@ -93,6 +95,30 @@ export default function GeneralSettings() {
               <option value="USD">USD ($)</option>
               <option value="EUR">EUR (€)</option>
             </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-charcoal">Return Policy (Days)</label>
+            <input
+              type="number"
+              min="0"
+              name="returnPolicyDays"
+              value={settings.returnPolicyDays}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition-colors"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-charcoal">Replacement Policy (Days)</label>
+            <input
+              type="number"
+              min="0"
+              name="replacementPolicyDays"
+              value={settings.replacementPolicyDays}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition-colors"
+            />
           </div>
         </div>
 

@@ -20,6 +20,7 @@ import adminSystemRouter from './routes/admin/system.js';
 import adminUploadRouter from './routes/admin/upload.js';
 import adminReviewsRouter from './routes/admin/reviews.js';
 import adminShippingRouter from './routes/admin/shipping.js';
+import adminReturnsRouter from './routes/admin/returns.js';
 import accountRouter from './routes/account.js';
 import ordersRouter from './routes/orders.js';
 import paymentRouter from './routes/payment.js';
@@ -102,6 +103,7 @@ app.use('/api/v1/admin/upload', adminUploadRouter);
 app.use('/api/v1/admin/reviews', adminReviewsRouter);
 app.use('/api/v1/admin', adminSystemRouter);
 app.use('/api/v1/admin', adminOrdersRouter);
+app.use('/api/v1/admin/returns', adminReturnsRouter);
 app.use('/api/v1/admin', adminShippingRouter);
 app.use('/api/v1/admin', adminContactRouter);
 
