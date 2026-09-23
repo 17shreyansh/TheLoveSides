@@ -106,6 +106,53 @@ export async function listProducts(req: Request, res: Response, next: NextFuncti
       };
     }
 
+    const minPrice = req.query.minPrice ? Number(req.query.minPrice) : undefined;
+    const maxPrice = req.query.maxPrice ? Number(req.query.maxPrice) : undefined;
+    const inStock = req.query.inStock === 'true';
+
+    // Pre-filter by variant properties (price and stock)
+    if (minPrice !== undefined || maxPrice !== undefined || inStock) {
+      const variantMatch: any = { isActive: true, deletedAt: null };
+      
+      if (minPrice !== undefined || maxPrice !== undefined) {
+        variantMatch.price = {};
+        if (minPrice !== undefined && !isNaN(minPrice)) variantMatch.price.$gte = minPrice;
+        if (maxPrice !== undefined && !isNaN(maxPrice)) variantMatch.price.$lte = maxPrice;
+      }
+      
+      if (inStock) {
+        const inStockPipeline: any[] = [
+          { $match: variantMatch },
+          {
+            $lookup: {
+              from: 'inventories',
+              localField: '_id',
+              foreignField: 'variantId',
+              as: 'inventory'
+            }
+          },
+          { $unwind: { path: '$inventory', preserveNullAndEmptyArrays: true } },
+          {
+            $match: {
+              $or: [
+                { 'inventory.available': { $gt: 0 } },
+                { 'inventory.trackInventory': false },
+                { 'inventory.allowBackorder': true },
+                { inventory: { $exists: false } } // Treat missing inventory as available if system allows
+              ]
+            }
+          },
+          { $group: { _id: '$productId' } }
+        ];
+        
+        const matchingProductIds = await mongoose.model('ProductVariant').aggregate(inStockPipeline);
+        query._id = { $in: matchingProductIds.map(doc => doc._id) };
+      } else {
+        const matchingVariants = await mongoose.model('ProductVariant').find(variantMatch).select('productId').lean();
+        query._id = { $in: matchingVariants.map((v: any) => v.productId) };
+      }
+    }
+
     let sortOptions: any = { createdAt: -1 };
     if (sort === 'price_asc') sortOptions = { 'variants.0.price': 1 }; // Requires aggregation for perfect sorting
     if (sort === 'price_desc') sortOptions = { 'variants.0.price': -1 };

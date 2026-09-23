@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ChevronRight, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronRight, SlidersHorizontal, X, ChevronDown, ChevronUp } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
 import RevealOnScroll from '../components/ui/RevealOnScroll';
 import Button from '../components/ui/Button';
@@ -9,6 +9,26 @@ import { useCollections } from '../hooks/useCollections';
 import { useRooms } from '../hooks/useRooms';
 import { useColors } from '../hooks/useColors';
 import clsx from 'clsx';
+
+const Accordion = ({ title, children, defaultOpen = true }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <div className="border-b border-charcoal/10 py-4 last:border-b-0">
+      <button 
+        onClick={() => setIsOpen(!isOpen)} 
+        className="flex w-full items-center justify-between text-sm font-semibold text-charcoal uppercase tracking-wider group"
+      >
+        {title}
+        <span className="text-charcoal/50 group-hover:text-charcoal transition-colors">
+          {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </span>
+      </button>
+      <div className={clsx("overflow-hidden transition-all duration-300 ease-in-out", isOpen ? "max-h-[500px] opacity-100 mt-4 overflow-y-auto" : "max-h-0 opacity-0")}>
+        {children}
+      </div>
+    </div>
+  );
+};
 
 export default function ProductsPage() {
   const [visibleCount, setVisibleCount] = useState(12);
@@ -20,12 +40,36 @@ export default function ProductsPage() {
   const selectedRoom = searchParams.get('room') || '';
   const selectedColor = searchParams.get('color') || '';
   const searchQuery = searchParams.get('q') || '';
-  const [selectedSort, setSelectedSort] = useState('newest'); // 'newest', 'price_asc', 'price_desc'
+  const selectedSort = searchParams.get('sort') || 'newest';
+  const minPrice = searchParams.get('minPrice') || '';
+  const maxPrice = searchParams.get('maxPrice') || '';
+  const inStock = searchParams.get('inStock') === 'true';
+
+  const [priceInput, setPriceInput] = useState({ min: minPrice, max: maxPrice });
+
+  // Sync internal state if URL changes externally
+  useEffect(() => {
+    setPriceInput({ min: minPrice, max: maxPrice });
+  }, [minPrice, maxPrice]);
 
   const updateParam = (key, value) => {
     setSearchParams(prev => {
       if (value) prev.set(key, value);
       else prev.delete(key);
+      return prev;
+    });
+  };
+
+  const removeFilter = (key) => {
+    updateParam(key, '');
+  };
+
+  const applyPriceFilter = () => {
+    setSearchParams(prev => {
+      if (priceInput.min) prev.set('minPrice', priceInput.min);
+      else prev.delete('minPrice');
+      if (priceInput.max) prev.set('maxPrice', priceInput.max);
+      else prev.delete('maxPrice');
       return prev;
     });
   };
@@ -40,6 +84,9 @@ export default function ProductsPage() {
   if (selectedColor) query.color = selectedColor;
   if (searchQuery) query.q = searchQuery;
   if (selectedSort) query.sort = selectedSort;
+  if (minPrice) query.minPrice = minPrice;
+  if (maxPrice) query.maxPrice = maxPrice;
+  if (inStock) query.inStock = 'true';
 
   const { products, loading: productsLoading } = useProducts(query);
 
@@ -53,13 +100,64 @@ export default function ProductsPage() {
   // Reset pagination when filters change
   useEffect(() => {
     setVisibleCount(12);
-  }, [selectedCollection, selectedRoom, selectedSort, selectedColor, searchQuery]);
+  }, [selectedCollection, selectedRoom, selectedSort, selectedColor, searchQuery, minPrice, maxPrice, inStock]);
 
   const FilterSidebarContent = () => (
-    <div className="space-y-8 font-sans">
+    <div className="font-sans">
+      {/* Availability Filter */}
+      <Accordion title="Availability">
+        <label className="flex items-center gap-3 cursor-pointer group">
+          <div className="relative flex items-center">
+            <input 
+              type="checkbox" 
+              className="w-5 h-5 border-2 border-charcoal/20 rounded bg-transparent appearance-none checked:bg-pink-primary checked:border-pink-primary transition-colors cursor-pointer"
+              checked={inStock}
+              onChange={(e) => updateParam('inStock', e.target.checked ? 'true' : '')}
+            />
+            {inStock && (
+              <svg className="absolute w-3 h-3 left-1 text-white pointer-events-none" viewBox="0 0 14 14" fill="none">
+                <path d="M3 8L6 11L11 3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+          <span className="text-sm text-charcoal/70 group-hover:text-charcoal transition-colors">In Stock Only</span>
+        </label>
+      </Accordion>
+
+      {/* Price Filter */}
+      <Accordion title="Price">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-charcoal/50 text-sm">₹</span>
+              <input
+                type="number"
+                placeholder="Min"
+                value={priceInput.min}
+                onChange={(e) => setPriceInput(p => ({ ...p, min: e.target.value }))}
+                className="w-full pl-7 pr-3 py-2 border border-charcoal/20 rounded text-sm focus:outline-none focus:border-pink-primary"
+              />
+            </div>
+            <span className="text-charcoal/40">-</span>
+            <div className="relative flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-charcoal/50 text-sm">₹</span>
+              <input
+                type="number"
+                placeholder="Max"
+                value={priceInput.max}
+                onChange={(e) => setPriceInput(p => ({ ...p, max: e.target.value }))}
+                className="w-full pl-7 pr-3 py-2 border border-charcoal/20 rounded text-sm focus:outline-none focus:border-pink-primary"
+              />
+            </div>
+          </div>
+          <Button variant="outline" className="w-full py-2 text-xs" onClick={applyPriceFilter}>
+            Apply Price
+          </Button>
+        </div>
+      </Accordion>
+
       {/* Collections Filter */}
-      <div>
-        <h3 className="text-sm font-semibold text-charcoal mb-4 uppercase tracking-wider">Collections</h3>
+      <Accordion title="Collections" defaultOpen={false}>
         {collectionsLoading ? (
           <div className="animate-pulse space-y-2">
             {[1, 2, 3].map(i => <div key={i} className="h-4 bg-charcoal/10 rounded w-2/3"></div>)}
@@ -89,11 +187,10 @@ export default function ProductsPage() {
             ))}
           </div>
         )}
-      </div>
+      </Accordion>
 
       {/* Rooms Filter */}
-      <div>
-        <h3 className="text-sm font-semibold text-charcoal mb-4 uppercase tracking-wider">Rooms</h3>
+      <Accordion title="Rooms" defaultOpen={false}>
         {roomsLoading ? (
           <div className="animate-pulse space-y-2">
             {[1, 2, 3, 4].map(i => <div key={i} className="h-4 bg-charcoal/10 rounded w-2/3"></div>)}
@@ -123,11 +220,10 @@ export default function ProductsPage() {
             ))}
           </div>
         )}
-      </div>
+      </Accordion>
 
       {/* Colors Filter */}
-      <div>
-        <h3 className="text-sm font-semibold text-charcoal mb-4 uppercase tracking-wider">Colors</h3>
+      <Accordion title="Colors" defaultOpen={false}>
         {colorsLoading ? (
           <div className="flex gap-3 animate-pulse">
             {[1, 2, 3, 4].map(i => <div key={i} className="w-8 h-8 rounded-full bg-charcoal/10"></div>)}
@@ -151,9 +247,11 @@ export default function ProductsPage() {
         ) : (
           <p className="text-sm text-charcoal/60">No colors available</p>
         )}
-      </div>
+      </Accordion>
     </div>
   );
+
+  const activeFiltersCount = [selectedCollection, selectedRoom, selectedColor, minPrice, maxPrice, inStock].filter(Boolean).length;
 
   return (
     <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-16 md:pb-24">
@@ -181,6 +279,17 @@ export default function ProductsPage() {
           {/* Desktop Sidebar */}
           <div className="hidden lg:block w-64 shrink-0">
             <div className="sticky top-32">
+              <div className="flex items-center justify-between mb-4 border-b border-charcoal/20 pb-4">
+                <h2 className="font-serif text-xl text-charcoal">Filters</h2>
+                {activeFiltersCount > 0 && (
+                  <button 
+                    onClick={() => setSearchParams({})}
+                    className="text-xs text-charcoal/60 hover:text-pink-primary font-sans transition-colors uppercase tracking-wider"
+                  >
+                    Clear All
+                  </button>
+                )}
+              </div>
               <FilterSidebarContent />
             </div>
           </div>
@@ -189,33 +298,75 @@ export default function ProductsPage() {
           <div className="flex-1">
             
             {/* Sort & Mobile Filter Toggle Bar */}
-            <div className="flex justify-between items-center py-4 border-y border-charcoal/10 mb-8">
-              
-              <button 
-                onClick={() => setIsFilterDrawerOpen(true)}
-                className="lg:hidden flex items-center gap-2 text-sm text-charcoal font-medium font-sans hover:text-pink-primary transition-colors"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-                Filters
-              </button>
-
-              <span className="hidden lg:inline-block text-sm text-charcoal font-medium font-sans">
-                Showing {visibleProducts.length} of {products.length} products
-              </span>
-
-              <div className="flex items-center gap-3">
-                <label htmlFor="sort" className="text-sm text-charcoal/60 hidden sm:block font-sans">Sort by:</label>
-                <select 
-                  id="sort" 
-                  value={selectedSort}
-                  onChange={(e) => setSelectedSort(e.target.value)}
-                  className="bg-transparent border border-charcoal/20 rounded px-3 py-1.5 text-sm text-charcoal focus:outline-none focus:border-pink-primary cursor-pointer font-sans"
+            <div className="flex flex-col gap-4 py-4 border-y border-charcoal/10 mb-6">
+              <div className="flex justify-between items-center">
+                <button 
+                  onClick={() => setIsFilterDrawerOpen(true)}
+                  className="lg:hidden flex items-center gap-2 text-sm text-charcoal font-medium font-sans hover:text-pink-primary transition-colors"
                 >
-                  <option value="newest">Newest</option>
-                  <option value="price_asc">Price: Low to High</option>
-                  <option value="price_desc">Price: High to Low</option>
-                </select>
+                  <SlidersHorizontal className="w-4 h-4" />
+                  Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+                </button>
+
+                <span className="hidden lg:inline-block text-sm text-charcoal font-medium font-sans">
+                  Showing {visibleProducts.length} of {products.length} products
+                </span>
+
+                <div className="flex items-center gap-3">
+                  <label htmlFor="sort" className="text-sm text-charcoal/60 hidden sm:block font-sans">Sort by:</label>
+                  <select 
+                    id="sort" 
+                    value={selectedSort}
+                    onChange={(e) => updateParam('sort', e.target.value)}
+                    className="bg-transparent border border-charcoal/20 rounded px-3 py-1.5 text-sm text-charcoal focus:outline-none focus:border-pink-primary cursor-pointer font-sans"
+                  >
+                    <option value="newest">Newest</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="bestseller_auto">Best Sellers</option>
+                  </select>
+                </div>
               </div>
+
+              {/* Active Filters Chips */}
+              {activeFiltersCount > 0 && (
+                <div className="flex flex-wrap gap-2 font-sans text-sm items-center pt-2 border-t border-charcoal/5 lg:border-t-0 lg:pt-0">
+                  <span className="text-charcoal/60 text-xs uppercase tracking-wider mr-2 hidden lg:inline-block">Active:</span>
+                  {selectedCollection && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-charcoal/10 rounded-full text-charcoal">
+                      Collection: {collections?.find(c => c.slug === selectedCollection)?.name || selectedCollection}
+                      <button onClick={() => removeFilter('collection')} className="hover:text-pink-primary"><X className="w-3.5 h-3.5" /></button>
+                    </span>
+                  )}
+                  {selectedRoom && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-charcoal/10 rounded-full text-charcoal">
+                      Room: {rooms?.find(r => r.slug === selectedRoom)?.name || selectedRoom}
+                      <button onClick={() => removeFilter('room')} className="hover:text-pink-primary"><X className="w-3.5 h-3.5" /></button>
+                    </span>
+                  )}
+                  {selectedColor && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-charcoal/10 rounded-full text-charcoal">
+                      Color: {selectedColor}
+                      <button onClick={() => removeFilter('color')} className="hover:text-pink-primary"><X className="w-3.5 h-3.5" /></button>
+                    </span>
+                  )}
+                  {(minPrice || maxPrice) && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-charcoal/10 rounded-full text-charcoal">
+                      Price: {minPrice ? `₹${minPrice}` : '0'} - {maxPrice ? `₹${maxPrice}` : 'Any'}
+                      <button onClick={() => { removeFilter('minPrice'); removeFilter('maxPrice'); }} className="hover:text-pink-primary"><X className="w-3.5 h-3.5" /></button>
+                    </span>
+                  )}
+                  {inStock && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-charcoal/10 rounded-full text-charcoal">
+                      In Stock
+                      <button onClick={() => removeFilter('inStock')} className="hover:text-pink-primary"><X className="w-3.5 h-3.5" /></button>
+                    </span>
+                  )}
+                  {activeFiltersCount > 1 && (
+                     <button onClick={() => setSearchParams({})} className="text-xs text-charcoal/60 hover:text-pink-primary underline ml-2">Clear all</button>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Mobile Filter Drawer Overlay */}
@@ -229,20 +380,25 @@ export default function ProductsPage() {
             {/* Mobile Filter Drawer */}
             <div 
               className={clsx(
-                "fixed inset-y-0 left-0 w-[280px] bg-cream z-[70] shadow-2xl transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto flex flex-col",
+                "fixed inset-y-0 left-0 w-[300px] bg-cream z-[70] shadow-2xl transform transition-transform duration-300 ease-in-out lg:hidden flex flex-col",
                 isFilterDrawerOpen ? "translate-x-0" : "-translate-x-full"
               )}
             >
-              <div className="p-6 border-b border-charcoal/10 flex justify-between items-center sticky top-0 bg-cream z-10">
+              <div className="p-6 border-b border-charcoal/10 flex justify-between items-center sticky top-0 bg-cream z-10 shrink-0">
                 <h2 className="font-serif text-xl text-charcoal">Filters</h2>
-                <button onClick={() => setIsFilterDrawerOpen(false)} className="text-charcoal/60 hover:text-charcoal">
-                  <X className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-4">
+                  {activeFiltersCount > 0 && (
+                    <button onClick={() => setSearchParams({})} className="text-xs text-charcoal/60 hover:text-pink-primary font-sans uppercase">Clear All</button>
+                  )}
+                  <button onClick={() => setIsFilterDrawerOpen(false)} className="text-charcoal/60 hover:text-charcoal">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
-              <div className="p-6 flex-1">
+              <div className="p-6 flex-1 overflow-y-auto">
                 <FilterSidebarContent />
               </div>
-              <div className="p-6 border-t border-charcoal/10 sticky bottom-0 bg-cream">
+              <div className="p-6 border-t border-charcoal/10 sticky bottom-0 bg-cream shrink-0">
                 <Button variant="primary" className="w-full" onClick={() => setIsFilterDrawerOpen(false)}>
                   Show {products.length} Products
                 </Button>
@@ -280,14 +436,9 @@ export default function ProductsPage() {
                 </p>
                 <Button 
                   variant="outline" 
-                  onClick={() => {
-                    updateParam('collection', '');
-                    updateParam('room', '');
-                    updateParam('color', '');
-                    updateParam('q', '');
-                  }}
+                  onClick={() => setSearchParams({})}
                 >
-                  Clear Filters
+                  Clear All Filters
                 </Button>
               </div>
             )}
