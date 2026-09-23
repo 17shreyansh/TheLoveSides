@@ -7,6 +7,7 @@ import { AuthProvider } from './context/AuthContext';
 import { WishlistProvider } from './context/WishlistContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
+import ScrollToTop from './components/layout/ScrollToTop';
 
 // Lazy load pages for code splitting
 const Home = lazy(() => import('./pages/Home'));
@@ -39,6 +40,7 @@ function App() {
           <CartProvider>
           <FlyToCartProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <div className="flex flex-col min-h-screen">
               <Navbar />
             <main className="flex-grow">

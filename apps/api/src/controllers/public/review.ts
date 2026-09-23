@@ -8,12 +8,20 @@ export async function checkHasReviewed(req: Request, res: Response, next: NextFu
   try {
     const { productId } = req.params;
     if (!req.user) {
-      sendSuccess({ res, data: { hasReviewed: false } });
+      sendSuccess({ res, data: { hasReviewed: false, canReview: false } });
       return;
     }
     
     const existingReview = await Review.findOne({ userId: req.user.id, productId });
-    sendSuccess({ res, data: { hasReviewed: !!existingReview } });
+    
+    // Check if user has purchased the product
+    const hasPurchased = await Order.exists({
+      userId: req.user.id,
+      status: { $in: ['DELIVERED', 'SHIPPED', 'PAID'] },
+      'items.productId': productId,
+    });
+
+    sendSuccess({ res, data: { hasReviewed: !!existingReview, canReview: !!hasPurchased } });
   } catch (error) {
     next(error);
   }
@@ -23,14 +31,18 @@ export async function submitReview(req: Request, res: Response, next: NextFuncti
   try {
     const { productId, rating, title, content, images } = req.body;
 
-    // Optional: Validate that the user actually purchased the product
+    // Validate that the user actually purchased the product
     const hasPurchased = await Order.exists({
       userId: req.user!.id,
       status: { $in: ['DELIVERED', 'SHIPPED', 'PAID'] },
       'items.productId': productId,
     });
 
-    const isVerifiedPurchase = Boolean(hasPurchased);
+    if (!hasPurchased) {
+      throw ApiError.badRequest('Only verified buyers can review this product');
+    }
+
+    const isVerifiedPurchase = true;
 
     // Prevent multiple reviews for the same product by the same user
     const existingReview = await Review.findOne({ userId: req.user!.id, productId });

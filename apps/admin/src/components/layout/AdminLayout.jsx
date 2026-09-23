@@ -77,7 +77,6 @@ export default function AdminLayout() {
       label: 'Sales & Customers',
       items: [
         { name: 'Orders', href: '/orders', icon: ShoppingCart },
-        { name: 'Returns', href: '/returns', icon: RotateCcw },
         { name: 'Customers', href: '/customers', icon: Users },
         { name: 'Contact Leads', href: '/contact-leads', icon: MessageSquare },
       ]

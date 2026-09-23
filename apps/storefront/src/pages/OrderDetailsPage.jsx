@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import { Package, ArrowLeft, Truck, Clock, CheckCircle, AlertCircle, FileText } from 'lucide-react';
 import Button from '../components/ui/Button';
+import ReviewForm from '../components/product/ReviewForm';
 
 export default function OrderDetailsPage() {
   const { id } = useParams();
@@ -10,6 +11,8 @@ export default function OrderDetailsPage() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reviewingItem, setReviewingItem] = useState(null);
+  const [reviewedItems, setReviewedItems] = useState({});
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -118,7 +121,8 @@ export default function OrderDetailsPage() {
               <h2 className="font-serif text-xl text-charcoal mb-6 border-b border-charcoal/5 pb-4">Items in your order</h2>
               <div className="space-y-6">
                 {order.items.map((item, index) => (
-                  <div key={index} className="flex gap-4">
+                  <div key={index} className="border-b border-gray-100 last:border-0 pb-6 mb-6 last:pb-0 last:mb-0">
+                    <div className="flex gap-4">
                     {item.image ? (
                       <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-xl border border-charcoal/5 shrink-0" />
                     ) : (
@@ -135,6 +139,35 @@ export default function OrderDetailsPage() {
                     <div className="text-right">
                       <p className="font-medium text-charcoal font-sans">₹{(item.price * item.quantity).toFixed(2)}</p>
                     </div>
+                  </div>
+                  {/* Review Section */}
+                  {['DELIVERED', 'SHIPPED', 'PAID'].includes(order.status) && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      {reviewedItems[item.productId] ? (
+                        <div className="flex items-center text-green-600 gap-2 bg-green-50 px-4 py-2 rounded-lg text-sm font-medium w-max">
+                          <CheckCircle className="w-4 h-4" /> Thanks for your review!
+                        </div>
+                      ) : reviewingItem === item.productId ? (
+                        <div className="bg-gray-50 p-6 rounded-2xl">
+                          <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-serif font-semibold">Write your review</h3>
+                            <button onClick={() => setReviewingItem(null)} className="text-gray-500 hover:text-charcoal text-sm font-medium">Cancel</button>
+                          </div>
+                          <ReviewForm 
+                            productId={item.productId} 
+                            onSubmitSuccess={() => {
+                              setReviewedItems(prev => ({ ...prev, [item.productId]: true }));
+                              setReviewingItem(null);
+                            }} 
+                          />
+                        </div>
+                      ) : (
+                        <Button variant="outline" size="sm" onClick={() => setReviewingItem(item.productId)}>
+                          Write a Review
+                        </Button>
+                      )}
+                    </div>
+                  )}
                   </div>
                 ))}
               </div>

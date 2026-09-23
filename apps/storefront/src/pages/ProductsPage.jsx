@@ -19,6 +19,7 @@ export default function ProductsPage() {
   const selectedCollection = searchParams.get('collection') || '';
   const selectedRoom = searchParams.get('room') || '';
   const selectedColor = searchParams.get('color') || '';
+  const searchQuery = searchParams.get('q') || '';
   const [selectedSort, setSelectedSort] = useState('newest'); // 'newest', 'price_asc', 'price_desc'
 
   const updateParam = (key, value) => {
@@ -37,6 +38,7 @@ export default function ProductsPage() {
   if (selectedCollection) query.collection = selectedCollection;
   if (selectedRoom) query.room = selectedRoom;
   if (selectedColor) query.color = selectedColor;
+  if (searchQuery) query.q = searchQuery;
   if (selectedSort) query.sort = selectedSort;
 
   const { products, loading: productsLoading } = useProducts(query);
@@ -51,7 +53,7 @@ export default function ProductsPage() {
   // Reset pagination when filters change
   useEffect(() => {
     setVisibleCount(12);
-  }, [selectedCollection, selectedRoom, selectedSort, selectedColor]);
+  }, [selectedCollection, selectedRoom, selectedSort, selectedColor, searchQuery]);
 
   const FilterSidebarContent = () => (
     <div className="space-y-8 font-sans">
@@ -164,10 +166,14 @@ export default function ProductsPage() {
             <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
             <span className="text-charcoal">Shop All</span>
           </div>
-          <h1 className="font-serif text-3xl md:text-5xl text-charcoal mb-3">Shop All Products</h1>
-          <p className="text-charcoal/60 font-sans max-w-2xl text-sm md:text-base">
-            Discover our curated collection of premium products, designed to elevate your space with timeless elegance.
-          </p>
+          <h1 className="font-serif text-3xl md:text-5xl text-charcoal mb-3">
+            {searchQuery ? `Search Results for "${searchQuery}"` : "Shop All Products"}
+          </h1>
+          {!searchQuery && (
+            <p className="text-charcoal/60 font-sans max-w-2xl text-sm md:text-base">
+              Discover our curated collection of premium products, designed to elevate your space with timeless elegance.
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
@@ -270,7 +276,7 @@ export default function ProductsPage() {
               <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-charcoal/20 rounded-lg bg-white/30">
                 <h2 className="font-serif text-2xl text-charcoal mb-3">No products found</h2>
                 <p className="text-charcoal/60 mb-6 max-w-sm font-sans text-sm">
-                  We couldn't find any products matching your selected filters. Try clearing some filters.
+                  We couldn't find any products matching your selected filters. Try clearing some filters or searching for something else.
                 </p>
                 <Button 
                   variant="outline" 
@@ -278,6 +284,7 @@ export default function ProductsPage() {
                     updateParam('collection', '');
                     updateParam('room', '');
                     updateParam('color', '');
+                    updateParam('q', '');
                   }}
                 >
                   Clear Filters

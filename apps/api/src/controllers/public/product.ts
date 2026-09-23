@@ -11,12 +11,40 @@ export async function listProducts(req: Request, res: Response, next: NextFuncti
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = (page - 1) * limit;
 
-    const { collection, category, subcategory, sort } = req.query;
+    const { collection, category, subcategory, sort, q } = req.query;
 
     const query: any = {
       status: 'published',
       deletedAt: null,
     };
+
+    if (q) {
+      const escapedQ = (q as string).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+      const searchRegex = new RegExp(escapedQ, 'i');
+      
+      const [rooms, collections, categories, subCategories] = await Promise.all([
+        mongoose.model('Room').find({ name: searchRegex }).select('_id').lean(),
+        mongoose.model('Collection').find({ name: searchRegex }).select('_id').lean(),
+        mongoose.model('Category').find({ name: searchRegex }).select('_id').lean(),
+        mongoose.model('SubCategory').find({ name: searchRegex }).select('_id').lean(),
+      ]);
+
+      const matchedRoomIds = rooms.map((r: any) => r._id);
+      const matchedCollectionIds = collections.map((c: any) => c._id);
+      const matchedCategoryIds = categories.map((c: any) => c._id);
+      const matchedSubCategoryIds = subCategories.map((c: any) => c._id);
+
+      query.$or = [
+        { name: searchRegex },
+        { tags: searchRegex },
+        { shortDescription: searchRegex },
+        { 'attributes.values': searchRegex },
+        ...(matchedRoomIds.length > 0 ? [{ roomIds: { $in: matchedRoomIds } }] : []),
+        ...(matchedCollectionIds.length > 0 ? [{ collectionIds: { $in: matchedCollectionIds } }] : []),
+        ...(matchedCategoryIds.length > 0 ? [{ categoryIds: { $in: matchedCategoryIds } }] : []),
+        ...(matchedSubCategoryIds.length > 0 ? [{ subCategoryIds: { $in: matchedSubCategoryIds } }] : []),
+      ];
+    }
 
     if (req.query.featured === 'true') {
       query.isFeatured = true;
@@ -87,9 +115,11 @@ export async function listProducts(req: Request, res: Response, next: NextFuncti
       sortOptions = { salesCount: -1, createdAt: -1 };
     }
 
+    const projection = {};
+
     // For simplicity in Phase 2, we fetch products and populate variants
     const [products, total] = await Promise.all([
-      Product.find(query)
+      Product.find(query, projection)
         .sort(sortOptions)
         .skip(skip)
         .limit(limit)
@@ -240,20 +270,55 @@ export async function searchProducts(req: Request, res: Response, next: NextFunc
       return;
     }
 
-    const products = await Product.find(
-      {
-        $text: { $search: q },
-        status: 'published',
-        deletedAt: null,
-      },
-      { score: { $meta: 'textScore' } }
-    )
-      .sort({ score: { $meta: 'textScore' } })
+    const escapedQ = q.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    const searchRegex = new RegExp(escapedQ, 'i');
+
+    const [rooms, collections, categories, subCategories] = await Promise.all([
+      mongoose.model('Room').find({ name: searchRegex }).select('_id').lean(),
+      mongoose.model('Collection').find({ name: searchRegex }).select('_id').lean(),
+      mongoose.model('Category').find({ name: searchRegex }).select('_id').lean(),
+      mongoose.model('SubCategory').find({ name: searchRegex }).select('_id').lean(),
+    ]);
+
+    const matchedRoomIds = rooms.map((r: any) => r._id);
+    const matchedCollectionIds = collections.map((c: any) => c._id);
+    const matchedCategoryIds = categories.map((c: any) => c._id);
+    const matchedSubCategoryIds = subCategories.map((c: any) => c._id);
+
+    const query: any = {
+      status: 'published',
+      deletedAt: null,
+      $or: [
+        { name: searchRegex },
+        { tags: searchRegex },
+        { shortDescription: searchRegex },
+        { 'attributes.values': searchRegex },
+        ...(matchedRoomIds.length > 0 ? [{ roomIds: { $in: matchedRoomIds } }] : []),
+        ...(matchedCollectionIds.length > 0 ? [{ collectionIds: { $in: matchedCollectionIds } }] : []),
+        ...(matchedCategoryIds.length > 0 ? [{ categoryIds: { $in: matchedCategoryIds } }] : []),
+        ...(matchedSubCategoryIds.length > 0 ? [{ subCategoryIds: { $in: matchedSubCategoryIds } }] : []),
+      ]
+    };
+
+    const products = await Product.find(query)
       .limit(10)
       .select('name slug images shortDescription')
       .lean();
 
-    sendSuccess({ res, data: products });
+    const productIds = products.map((p: any) => p._id);
+    const variants = await ProductVariant.find({
+      productId: { $in: productIds },
+      isActive: true,
+      deletedAt: null,
+    }).lean();
+
+    // Map variants back to products
+    const productsWithVariants = products.map((product: any) => ({
+      ...product,
+      variants: variants.filter((v: any) => v.productId?.toString() === product._id?.toString()),
+    }));
+
+    sendSuccess({ res, data: productsWithVariants });
   } catch (error) {
     next(error);
   }
