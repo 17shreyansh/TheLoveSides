@@ -6,7 +6,7 @@ export default function AboutPage() {
   return (
     <div className="flex flex-col w-full min-h-screen bg-cream">
       {/* Hero Section */}
-      <section className="relative py-20 bg-ivory border-b border-gray-100 overflow-hidden">
+      <section className="relative pt-32 md:pt-40 pb-20 bg-ivory border-b border-gray-100 overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-charcoal mb-6">Our Story</h1>

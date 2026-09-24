@@ -27,7 +27,7 @@ export default function ContactPage() {
   return (
     <div className="flex flex-col w-full min-h-screen bg-cream">
       {/* Hero Section */}
-      <section className="pt-20 pb-16 bg-ivory border-b border-gray-100">
+      <section className="pt-32 md:pt-40 pb-16 bg-ivory border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-charcoal mb-6">Get In Touch</h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
