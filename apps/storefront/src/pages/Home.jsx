@@ -2,6 +2,7 @@ import React from 'react';
 import Hero from '../components/home/Hero';
 
 import CategoryShowcase from '../components/home/CategoryShowcase';
+import CollectionShowcase from '../components/home/CollectionShowcase';
 import BestSellers from '../components/home/BestSellers';
 import PromoBanner from '../components/home/PromoBanner';
 import ShopByRoom from '../components/home/ShopByRoom';
@@ -22,6 +23,7 @@ export default function Home() {
     <div className="flex flex-col w-full">
       <Hero />
 
+      <CollectionShowcase />
       <CategoryShowcase />
       {homeSections?.showBestSellers !== false && <BestSellers mode={homeSections?.bestSellersMode || 'manual'} />}
       <PromoBanner />

@@ -2,13 +2,13 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SectionHeading from '../ui/SectionHeading';
 import RevealOnScroll from '../ui/RevealOnScroll';
-import { useCategories } from '../../hooks/useCategories';
+import { useCollections } from '../../hooks/useCollections';
 
-export default function CategoryShowcase() {
+export default function CollectionShowcase() {
   const scrollContainerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const { categories: collections, loading } = useCategories();
+  const { collections, loading } = useCollections();
 
   // Determine active collections
   const activeCollections = collections || [];
@@ -55,8 +55,8 @@ export default function CategoryShowcase() {
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <RevealOnScroll>
           <SectionHeading 
-            title="Shop by Category" 
-            subtitle="Browse through our popular categories" 
+            title="Explore Our Collection" 
+            subtitle="Curated styles for every space" 
           />
         </RevealOnScroll>
 
@@ -68,7 +68,7 @@ export default function CategoryShowcase() {
                 ))}
              </div>
           ) : activeCollections.length === 0 ? (
-            <div className="text-center py-10 text-charcoal/60">No categories available yet.</div>
+            <div className="text-center py-10 text-charcoal/60">No collections available yet.</div>
           ) : (
             <>
               <div 
@@ -86,17 +86,17 @@ export default function CategoryShowcase() {
                   display: none;
                 }
               `}</style>
-              {activeCollections.map((category, idx) => (
-                <div key={category._id} className="w-[70vw] sm:w-[240px] lg:w-[260px] flex-shrink-0 snap-center md:snap-start">
+              {activeCollections.map((collection, idx) => (
+                <div key={collection._id} className="w-[70vw] sm:w-[240px] lg:w-[260px] flex-shrink-0 snap-center md:snap-start">
                   <RevealOnScroll delay={idx * 0.1}>
                     <Link 
-                      to={`/category/${category.slug}`}
+                      to={`/products?collection=${collection.slug}`}
                       className="group relative block aspect-[1/1.1] sm:aspect-[4/5] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer shadow-sm md:hover:shadow-2xl transition-all duration-500"
                     >
-                      {category.image && !category.image.endsWith('/undefined') ? (
+                      {collection.image && !collection.image.endsWith('/undefined') ? (
                         <img 
-                          src={category.image} 
-                          alt={category.name} 
+                          src={collection.image} 
+                          alt={collection.name} 
                           className="w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-110"
                         />
                       ) : (
@@ -109,7 +109,7 @@ export default function CategoryShowcase() {
                       
                       <div className="absolute inset-0 p-6 flex flex-col justify-end">
                         <h3 className="font-serif text-lg md:text-2xl text-white mb-2 md:transform md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-500">
-                          {category.name}
+                          {collection.name}
                         </h3>
                         <p className="text-white/90 font-sans text-xs md:text-sm font-semibold tracking-wider uppercase md:opacity-0 md:group-hover:opacity-100 transition-all duration-500 flex items-center gap-2">
                           Shop Now <span className="text-lg leading-none">→</span>

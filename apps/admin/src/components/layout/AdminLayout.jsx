@@ -26,7 +26,8 @@ import {
   Palette,
   ChevronDown,
   KeyRound,
-  MessageSquare
+  MessageSquare,
+  Tag
 } from 'lucide-react';
 import clsx from 'clsx';
 import ChangePasswordModal from './ChangePasswordModal';
@@ -61,6 +62,7 @@ export default function AdminLayout() {
       label: 'Catalog',
       items: [
         { name: 'Products', href: '/products', icon: Package },
+        { name: 'Categories', href: '/categories', icon: Tag },
         { name: 'Sub-Categories', href: '/subcategories', icon: Layers },
         { name: 'Rooms', href: '/rooms', icon: FolderTree },
         { name: 'Collections', href: '/collections', icon: Layers },

@@ -22,14 +22,14 @@ export default function CategoryPage({ type }) {
         setLoadingCategory(true);
         try {
           const { data: catData } = await api.get(`/catalog/categories/${categorySlug}`);
-          if (active && catData?.data) {
-            setCategory(catData.data);
+          if (active && catData) {
+            setCategory(catData);
             // Fetch SubCategories for this category
             const { data: subCatData } = await api.get(`/catalog/subcategories`, {
-              params: { categoryId: catData.data._id }
+              params: { categoryId: catData._id }
             });
             if (active) {
-              setSubCategories(subCatData.data || []);
+              setSubCategories(subCatData || []);
             }
           }
         } catch (err) {
@@ -117,10 +117,10 @@ export default function CategoryPage({ type }) {
           <div className="mb-20 md:mb-24">
             <div className="text-center mb-10 md:mb-12">
               <span className="text-pink-primary font-sans text-xs uppercase tracking-[0.2em] font-semibold mb-2 block">
-                Collections
+                Explore Subcategories
               </span>
               <h2 className="font-serif text-3xl md:text-4xl text-charcoal">
-                Shop by Category
+                Shop by Subcategory
               </h2>
             </div>
             
@@ -129,23 +129,19 @@ export default function CategoryPage({ type }) {
                 <RevealOnScroll key={sub._id} delay={idx * 0.1}>
                   <Link 
                     to={`/subcategory/${sub.slug}`}
-                    className="group block relative overflow-hidden bg-ivory aspect-[3/4]"
+                    className="group flex flex-col items-center text-center gap-3 md:gap-4"
                   >
-                    <img 
-                      src={sub.image || 'https://via.placeholder.com/400x533'} 
-                      alt={sub.name}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-500"></div>
-                    
-                    <div className="absolute inset-0 p-5 md:p-6 flex flex-col justify-end items-center text-center">
-                      <h3 className="text-white font-serif text-xl md:text-2xl tracking-wide mb-1 md:mb-2 transform translate-y-3 group-hover:translate-y-0 transition-transform duration-500">
+                    <div className="relative overflow-hidden bg-ivory rounded-full aspect-square w-full sm:w-4/5 mx-auto shadow-sm group-hover:shadow-xl transition-shadow duration-500">
+                      <img 
+                        src={sub.image || 'https://via.placeholder.com/400'} 
+                        alt={sub.name}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="text-charcoal font-serif text-lg md:text-xl group-hover:text-pink-primary transition-colors duration-300">
                         {sub.name}
                       </h3>
-                      <div className="flex items-center gap-1 md:gap-2 opacity-0 group-hover:opacity-100 transform translate-y-3 group-hover:translate-y-0 transition-all duration-500 delay-75">
-                        <span className="text-[10px] md:text-xs text-white font-sans uppercase tracking-widest">Explore</span>
-                        <ChevronRight className="w-3 h-3 md:w-4 md:h-4 text-white" />
-                      </div>
                     </div>
                   </Link>
                 </RevealOnScroll>
