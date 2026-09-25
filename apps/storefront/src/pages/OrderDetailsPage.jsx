@@ -26,7 +26,7 @@ export default function OrderDetailsPage() {
         ]);
         setOrder(orderRes.data);
         
-        const settingsMap = (settingsRes.data.data || []).reduce((acc, curr) => {
+        const settingsMap = (settingsRes.data || []).reduce((acc, curr) => {
           acc[curr.key] = curr.value;
           return acc;
         }, {});

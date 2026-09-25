@@ -113,7 +113,12 @@ export default function ProductForm() {
     subCategoryIds: [],
     tags: [],
     images: [],
-    attributes: [],
+    attributes: [
+      { 
+        name: 'Size', 
+        values: ['1 Seater', '2 Seater', '3 Seater', '4 Seater', '2+2 Seater', '3+2 Seater', '2+1+1 Seater', '2+2+1 Seater', '3+1+1 Seater', '3+2+1+1 Seater'] 
+      }
+    ],
     highlights: [],
     specifications: '',
     specificationTable: [
@@ -420,7 +425,10 @@ export default function ProductForm() {
       }
 
       // Populate base variant
+      const existingBaseVariant = payload.variants?.find(v => !v.attributes || v.attributes.length === 0) || payload.variants?.[0] || {};
+      
       const baseVariant = {
+        ...(existingBaseVariant._id ? { _id: existingBaseVariant._id } : {}),
         sku: payload.sku || (payload.slug + '-01'),
         price: Number(payload.price) || 0,
         attributes: []

@@ -136,7 +136,7 @@ export default function ProductPage() {
 
     try {
       const { data } = await api.get(`/shipping/check?pincode=${pincode}`);
-      setServiceability(data.data);
+      setServiceability(data);
     } catch (err) {
       setPincodeError(err.response?.data?.message || 'Failed to check pincode. Please try again.');
     } finally {

@@ -7,6 +7,8 @@ import { sendSuccess, sendPaginated } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
 
 export async function createProduct(req: Request, res: Response, next: NextFunction): Promise<void> {
+  let createdProductId: any = null;
+  let createdVariantIds: any[] = [];
   try {
     const { variants, ...productData } = req.body;
 
@@ -17,6 +19,7 @@ export async function createProduct(req: Request, res: Response, next: NextFunct
 
     // 1. Create Product
     const product = await Product.create(productData);
+    createdProductId = product._id;
 
     // 2. Create Variants & Inventory
     const variantsToCreate = variants.map((v: any) => ({
@@ -25,6 +28,7 @@ export async function createProduct(req: Request, res: Response, next: NextFunct
     }));
 
     const createdVariants = await ProductVariant.insertMany(variantsToCreate);
+    createdVariantIds = createdVariants.map((v: any) => v._id);
 
     // Create inventory ledger for each variant
     const inventoryDocs = createdVariants.map((v: any, index: number) => {
@@ -38,11 +42,26 @@ export async function createProduct(req: Request, res: Response, next: NextFunct
       };
     });
 
-    await Inventory.create(inventoryDocs);
+    await Inventory.insertMany(inventoryDocs);
 
     sendSuccess({ res, statusCode: 201, data: product, message: 'Product created successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('CREATE PRODUCT ERROR:', error);
+    
+    // Manual rollback
+    if (createdProductId) {
+      await Product.deleteOne({ _id: createdProductId }).catch(e => console.error('Rollback failed for Product:', e));
+    }
+    if (createdVariantIds.length > 0) {
+      await ProductVariant.deleteMany({ _id: { $in: createdVariantIds } }).catch(e => console.error('Rollback failed for Variants:', e));
+      await Inventory.deleteMany({ variantId: { $in: createdVariantIds } }).catch(e => console.error('Rollback failed for Inventory:', e));
+    }
+
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.sku) {
+      next(ApiError.conflict('A product or variant with this SKU already exists. SKU must be unique.'));
+      return;
+    }
+
     next(error);
   }
 }
