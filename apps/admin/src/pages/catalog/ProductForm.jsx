@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../lib/api';
-import { Upload, Plus, Trash2, Tag, Box, Info, Image as ImageIcon, Loader2, AlertCircle } from 'lucide-react';
+import { Upload, Plus, Trash2, Tag, Box, Info, Image as ImageIcon, Loader2, AlertCircle, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { TagInput } from '../../components/TagInput';
 import { SortableGridItem } from '../../components/SortableGridItem';
 import { MultiSelect } from '../../components/MultiSelect';
@@ -86,6 +87,64 @@ const ColorAttributeInput = ({ values, onChange, usedColors = [] }) => {
   );
 };
 
+const SortableAttributeItem = ({ attr, index, usedColors, handleUpdateAttribute, handleRemoveAttribute }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: attr.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className={`flex flex-col sm:flex-row items-start gap-4 p-4 bg-gray-50/50 rounded-xl border ${isDragging ? 'border-pink-primary shadow-lg' : 'border-gray-200'} relative`}>
+      <div className="absolute left-2 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-charcoal bg-white rounded shadow-sm border border-gray-200" {...attributes} {...listeners}>
+        <GripVertical className="w-5 h-5" />
+      </div>
+      
+      <div className="w-full sm:w-1/3 pl-8">
+        <label className="block text-xs font-semibold text-charcoal mb-1.5">Option Name</label>
+        <input
+          type="text" required
+          placeholder="e.g. Size, Material"
+          value={attr.name} onChange={(e) => handleUpdateAttribute(index, 'name', e.target.value)}
+          className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-pink-primary focus:ring-1 focus:ring-pink-primary/20"
+        />
+      </div>
+      <div className="w-full sm:w-2/3">
+        <label className="block text-xs font-semibold text-charcoal mb-1.5">Values (Press Enter to add)</label>
+        <div className="flex items-start gap-3">
+          <div className="flex-1 flex">
+            {attr.name.toLowerCase().includes('color') ? (
+              <ColorAttributeInput 
+                values={attr.values || []}
+                onChange={(newTags) => handleUpdateAttribute(index, 'values', newTags)}
+                usedColors={usedColors}
+              />
+            ) : (
+              <TagInput 
+                tags={attr.values || []}
+                onChange={(newTags) => handleUpdateAttribute(index, 'values', newTags)}
+                placeholder="e.g. Small, Medium"
+              />
+            )}
+          </div>
+          <div className="flex flex-col gap-1 mt-1 shrink-0">
+            <button 
+              type="button" 
+              onClick={() => handleRemoveAttribute(index)} 
+              className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors w-full flex justify-center"
+              title="Remove Option"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function ProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -115,6 +174,7 @@ export default function ProductForm() {
     images: [],
     attributes: [
       { 
+        id: 'attr-size-init',
         name: 'Size', 
         values: ['1 Seater', '2 Seater', '3 Seater', '4 Seater', '2+2 Seater', '3+2 Seater', '2+1+1 Seater', '2+2+1 Seater', '3+1+1 Seater', '3+2+1+1 Seater'] 
       }
@@ -164,6 +224,7 @@ export default function ProductForm() {
           if (product.attributes) {
             product.attributes = product.attributes.map(a => ({
               ...a,
+              id: a.id || a._id || Math.random().toString(36).substr(2, 9),
               values: a.values || []
             }));
           }
@@ -209,7 +270,7 @@ export default function ProductForm() {
   const handleAddAttribute = () => {
     setFormData(prev => ({
       ...prev,
-      attributes: [...(prev.attributes || []), { name: '', values: [] }]
+      attributes: [...(prev.attributes || []), { id: Math.random().toString(36).substr(2, 9), name: '', values: [] }]
     }));
   };
 
@@ -226,6 +287,23 @@ export default function ProductForm() {
       ...prev,
       attributes: prev.attributes.filter((_, i) => i !== index)
     }));
+  };
+
+  const handleAttributeDragEnd = (event) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setFormData((prev) => {
+        const oldIndex = prev.attributes.findIndex((a, i) => (a.id || `attr-${i}`) === active.id);
+        const newIndex = prev.attributes.findIndex((a, i) => (a.id || `attr-${i}`) === over.id);
+        if (oldIndex !== -1 && newIndex !== -1) {
+          return {
+            ...prev,
+            attributes: arrayMove(prev.attributes, oldIndex, newIndex)
+          };
+        }
+        return prev;
+      });
+    }
   };
 
   const handleAddHighlight = () => {
@@ -680,55 +758,31 @@ export default function ProductForm() {
                </button>
             </div>
             
-            <div className="space-y-4">
-              {formData.attributes?.map((attr, index) => (
-                <div key={index} className="flex flex-col sm:flex-row items-start gap-4 p-4 bg-gray-50/50 rounded-xl border border-gray-200">
-                  <div className="w-full sm:w-1/3">
-                    <label className="block text-xs font-semibold text-charcoal mb-1.5">Option Name</label>
-                    <input
-                      type="text" required
-                      placeholder="e.g. Size, Material"
-                      value={attr.name} onChange={(e) => handleUpdateAttribute(index, 'name', e.target.value)}
-                      className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-pink-primary focus:ring-1 focus:ring-pink-primary/20"
-                    />
-                  </div>
-                  <div className="w-full sm:w-2/3">
-                    <label className="block text-xs font-semibold text-charcoal mb-1.5">Values (Press Enter to add)</label>
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1 flex">
-                        {attr.name.toLowerCase().includes('color') ? (
-                          <ColorAttributeInput 
-                            values={attr.values || []}
-                            onChange={(newTags) => handleUpdateAttribute(index, 'values', newTags)}
-                            usedColors={usedColors}
-                          />
-                        ) : (
-                          <TagInput 
-                            tags={attr.values || []}
-                            onChange={(newTags) => handleUpdateAttribute(index, 'values', newTags)}
-                            placeholder="e.g. Small, Medium"
-                          />
-                        )}
-                      </div>
-                      <button 
-                        type="button" 
-                        onClick={() => handleRemoveAttribute(index)} 
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-1"
-                        title="Remove Option"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleAttributeDragEnd}>
+              <SortableContext items={(formData.attributes || []).map((a, i) => a.id || `attr-${i}`)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-4">
+                  {formData.attributes?.map((attr, index) => {
+                    const stableAttr = { ...attr, id: attr.id || `attr-${index}` };
+                    return (
+                      <SortableAttributeItem
+                        key={stableAttr.id}
+                        attr={stableAttr}
+                        index={index}
+                        usedColors={usedColors}
+                        handleUpdateAttribute={handleUpdateAttribute}
+                        handleRemoveAttribute={handleRemoveAttribute}
+                      />
+                    );
+                  })}
+                  {(!formData.attributes || formData.attributes.length === 0) && (
+                    <div className="text-center py-8 px-4 border-2 border-dashed border-gray-200 rounded-xl">
+                      <p className="text-sm text-gray-500 font-medium">No variant options configured.</p>
+                      <p className="text-xs text-gray-400 mt-1">Add options like Size or Color if this product has multiple variations.</p>
                     </div>
-                  </div>
+                  )}
                 </div>
-              ))}
-              {(!formData.attributes || formData.attributes.length === 0) && (
-                <div className="text-center py-8 px-4 border-2 border-dashed border-gray-200 rounded-xl">
-                  <p className="text-sm text-gray-500 font-medium">No variant options configured.</p>
-                  <p className="text-xs text-gray-400 mt-1">Add options like Size or Color if this product has multiple variations.</p>
-                </div>
-              )}
-            </div>
+              </SortableContext>
+            </DndContext>
           </div>
 
           {/* Dedicated Variant Matrix Card */}

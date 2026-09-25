@@ -54,24 +54,25 @@ export default function SocialFeed() {
         </RevealOnScroll>
 
         {/* CSS Grid Masonry Layout */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 auto-rows-[120px] sm:auto-rows-[150px] md:auto-rows-[180px] lg:auto-rows-[200px]">
-          {socialFeed.slice(0, 6).map((img, idx) => {
+        <div className="grid grid-flow-dense grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 auto-rows-[120px] sm:auto-rows-[150px] md:auto-rows-[180px] lg:auto-rows-[200px]">
+          {socialFeed.map((img, idx) => {
             let spanClasses = "";
             let hasPlayIcon = false;
+            let pos = idx % 6;
 
-            if (idx === 0) {
+            if (pos === 0) {
               spanClasses = "row-span-2 col-span-1"; // Col 1 (Tall)
               hasPlayIcon = true;
-            } else if (idx === 1) {
+            } else if (pos === 1) {
               spanClasses = "row-span-1 col-span-1"; // Col 2 Top
-            } else if (idx === 2) {
+            } else if (pos === 2) {
               spanClasses = "row-span-1 col-span-1"; // Col 3 Top
-            } else if (idx === 3) {
+            } else if (pos === 3) {
               spanClasses = "row-span-2 col-span-1"; // Col 4 (Tall)
               hasPlayIcon = true;
-            } else if (idx === 4) {
+            } else if (pos === 4) {
               spanClasses = "row-span-1 col-span-1"; // Col 2 Bottom
-            } else if (idx === 5) {
+            } else if (pos === 5) {
               spanClasses = "row-span-1 col-span-1"; // Col 3 Bottom
             }
 

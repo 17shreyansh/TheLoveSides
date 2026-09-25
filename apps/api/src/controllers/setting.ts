@@ -134,15 +134,19 @@ const DEFAULT_THEME_SETTINGS = [
     }
   },
   {
-    key: 'theme.home.promo_banner',
+    key: 'theme.home.promo_banners',
     group: 'theme',
     isPublic: true,
-    value: {
-      title: 'Spring Sale Event',
-      description: 'Refresh your home with up to <span class="text-charcoal font-bold">40% off</span> our premium bespoke curtains.',
-      buttonText: 'Shop The Sale',
-      buttonLink: '/products'
-    }
+    value: [
+      {
+        id: "1",
+        title: 'Spring Sale Event',
+        description: 'Refresh your home with up to <span class="text-charcoal font-bold">40% off</span> our premium bespoke curtains.',
+        buttonText: 'Shop The Sale',
+        buttonLink: '/products',
+        isActive: true
+      }
+    ]
   },
   {
     key: 'theme.home.stats',
