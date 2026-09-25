@@ -184,6 +184,7 @@ export default function Navbar() {
                                   <h4 className="text-sm font-serif text-charcoal truncate">
                                     {highlightMatch(product.name, searchQuery)}
                                   </h4>
+                                  <p className="text-xs text-charcoal/60 font-sans mt-0.5">DEBUG: {JSON.stringify(product.variants?.map(v => v.price) || 'no-variants')}</p>
                                   <p className="text-xs text-charcoal/60 font-sans mt-0.5">₹{Number(product.price || product.variants?.[0]?.price || 0).toLocaleString('en-IN')}</p>
                                 </div>
                               </Link>

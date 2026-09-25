@@ -8,6 +8,7 @@ import { WishlistProvider } from './context/WishlistContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import ScrollToTop from './components/layout/ScrollToTop';
+import WhatsAppButton from './components/layout/WhatsAppButton';
 
 // Lazy load pages for code splitting
 const Home = lazy(() => import('./pages/Home'));
@@ -66,6 +67,7 @@ function App() {
               </Suspense>
             </main>
             <Footer />
+            <WhatsAppButton />
           </div>
         </BrowserRouter>
         </FlyToCartProvider>
