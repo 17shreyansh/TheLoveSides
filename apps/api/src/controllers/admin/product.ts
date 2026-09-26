@@ -52,7 +52,7 @@ export async function createProduct(req: Request, res: Response, next: NextFunct
     sendSuccess({ res, statusCode: 201, data: product, message: 'Product created successfully' });
   } catch (error: any) {
     console.error('CREATE PRODUCT ERROR:', error);
-    
+
     // Manual rollback
     if (createdProductId) {
       await Product.deleteOne({ _id: createdProductId }).catch(e => console.error('Rollback failed for Product:', e));
@@ -74,7 +74,7 @@ export async function createProduct(req: Request, res: Response, next: NextFunct
 export async function updateProduct(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { id } = req.params;
-    
+
     if (req.body.slug) {
       let slug = req.body.slug;
       let existing = await Product.findOne({ slug, _id: { $ne: id } });
@@ -131,7 +131,7 @@ export async function updateProductVariants(req: Request, res: Response, next: N
       if (vData.inventory) {
         await Inventory.findOneAndUpdate(
           { variantId: vData._id },
-          { 
+          {
             available: vData.inventory.available,
             lowStockThreshold: vData.inventory.lowStockThreshold || 5,
             trackInventory: vData.inventory.trackInventory ?? true,
@@ -145,7 +145,7 @@ export async function updateProductVariants(req: Request, res: Response, next: N
       ...v,
       productId,
     }));
-    
+
     if (variantsToCreate.length > 0) {
       const created = await ProductVariant.insertMany(variantsToCreate);
       const inventoryDocs = created.map((v: any, index: number) => {
@@ -200,12 +200,12 @@ export async function listProducts(req: Request, res: Response, next: NextFuncti
     // Fetch variants and inventory for all products in the page
     const productIds = products.map(p => p._id);
     const variants = await ProductVariant.find({ productId: { $in: productIds }, deletedAt: null }).lean();
-    
+
     const variantIds = variants.map(v => v._id);
     const inventories = await Inventory.find({ variantId: { $in: variantIds } }).lean();
-    
+
     const inventoryMap = new Map(inventories.map(inv => [inv.variantId.toString(), inv]));
-    
+
     const variantsByProduct = new Map();
     for (const v of variants) {
       const pId = v.productId.toString();
