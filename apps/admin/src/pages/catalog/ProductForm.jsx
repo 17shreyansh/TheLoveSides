@@ -9,6 +9,60 @@ import { TagInput } from '../../components/TagInput';
 import { SortableGridItem } from '../../components/SortableGridItem';
 import { MultiSelect } from '../../components/MultiSelect';
 
+const formatErrorMessages = (errorText) => {
+  if (typeof errorText !== 'string') return ['An unexpected error occurred.'];
+  
+  const errors = errorText.split(';').map(e => e.trim()).filter(Boolean);
+  const groupedErrors = {};
+  const standardErrors = [];
+  
+  errors.forEach(err => {
+    let [path, ...msgParts] = err.split(':');
+    
+    if (msgParts.length === 0) {
+      standardErrors.push(err);
+      return;
+    }
+    
+    let message = msgParts.join(':').trim();
+    
+    if (message.includes('String must contain at least 1 character(s)')) message = 'is required';
+    if (message.includes('Required')) message = 'is required';
+    if (message.includes('Expected number, received nan')) message = 'must be a valid number';
+    if (message.includes('Expected number')) message = 'must be a valid number';
+    
+    let fieldName = path.trim();
+    
+    const variantMatch = fieldName.match(/variants\.(\d+)\.([a-zA-Z0-9_]+)/);
+    if (variantMatch) {
+      const index = parseInt(variantMatch[1]) + 1;
+      const rawField = variantMatch[2];
+      const field = rawField.toUpperCase() === 'SKU' ? 'SKU' : rawField.replace(/([A-Z])/g, ' $1').trim().replace(/^./, str => str.toUpperCase());
+      
+      const groupKey = `${field} ${message}`;
+      if (!groupedErrors[groupKey]) {
+        groupedErrors[groupKey] = [];
+      }
+      groupedErrors[groupKey].push(`Variant ${index}`);
+    } else {
+      fieldName = fieldName.replace(/([A-Z])/g, ' $1').trim();
+      fieldName = fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+      standardErrors.push(`${fieldName}: ${message}`);
+    }
+  });
+
+  const formattedErrors = [...standardErrors];
+  for (const [key, variants] of Object.entries(groupedErrors)) {
+    if (variants.length > 3) {
+      formattedErrors.push(`${key} for ${variants.length} variants`);
+    } else {
+      formattedErrors.push(`${key} for ${variants.join(', ')}`);
+    }
+  }
+
+  return formattedErrors.length > 0 ? formattedErrors : [errorText];
+};
+
 const ColorAttributeInput = ({ values, onChange, usedColors = [] }) => {
   const [colorValue, setColorValue] = useState('#000000');
   const [colorName, setColorName] = useState('');
@@ -549,8 +603,8 @@ export default function ProductForm() {
     } catch (err) {
       console.error(err);
       const apiError = err.response?.data?.error;
-      const errorMessage = typeof apiError === 'object' ? apiError.message : (apiError || err.response?.data?.message || 'Failed to save product');
-      setFormError(errorMessage);
+      const rawErrorMessage = typeof apiError === 'object' ? apiError.message : (apiError || err.response?.data?.message || 'Failed to save product');
+      setFormError(formatErrorMessages(rawErrorMessage));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -563,8 +617,18 @@ export default function ProductForm() {
         <div className="mb-6 mx-auto max-w-6xl p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-sm font-bold text-red-800">Error saving product</h3>
-            <p className="text-sm text-red-700 mt-1">{formError}</p>
+            <h3 className="text-sm font-bold text-red-800">
+              {Array.isArray(formError) && formError.length > 0 ? 'Please fix the following errors:' : 'Error saving product'}
+            </h3>
+            {Array.isArray(formError) ? (
+              <ul className="list-disc list-inside text-sm text-red-700 mt-1 space-y-0.5">
+                {formError.map((err, i) => (
+                  <li key={i}>{err}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-red-700 mt-1">{formError}</p>
+            )}
           </div>
         </div>
       )}
