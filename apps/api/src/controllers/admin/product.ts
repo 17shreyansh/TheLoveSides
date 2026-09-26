@@ -12,10 +12,15 @@ export async function createProduct(req: Request, res: Response, next: NextFunct
   try {
     const { variants, ...productData } = req.body;
 
-    const existing = await Product.findOne({ slug: productData.slug });
-    if (existing) {
-      throw ApiError.conflict('Product with this slug already exists');
+    let slug = productData.slug;
+    let existing = await Product.findOne({ slug });
+    let counter = 1;
+    while (existing) {
+      slug = `${productData.slug}-${counter}`;
+      existing = await Product.findOne({ slug });
+      counter++;
     }
+    productData.slug = slug;
 
     // 1. Create Product
     const product = await Product.create(productData);
@@ -71,10 +76,15 @@ export async function updateProduct(req: Request, res: Response, next: NextFunct
     const { id } = req.params;
     
     if (req.body.slug) {
-      const existing = await Product.findOne({ slug: req.body.slug, _id: { $ne: id } });
-      if (existing) {
-        throw ApiError.conflict('Product with this slug already exists');
+      let slug = req.body.slug;
+      let existing = await Product.findOne({ slug, _id: { $ne: id } });
+      let counter = 1;
+      while (existing) {
+        slug = `${req.body.slug}-${counter}`;
+        existing = await Product.findOne({ slug, _id: { $ne: id } });
+        counter++;
       }
+      req.body.slug = slug;
     }
 
     // We omit variants update from this endpoint for safety. Variants should be managed individually or via a dedicated endpoint.

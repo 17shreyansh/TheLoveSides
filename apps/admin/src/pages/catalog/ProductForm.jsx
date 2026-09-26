@@ -315,10 +315,23 @@ export default function ProductForm() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : (type === 'number' && value !== '' ? Number(value) : value)
-    }));
+    setFormData(prev => {
+      const updates = {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : (type === 'number' && value !== '' ? Number(value) : value)
+      };
+
+      if (name === 'name' && !isEditing) {
+        const expectedOldSlug = prev.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        if (!prev.slug || prev.slug === expectedOldSlug) {
+          updates.slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        }
+      } else if (name === 'slug') {
+        updates.slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      }
+
+      return updates;
+    });
   };
 
   const handleAddAttribute = () => {
@@ -603,7 +616,18 @@ export default function ProductForm() {
     } catch (err) {
       console.error(err);
       const apiError = err.response?.data?.error;
-      const rawErrorMessage = typeof apiError === 'object' ? apiError.message : (apiError || err.response?.data?.message || 'Failed to save product');
+      let rawErrorMessage = 'Failed to save product';
+      
+      if (typeof apiError === 'string') {
+        rawErrorMessage = apiError;
+      } else if (apiError && typeof apiError === 'object' && apiError.message) {
+        rawErrorMessage = typeof apiError.message === 'string' ? apiError.message : JSON.stringify(apiError.message);
+      } else if (err.response?.data?.message && typeof err.response.data.message === 'string') {
+        rawErrorMessage = err.response.data.message;
+      } else if (err.message) {
+        rawErrorMessage = err.message;
+      }
+
       setFormError(formatErrorMessages(rawErrorMessage));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -680,6 +704,17 @@ export default function ProductForm() {
                   placeholder="e.g. Classic Diamond Ring"
                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-charcoal mb-1.5">Product URL Slug</label>
+                <input
+                  type="text" name="slug"
+                  value={formData.slug} onChange={handleChange}
+                  placeholder="e.g. classic-diamond-ring"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all font-mono text-sm"
+                />
+                <p className="text-xs text-charcoal/50 mt-1.5">This will be auto-generated from the product name, but you can customize it.</p>
               </div>
 
               <div>
