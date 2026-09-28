@@ -19,6 +19,7 @@ export default function ShippingSettings() {
         return acc;
       }, {});
       
+      if (!settingsMap.sitewideFreeShipping) settingsMap.sitewideFreeShipping = 'false';
       if (!settingsMap.freeShippingThreshold) settingsMap.freeShippingThreshold = '1000';
       if (!settingsMap['shiprocket.pickup_pincode']) settingsMap['shiprocket.pickup_pincode'] = '';
       if (!settingsMap['shiprocket.default_weight']) settingsMap['shiprocket.default_weight'] = '0.5';
@@ -61,6 +62,22 @@ export default function ShippingSettings() {
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-charcoal/5 p-6 space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
+            <label className="block text-sm font-medium text-charcoal">Sitewide Free Shipping</label>
+            <select
+              name="sitewideFreeShipping"
+              value={settings.sitewideFreeShipping}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition-colors"
+            >
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+            <p className="text-xs text-charcoal/60">
+              If enabled, all products will have free delivery regardless of the threshold.
+            </p>
+          </div>
+
+          <div className="space-y-2">
             <label className="block text-sm font-medium text-charcoal">Free Shipping Threshold</label>
             <input
               type="number"
@@ -68,7 +85,8 @@ export default function ShippingSettings() {
               min="0"
               value={settings.freeShippingThreshold}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition-colors"
+              disabled={settings.sitewideFreeShipping === 'true'}
+              className="w-full px-4 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition-colors disabled:opacity-50"
             />
           </div>
         </div>

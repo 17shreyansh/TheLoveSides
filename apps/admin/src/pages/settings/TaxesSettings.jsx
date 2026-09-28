@@ -39,8 +39,8 @@ export default function TaxesSettings() {
     e.preventDefault();
     setSaving(true);
     try {
-      const payload = Object.entries(settings).map(([key, value]) => ({ key, value }));
-      await api.put('/admin/settings', { settings: payload });
+      const payload = Object.entries(settings).map(([key, value]) => ({ key, value, group: 'taxes' }));
+      await api.patch('/admin/settings', { settings: payload });
       alert('Tax settings saved successfully');
     } catch (error) {
       alert('Failed to save settings');

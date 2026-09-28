@@ -3,6 +3,7 @@ import { ProductVariant } from '../models/ProductVariant.js';
 import { Inventory } from '../models/Inventory.js';
 import { Coupon, CouponUsage } from '../models/Coupon.js';
 import { Order } from '../models/Order.js';
+import { Setting } from '../models/Setting.js';
 import { ApiError } from '../utils/ApiError.js';
 import mongoose from 'mongoose';
 
@@ -120,10 +121,22 @@ export async function calculateCartPricing(
   if (shippingMethod && typeof shippingMethod.rate === 'number') {
     shippingAmount = shippingMethod.rate;
   } else {
-    // Fallback: Free shipping above threshold, flat rate otherwise
-    const FREE_SHIPPING_THRESHOLD = 2000; // ₹2000
-    const FLAT_SHIPPING_RATE = 99; // ₹99
-    shippingAmount = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING_RATE;
+    // Fetch shipping settings
+    const settings = await Setting.find({ key: { $in: ['sitewideFreeShipping', 'freeShippingThreshold'] } }).lean();
+    let sitewideFreeShipping = false;
+    let freeShippingThreshold = 2000; // default
+    
+    settings.forEach(s => {
+      if (s.key === 'sitewideFreeShipping') sitewideFreeShipping = s.value === 'true';
+      if (s.key === 'freeShippingThreshold') freeShippingThreshold = Number(s.value) || 2000;
+    });
+
+    if (sitewideFreeShipping || subtotal >= freeShippingThreshold) {
+      shippingAmount = 0;
+    } else {
+      const FLAT_SHIPPING_RATE = 99; // Default flat rate
+      shippingAmount = FLAT_SHIPPING_RATE;
+    }
   }
 
   // 6. Grand total

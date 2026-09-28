@@ -32,6 +32,7 @@ export function ThemeProvider({ children }) {
     signatures: [],
     socialLinks: [],
     contactInfo: { email: '', phone: '', address: '', hours: '' },
+    shipping: { sitewideFreeShipping: false, freeShippingThreshold: 0 },
     loading: true
   });
 
@@ -74,6 +75,10 @@ export function ThemeProvider({ children }) {
           signatures: settingsMap['theme.home.signatures'] || [],
           socialLinks: settingsMap['theme.social.links'] || [],
           contactInfo: settingsMap['theme.contact.info'] || { email: '', phone: '', address: '', hours: '' },
+          shipping: {
+            sitewideFreeShipping: settingsMap['sitewideFreeShipping'] === 'true',
+            freeShippingThreshold: Number(settingsMap['freeShippingThreshold'] || 1000)
+          },
           loading: false
         });
       } catch (error) {

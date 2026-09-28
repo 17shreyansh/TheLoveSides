@@ -3,6 +3,7 @@ import { Cart } from '../../models/Cart.js';
 import { Product } from '../../models/Product.js';
 import { ProductVariant } from '../../models/ProductVariant.js';
 import { Inventory } from '../../models/Inventory.js';
+import { Setting } from '../../models/Setting.js';
 import { sendSuccess } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
 
@@ -21,8 +22,22 @@ export async function calculateCartTotals(cart: any) {
   // Future: Handle discounts/coupons here
   const discountTotal = 0; 
   
-  // Future: Handle shipping and taxes
-  const shippingTotal = 0;
+  // Handle shipping
+  const settings = await Setting.find({ key: { $in: ['sitewideFreeShipping', 'freeShippingThreshold'] } }).lean();
+  let sitewideFreeShipping = false;
+  let freeShippingThreshold = 2000;
+  
+  settings.forEach(s => {
+    if (s.key === 'sitewideFreeShipping') sitewideFreeShipping = s.value === 'true';
+    if (s.key === 'freeShippingThreshold') freeShippingThreshold = Number(s.value) || 2000;
+  });
+
+  let shippingTotal = 0;
+  if (!sitewideFreeShipping && subtotal > 0 && subtotal < freeShippingThreshold) {
+    shippingTotal = 99; // Flat shipping rate
+  }
+
+  // Future: Handle taxes
   const taxTotal = 0;
 
   const total = subtotal - discountTotal + shippingTotal + taxTotal;

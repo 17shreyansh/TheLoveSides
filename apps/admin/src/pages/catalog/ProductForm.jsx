@@ -11,34 +11,34 @@ import { MultiSelect } from '../../components/MultiSelect';
 
 const formatErrorMessages = (errorText) => {
   if (typeof errorText !== 'string') return ['An unexpected error occurred.'];
-  
+
   const errors = errorText.split(';').map(e => e.trim()).filter(Boolean);
   const groupedErrors = {};
   const standardErrors = [];
-  
+
   errors.forEach(err => {
     let [path, ...msgParts] = err.split(':');
-    
+
     if (msgParts.length === 0) {
       standardErrors.push(err);
       return;
     }
-    
+
     let message = msgParts.join(':').trim();
-    
+
     if (message.includes('String must contain at least 1 character(s)')) message = 'is required';
     if (message.includes('Required')) message = 'is required';
     if (message.includes('Expected number, received nan')) message = 'must be a valid number';
     if (message.includes('Expected number')) message = 'must be a valid number';
-    
+
     let fieldName = path.trim();
-    
+
     const variantMatch = fieldName.match(/variants\.(\d+)\.([a-zA-Z0-9_]+)/);
     if (variantMatch) {
       const index = parseInt(variantMatch[1]) + 1;
       const rawField = variantMatch[2];
       const field = rawField.toUpperCase() === 'SKU' ? 'SKU' : rawField.replace(/([A-Z])/g, ' $1').trim().replace(/^./, str => str.toUpperCase());
-      
+
       const groupKey = `${field} ${message}`;
       if (!groupedErrors[groupKey]) {
         groupedErrors[groupKey] = [];
@@ -108,22 +108,22 @@ const ColorAttributeInput = ({ values, onChange, usedColors = [] }) => {
         </div>
       )}
       <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg p-2">
-        <input 
-          type="color" 
+        <input
+          type="color"
           value={colorValue}
           onChange={e => setColorValue(e.target.value)}
           className="w-8 h-8 p-0 border-0 rounded cursor-pointer shrink-0"
           title="Pick a color"
         />
-        <input 
-          type="text" 
+        <input
+          type="text"
           value={colorName}
           onChange={e => setColorName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAdd())}
           placeholder="Color Name (e.g. Navy Blue)"
           className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:border-pink-primary"
         />
-        <button 
+        <button
           type="button"
           onClick={handleAdd}
           disabled={!colorName.trim()}
@@ -132,7 +132,7 @@ const ColorAttributeInput = ({ values, onChange, usedColors = [] }) => {
           Add Color
         </button>
       </div>
-      <TagInput 
+      <TagInput
         tags={values || []}
         onChange={onChange}
         placeholder="Or type raw format (Name (#Hex))"
@@ -155,7 +155,7 @@ const SortableAttributeItem = ({ attr, index, usedColors, handleUpdateAttribute,
       <div className="absolute left-2 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-charcoal bg-white rounded shadow-sm border border-gray-200" {...attributes} {...listeners}>
         <GripVertical className="w-5 h-5" />
       </div>
-      
+
       <div className="w-full sm:w-1/3 pl-8">
         <label className="block text-xs font-semibold text-charcoal mb-1.5">Option Name</label>
         <input
@@ -170,13 +170,13 @@ const SortableAttributeItem = ({ attr, index, usedColors, handleUpdateAttribute,
         <div className="flex items-start gap-3">
           <div className="flex-1 flex">
             {attr.name.toLowerCase().includes('color') ? (
-              <ColorAttributeInput 
+              <ColorAttributeInput
                 values={attr.values || []}
                 onChange={(newTags) => handleUpdateAttribute(index, 'values', newTags)}
                 usedColors={usedColors}
               />
             ) : (
-              <TagInput 
+              <TagInput
                 tags={attr.values || []}
                 onChange={(newTags) => handleUpdateAttribute(index, 'values', newTags)}
                 placeholder="e.g. Small, Medium"
@@ -184,9 +184,9 @@ const SortableAttributeItem = ({ attr, index, usedColors, handleUpdateAttribute,
             )}
           </div>
           <div className="flex flex-col gap-1 mt-1 shrink-0">
-            <button 
-              type="button" 
-              onClick={() => handleRemoveAttribute(index)} 
+            <button
+              type="button"
+              onClick={() => handleRemoveAttribute(index)}
               className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors w-full flex justify-center"
               title="Remove Option"
             >
@@ -212,7 +212,7 @@ export default function ProductForm() {
   const [usedColors, setUsedColors] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [formError, setFormError] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -227,10 +227,10 @@ export default function ProductForm() {
     tags: [],
     images: [],
     attributes: [
-      { 
+      {
         id: 'attr-size-init',
-        name: 'Size', 
-        values: ['1 Seater', '2 Seater', '3 Seater', '4 Seater', '2+2 Seater', '3+2 Seater', '2+1+1 Seater', '2+2+1 Seater', '3+1+1 Seater', '3+2+1+1 Seater'] 
+        name: 'Size',
+        values: ['1 Seater', '2 Seater', '3 Seater', '4 Seater', '2+2 Seater', '3+2 Seater', '2+1+1 Seater', '2+2+1 Seater', '3+1+1 Seater', '3+2+1+1 Seater']
       }
     ],
     highlights: [],
@@ -245,7 +245,7 @@ export default function ProductForm() {
       { name: 'Pattern', value: 'Solid' },
       { name: 'Theme', value: 'Ruffle' }
     ],
-    
+
     // Base Variant Fields
     sku: '',
     price: '',
@@ -270,11 +270,11 @@ export default function ProductForm() {
         setCategories(catRes.data.data || []);
         setSubCategories(subCatRes.data.data || []);
         setUsedColors(colorsRes.data.data || []);
-        
+
         if (isEditing) {
           const res = await api.get(`/admin/catalog/products/${id}`);
           const product = res.data.data;
-          
+
           if (product.attributes) {
             product.attributes = product.attributes.map(a => ({
               ...a,
@@ -285,8 +285,8 @@ export default function ProductForm() {
 
           // Extract base variant data if exists
           const baseVariant = product.variants?.[0] || {};
-          
-          setFormData({ 
+
+          setFormData({
             ...product,
             isFeatured: !!product.isFeatured,
             isBestSeller: !!product.isBestSeller,
@@ -439,7 +439,7 @@ export default function ProductForm() {
     };
 
     const combinations = getCombinations(validAttrs);
-    
+
     setFormData(prev => {
       const existingVariants = prev.variants || [];
       const newVariants = combinations.map(combo => {
@@ -453,7 +453,7 @@ export default function ProductForm() {
         if (existing) return existing;
 
         const skuSuffix = combo.map(c => c.value.substring(0, 3).toUpperCase()).join('-');
-        
+
         return {
           attributes: combo,
           price: prev.price !== '' ? Number(prev.price) : '',
@@ -536,7 +536,7 @@ export default function ProductForm() {
     e.preventDefault();
     try {
       const payload = { ...formData };
-      
+
       // Auto-generate slug if not editing and empty
       if (!isEditing && !payload.slug) {
         payload.slug = payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -571,7 +571,7 @@ export default function ProductForm() {
 
       // Populate base variant
       const existingBaseVariant = payload.variants?.find(v => !v.attributes || v.attributes.length === 0) || payload.variants?.[0] || {};
-      
+
       const baseVariant = {
         ...(existingBaseVariant._id ? { _id: existingBaseVariant._id } : {}),
         sku: payload.sku || (payload.slug + '-01'),
@@ -589,15 +589,15 @@ export default function ProductForm() {
 
       // If we have dynamically generated variants, use those instead of base
       const hasDynamicVariants = payload.variants && payload.variants.length > 0 && payload.variants[0].attributes?.length > 0;
-      
+
       const finalVariants = hasDynamicVariants ? payload.variants : [baseVariant];
-      
+
       payload.variants = finalVariants.map(v => ({
         ...v,
         price: Number(v.price) || 0,
         compareAtPrice: v.compareAtPrice ? Number(v.compareAtPrice) : undefined,
       }));
-      
+
       // Cleanup base fields from top-level payload to avoid schema errors if strict
       delete payload.sku;
       delete payload.price;
@@ -617,7 +617,7 @@ export default function ProductForm() {
       console.error(err);
       const apiError = err.response?.data?.error;
       let rawErrorMessage = 'Failed to save product';
-      
+
       if (typeof apiError === 'string') {
         rawErrorMessage = apiError;
       } else if (apiError && typeof apiError === 'object' && apiError.message) {
@@ -667,15 +667,15 @@ export default function ProductForm() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button 
-            type="button" 
-            onClick={() => navigate('/products')} 
+          <button
+            type="button"
+            onClick={() => navigate('/products')}
             className="px-5 py-2.5 rounded-lg text-sm font-medium text-charcoal hover:bg-gray-100 transition-colors"
           >
             Discard
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="px-5 py-2.5 bg-charcoal text-white rounded-lg text-sm font-medium hover:bg-black transition-colors shadow-sm"
           >
             {isEditing ? 'Save Changes' : 'Publish Product'}
@@ -684,17 +684,17 @@ export default function ProductForm() {
       </div>
 
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+
         {/* Left Column: Main Content */}
         <div className="lg:col-span-2 space-y-6 min-w-0">
-          
+
           {/* Basic Info Card */}
           <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-charcoal/5">
             <div className="flex items-center gap-2 mb-6 text-charcoal">
               <Info className="w-5 h-5 text-pink-primary" />
               <h2 className="text-lg font-serif font-bold">Basic Information</h2>
             </div>
-            
+
             <div className="space-y-5">
               <div>
                 <label className="block text-sm font-semibold text-charcoal mb-1.5">Product Name</label>
@@ -764,7 +764,7 @@ export default function ProductForm() {
                   )}
                 </div>
               </div>
-              
+
               <div className="pt-4 border-t border-charcoal/10">
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-sm font-semibold text-charcoal">Specifications Table</label>
@@ -818,12 +818,12 @@ export default function ProductForm() {
               <SortableContext items={formData.images || []} strategy={rectSortingStrategy}>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {(formData.images || []).map((url, index) => (
-                    <SortableGridItem 
-                      key={url} id={url} url={url} 
+                    <SortableGridItem
+                      key={url} id={url} url={url}
                       onRemove={handleRemoveImage} isMain={index === 0}
                     />
                   ))}
-                  
+
                   <label className={`flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed rounded-xl cursor-pointer transition-colors ${uploading ? 'bg-gray-50 border-gray-200' : 'border-gray-300 hover:bg-pink-50/50 hover:border-pink-primary/50 text-charcoal/40 hover:text-pink-primary'}`}>
                     <div className="flex flex-col items-center justify-center p-4 text-center">
                       {uploading ? (
@@ -844,19 +844,19 @@ export default function ProductForm() {
           {/* Dynamic Attributes Card */}
           <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-charcoal/5">
             <div className="flex items-center justify-between mb-6">
-               <div className="flex items-center gap-2 text-charcoal">
-                 <Box className="w-5 h-5 text-pink-primary" />
-                 <h2 className="text-lg font-serif font-bold">Variants & Attributes</h2>
-               </div>
-               <button 
-                type="button" 
-                onClick={handleAddAttribute} 
+              <div className="flex items-center gap-2 text-charcoal">
+                <Box className="w-5 h-5 text-pink-primary" />
+                <h2 className="text-lg font-serif font-bold">Variants & Attributes</h2>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddAttribute}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-50 text-pink-700 hover:bg-pink-100 rounded-lg text-sm font-semibold transition-colors"
-               >
-                 <Plus className="w-4 h-4" /> Add Option
-               </button>
+              >
+                <Plus className="w-4 h-4" /> Add Option
+              </button>
             </div>
-            
+
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleAttributeDragEnd}>
               <SortableContext items={(formData.attributes || []).map((a, i) => a.id || `attr-${i}`)} strategy={verticalListSortingStrategy}>
                 <div className="space-y-4">
@@ -894,7 +894,7 @@ export default function ProductForm() {
                 </div>
                 <span className="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-500 rounded-full">{formData.variants.length} combinations</span>
               </div>
-              
+
               <div className="overflow-x-auto rounded-xl border border-gray-200">
                 <table className="w-full text-left border-collapse min-w-[600px]">
                   <thead>
@@ -915,36 +915,36 @@ export default function ProductForm() {
                           </span>
                         </td>
                         <td className="p-3">
-                          <input 
-                            type="text" 
-                            value={variant.sku || ''} 
+                          <input
+                            type="text"
+                            value={variant.sku || ''}
                             onChange={(e) => handleVariantChange(idx, 'sku', e.target.value)}
                             placeholder="SKU"
                             className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:border-pink-primary focus:ring-1 focus:ring-pink-primary/20 uppercase"
                           />
                         </td>
                         <td className="p-3">
-                          <input 
+                          <input
                             type="number" min="0" step="0.01" required
-                            value={variant.price === 0 ? 0 : (variant.price || '')} 
+                            value={variant.price === 0 ? 0 : (variant.price || '')}
                             onChange={(e) => handleVariantChange(idx, 'price', e.target.value)}
                             placeholder={formData.price || '0.00'}
                             className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:border-pink-primary focus:ring-1 focus:ring-pink-primary/20"
                           />
                         </td>
                         <td className="p-3">
-                          <input 
+                          <input
                             type="number" min="0" step="0.01"
-                            value={variant.compareAtPrice || ''} 
+                            value={variant.compareAtPrice || ''}
                             onChange={(e) => handleVariantChange(idx, 'compareAtPrice', e.target.value)}
                             placeholder="0.00"
                             className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:border-pink-primary focus:ring-1 focus:ring-pink-primary/20"
                           />
                         </td>
                         <td className="p-3">
-                          <input 
+                          <input
                             type="number" min="0"
-                            value={variant.inventory?.available ?? ''} 
+                            value={variant.inventory?.available ?? ''}
                             onChange={(e) => handleVariantChange(idx, 'inventory', e.target.value)}
                             placeholder="0"
                             className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:border-pink-primary focus:ring-1 focus:ring-pink-primary/20"
@@ -1006,7 +1006,7 @@ export default function ProductForm() {
                     SKU <span className="text-[10px] font-normal text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">Optional</span>
                   </label>
                   <input
-                    type="text" name="sku" 
+                    type="text" name="sku"
                     value={formData.sku} onChange={handleChange}
                     placeholder="e.g. RNG-01"
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all uppercase"
@@ -1019,11 +1019,11 @@ export default function ProductForm() {
 
         {/* Right Column: Metadata & Organization */}
         <div className="space-y-6 min-w-0">
-          
+
           {/* Status Card */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-charcoal/5">
             <h2 className="text-base font-serif font-bold text-charcoal mb-4">Status</h2>
-            <select 
+            <select
               name="status"
               value={formData.status}
               onChange={handleChange}
@@ -1047,7 +1047,7 @@ export default function ProductForm() {
                 />
                 <span className="text-sm font-medium text-charcoal">Featured Product</span>
               </label>
-              
+
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -1063,20 +1063,20 @@ export default function ProductForm() {
           {/* Organization Card */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-charcoal/5 space-y-5">
             <h2 className="text-base font-serif font-bold text-charcoal mb-2">Organization</h2>
-            
+
             <div>
               <label className="block text-xs font-semibold text-charcoal mb-2 uppercase tracking-wider">Categories</label>
-              <MultiSelect 
+              <MultiSelect
                 options={categories}
                 selectedIds={formData.categoryIds || []}
                 onChange={(ids) => setFormData(prev => ({ ...prev, categoryIds: ids }))}
                 placeholder="Assign to categories..."
               />
             </div>
-            
+
             <div className="pt-2">
               <label className="block text-xs font-semibold text-charcoal mb-2 uppercase tracking-wider">Sub-Categories</label>
-              <MultiSelect 
+              <MultiSelect
                 options={subCategories}
                 selectedIds={formData.subCategoryIds || []}
                 onChange={(ids) => setFormData(prev => ({ ...prev, subCategoryIds: ids }))}
@@ -1086,17 +1086,17 @@ export default function ProductForm() {
 
             <div className="pt-2">
               <label className="block text-xs font-semibold text-charcoal mb-2 uppercase tracking-wider">Rooms</label>
-              <MultiSelect 
+              <MultiSelect
                 options={rooms}
                 selectedIds={formData.roomIds || []}
                 onChange={(ids) => setFormData(prev => ({ ...prev, roomIds: ids }))}
                 placeholder="Assign to rooms..."
               />
             </div>
-            
+
             <div className="pt-2">
               <label className="block text-xs font-semibold text-charcoal mb-2 uppercase tracking-wider">Collections</label>
-              <MultiSelect 
+              <MultiSelect
                 options={collections}
                 selectedIds={formData.collectionIds || []}
                 onChange={(ids) => setFormData(prev => ({ ...prev, collectionIds: ids }))}
@@ -1114,7 +1114,7 @@ export default function ProductForm() {
                 <span className="text-[10px] font-normal text-gray-400 normal-case bg-gray-100 px-1.5 py-0.5 rounded">Optional</span>
               </label>
               <input
-                type="text" name="slug" 
+                type="text" name="slug"
                 value={formData.slug} onChange={handleChange}
                 placeholder="Leave empty to auto-generate"
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-primary/20 focus:border-pink-primary transition-all text-sm"

@@ -4,6 +4,7 @@ import { ArrowLeft, Check, ChevronDown, Info, Ruler, Truck, Shield, RefreshCw, C
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useFlyToCart } from '../context/FlyToCartContext';
+import { useTheme } from '../context/ThemeContext';
 import { useProduct, useProducts } from '../hooks/useProducts';
 import { api } from '../lib/api';
 import Button from '../components/ui/Button';
@@ -19,6 +20,7 @@ export default function ProductPage() {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { triggerFlyToCart } = useFlyToCart();
+  const { shipping } = useTheme();
   const mainImageRef = React.useRef(null);
   const { product, loading } = useProduct(slug);
   const { products: relatedProductsArray } = useProducts({ limit: 4 });
@@ -108,6 +110,7 @@ export default function ProductPage() {
   const currentComparePrice = selectedVariant?.compareAtPrice || product.compareAtPrice;
   const inStock = selectedVariant ? selectedVariant.isPurchasable : true;
   const isWishlisted = isInWishlist(product?.id || product?._id);
+  const isFreeShipping = shipping?.sitewideFreeShipping || (shipping?.freeShippingThreshold > 0 && currentPrice >= shipping.freeShippingThreshold);
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
@@ -448,7 +451,9 @@ export default function ProductPage() {
             <div className="grid grid-cols-2 gap-2 mt-4 pt-6 border-t border-charcoal/10">
               <div className="flex flex-col items-center text-center gap-2 border-r border-charcoal/10">
                 <Truck className="w-6 h-6 text-gray-400" />
-                <span className="text-[10px] md:text-xs font-sans text-gray-500 uppercase tracking-wider">Free Shipping</span>
+                <span className="text-[10px] md:text-xs font-sans text-gray-500 uppercase tracking-wider">
+                  {isFreeShipping ? 'Free Shipping' : `Free Shipping over ₹${shipping?.freeShippingThreshold || 0}`}
+                </span>
               </div>
               <div className="flex flex-col items-center text-center gap-2">
                 <Shield className="w-6 h-6 text-gray-400" />
@@ -535,7 +540,11 @@ export default function ProductPage() {
                             </div>
                           )}
                           {tab === 'shipping' && (
-                            <div>Free standard shipping on all orders over ₹200. Standard delivery takes 3-5 business days. Expedited shipping is available at checkout.</div>
+                            <div>
+                              {isFreeShipping 
+                                ? 'This product is eligible for FREE shipping! Standard delivery takes 3-5 business days. Expedited shipping is available at checkout.' 
+                                : `Free standard shipping on all orders over ₹${shipping?.freeShippingThreshold || 200}. Standard delivery takes 3-5 business days. Expedited shipping is available at checkout.`}
+                            </div>
                           )}
                         </div>
                       </motion.div>
