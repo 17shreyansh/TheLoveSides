@@ -5,6 +5,7 @@ import { ProductVariant } from '../../models/ProductVariant.js';
 import { Inventory } from '../../models/Inventory.js';
 import { sendSuccess, sendPaginated } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
+import { generateUniqueSKU } from '../../utils/skuGenerator.js';
 
 export async function createProduct(req: Request, res: Response, next: NextFunction): Promise<void> {
   let createdProductId: any = null;
@@ -27,10 +28,20 @@ export async function createProduct(req: Request, res: Response, next: NextFunct
     createdProductId = product._id;
 
     // 2. Create Variants & Inventory
-    const variantsToCreate = variants.map((v: any) => ({
-      ...v,
-      productId: product._id,
-    }));
+    const prefix = productData.skuPrefix || 'TLS';
+    const variantsToCreate = [];
+    
+    for (const v of variants) {
+      let uniqueSku = generateUniqueSKU(prefix);
+      while (await ProductVariant.exists({ sku: uniqueSku })) {
+        uniqueSku = generateUniqueSKU(prefix);
+      }
+      variantsToCreate.push({
+        ...v,
+        sku: uniqueSku, // Auto-generated pro SKU overriding frontend
+        productId: product._id,
+      });
+    }
 
     const createdVariants = await ProductVariant.insertMany(variantsToCreate);
     createdVariantIds = createdVariants.map((v: any) => v._id);
@@ -153,15 +164,14 @@ export async function updateProductVariants(req: Request, res: Response, next: N
     }));
 
     if (variantsToCreate.length > 0) {
-      // Ensure SKUs are unique
+      const prefix = product.skuPrefix || 'TLS';
+      // Ensure SKUs are unique and auto-generated
       for (const v of variantsToCreate) {
-        let uniqueSku = v.sku;
-        let counter = 1;
+        let uniqueSku = generateUniqueSKU(prefix);
         while (await ProductVariant.exists({ sku: uniqueSku })) {
-          uniqueSku = `${v.sku}-${counter}`;
-          counter++;
+          uniqueSku = generateUniqueSKU(prefix);
         }
-        v.sku = uniqueSku;
+        v.sku = uniqueSku; // Override frontend with pro generated SKU
       }
 
       const created = await ProductVariant.insertMany(variantsToCreate);
