@@ -46,6 +46,13 @@ export function errorHandler(
     return;
   }
 
+  // Mongoose cast error
+  if (err.name === 'CastError') {
+    logger.warn({ err, requestId: req.requestId }, 'Mongoose cast error');
+    sendError(res, 400, 'INVALID_FORMAT', `Invalid format for field ${(err as any).path || 'ID'}`);
+    return;
+  }
+
   // Multer error
   if (err.name === 'MulterError') {
     logger.warn({ err, requestId: req.requestId }, 'Multer upload error');
@@ -54,8 +61,8 @@ export function errorHandler(
     return;
   }
 
-  // Mongoose duplicate key error
-  if (err.name === 'MongoServerError' && (err as unknown as { code: number }).code === 11000) {
+  // Mongoose duplicate key error (includes MongoServerError and MongoBulkWriteError)
+  if ((err.name === 'MongoServerError' || err.name === 'MongoBulkWriteError') && (err as any).code === 11000) {
     logger.warn({ err, requestId: req.requestId }, 'Duplicate key error');
     
     // Attempt to extract the conflicting field and value

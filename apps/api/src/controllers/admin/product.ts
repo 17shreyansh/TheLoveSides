@@ -62,7 +62,7 @@ export async function createProduct(req: Request, res: Response, next: NextFunct
       await Inventory.deleteMany({ variantId: { $in: createdVariantIds } }).catch(e => console.error('Rollback failed for Inventory:', e));
     }
 
-    if (error.code === 11000 && error.keyPattern && error.keyPattern.sku) {
+    if (error.code === 11000 || error.name === 'MongoBulkWriteError') {
       next(ApiError.conflict('A product or variant with this SKU already exists. SKU must be unique.'));
       return;
     }
@@ -118,10 +118,16 @@ export async function updateProductVariants(req: Request, res: Response, next: N
     // 1. Soft-delete missing variants
     const idsToDelete = existingIds.filter(id => !payloadIds.includes(id));
     if (idsToDelete.length > 0) {
-      await ProductVariant.updateMany(
-        { _id: { $in: idsToDelete } },
-        { isActive: false, deletedAt: new Date() }
-      );
+      for (const delId of idsToDelete) {
+        const variantToDel = existingVariants.find(v => v._id.toString() === delId);
+        if (variantToDel) {
+          await ProductVariant.findByIdAndUpdate(delId, {
+            isActive: false,
+            deletedAt: new Date(),
+            sku: `${variantToDel.sku}-del-${Date.now()}`
+          });
+        }
+      }
     }
 
     // 2. Update existing variants & their inventory
@@ -147,6 +153,17 @@ export async function updateProductVariants(req: Request, res: Response, next: N
     }));
 
     if (variantsToCreate.length > 0) {
+      // Ensure SKUs are unique
+      for (const v of variantsToCreate) {
+        let uniqueSku = v.sku;
+        let counter = 1;
+        while (await ProductVariant.exists({ sku: uniqueSku })) {
+          uniqueSku = `${v.sku}-${counter}`;
+          counter++;
+        }
+        v.sku = uniqueSku;
+      }
+
       const created = await ProductVariant.insertMany(variantsToCreate);
       const inventoryDocs = created.map((v: any, index: number) => {
         const vInput = variantsToCreate[index];
