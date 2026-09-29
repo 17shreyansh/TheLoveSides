@@ -27,7 +27,7 @@ export const createAttributeTemplate = async (req: Request, res: Response, next:
 
     await template.save();
     
-    sendSuccess({ res, status: 201, data: template, message: 'Template saved successfully' });
+    sendSuccess({ res, statusCode: 201, data: template, message: 'Template saved successfully' });
   } catch (error) {
     next(error);
   }
