@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../lib/api';
-import { Upload, Plus, Trash2, Tag, Box, Info, Image as ImageIcon, Loader2, AlertCircle, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
+import { Upload, Plus, Trash2, Tag, Box, Info, Image as ImageIcon, Loader2, AlertCircle, ChevronUp, ChevronDown, GripVertical, Save, Bookmark } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -213,6 +213,9 @@ export default function ProductForm() {
   const [uploading, setUploading] = useState(false);
   const [formError, setFormError] = useState(null);
 
+  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const [attributeTemplates, setAttributeTemplates] = useState([]);
+
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -258,18 +261,20 @@ export default function ProductForm() {
   useEffect(() => {
     const init = async () => {
       try {
-        const [roomRes, colRes, catRes, subCatRes, colorsRes] = await Promise.all([
+        const [roomRes, colRes, catRes, subCatRes, colorsRes, templatesRes] = await Promise.all([
           api.get('/admin/catalog/rooms'),
           api.get('/admin/catalog/collections'),
           api.get('/admin/catalog/categories'),
           api.get('/admin/catalog/subcategories'),
-          api.get('/admin/catalog/products/colors')
+          api.get('/admin/catalog/products/colors'),
+          api.get('/admin/catalog/attribute-templates')
         ]);
         setRooms(roomRes.data.data || []);
         setCollections(colRes.data.data || []);
         setCategories(catRes.data.data || []);
         setSubCategories(subCatRes.data.data || []);
         setUsedColors(colorsRes.data.data || []);
+        setAttributeTemplates(templatesRes.data.data || []);
 
         if (isEditing) {
           const res = await api.get(`/admin/catalog/products/${id}`);
@@ -354,6 +359,57 @@ export default function ProductForm() {
       ...prev,
       attributes: prev.attributes.filter((_, i) => i !== index)
     }));
+  };
+
+  const handleSaveTemplate = async () => {
+    const name = window.prompt("Enter a name for this template:");
+    if (!name) return;
+    
+    const validAttributes = formData.attributes.filter(a => a.name.trim() !== '' && a.values.length > 0);
+    if (validAttributes.length === 0) {
+      alert("No valid attributes to save.");
+      return;
+    }
+
+    try {
+      const payload = {
+        name,
+        attributes: validAttributes.map(a => ({ name: a.name, values: [...a.values] }))
+      };
+      const res = await api.post('/admin/catalog/attribute-templates', payload);
+      setAttributeTemplates(prev => [res.data.data, ...prev]);
+      setShowTemplateMenu(false);
+    } catch (e) {
+      console.error(e);
+      alert("Failed to save template to the server.");
+    }
+  };
+
+  const handleLoadTemplate = (template) => {
+    if (!window.confirm(`Load template "${template.name}"? This will overwrite your current options.`)) return;
+    
+    setFormData(prev => ({
+      ...prev,
+      attributes: template.attributes.map(a => ({
+        id: Math.random().toString(36).substr(2, 9),
+        name: a.name,
+        values: [...a.values]
+      }))
+    }));
+    setShowTemplateMenu(false);
+  };
+  
+  const handleDeleteTemplate = async (e, templateId) => {
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to delete this template?")) return;
+    
+    try {
+      await api.delete(`/admin/catalog/attribute-templates/${templateId}`);
+      setAttributeTemplates(prev => prev.filter(t => (t._id || t.id) !== templateId));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete template.");
+    }
   };
 
   const handleAttributeDragEnd = (event) => {
@@ -843,18 +899,71 @@ export default function ProductForm() {
 
           {/* Dynamic Attributes Card */}
           <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-charcoal/5">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4 relative z-10">
               <div className="flex items-center gap-2 text-charcoal">
                 <Box className="w-5 h-5 text-pink-primary" />
                 <h2 className="text-lg font-serif font-bold">Variants & Attributes</h2>
               </div>
-              <button
-                type="button"
-                onClick={handleAddAttribute}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-50 text-pink-700 hover:bg-pink-100 rounded-lg text-sm font-semibold transition-colors"
-              >
-                <Plus className="w-4 h-4" /> Add Option
-              </button>
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowTemplateMenu(!showTemplateMenu)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg text-sm font-semibold transition-colors"
+                  >
+                    <Bookmark className="w-4 h-4" /> Templates
+                  </button>
+                  {showTemplateMenu && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setShowTemplateMenu(false)}></div>
+                      <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+                        <div className="p-2 max-h-60 overflow-y-auto">
+                          {attributeTemplates.length === 0 ? (
+                            <p className="text-xs text-gray-500 p-2 text-center">No templates saved.</p>
+                          ) : (
+                            attributeTemplates.map(template => {
+                              const tid = template._id || template.id;
+                              return (
+                                <div key={tid} className="flex items-center justify-between px-3 py-2.5 hover:bg-gray-50 rounded-lg group cursor-pointer transition-colors" onClick={() => handleLoadTemplate(template)}>
+                                  <div className="min-w-0 pr-2">
+                                    <div className="text-sm font-semibold text-gray-700 truncate">{template.name}</div>
+                                    <div className="text-xs text-gray-400 mt-0.5 truncate">{template.attributes.map(a => a.name).join(', ')}</div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => handleDeleteTemplate(e, tid)}
+                                    className="p-1.5 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                                    title="Delete Template"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                        <div className="p-2 border-t border-gray-100 bg-gray-50">
+                          <button
+                            type="button"
+                            onClick={handleSaveTemplate}
+                            disabled={!formData.attributes || formData.attributes.length === 0}
+                            className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-white border border-gray-200 text-charcoal rounded-lg text-sm font-semibold hover:border-pink-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                          >
+                            <Save className="w-4 h-4" /> Save Current as Template
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddAttribute}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-50 text-pink-700 hover:bg-pink-100 rounded-lg text-sm font-semibold transition-colors"
+                >
+                  <Plus className="w-4 h-4" /> Add Option
+                </button>
+              </div>
             </div>
 
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleAttributeDragEnd}>

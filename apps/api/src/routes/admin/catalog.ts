@@ -7,6 +7,7 @@ import { createRoom, updateRoom, deleteRoom, reorderRooms } from '../../controll
 import { createCategory, updateCategory, deleteCategory, reorderCategories } from '../../controllers/admin/category.js';
 import { createSubCategory, updateSubCategory, deleteSubCategory, reorderSubCategories } from '../../controllers/admin/subCategory.js';
 import { createProduct, updateProduct, updateProductVariants, listProducts, getProductById, deleteProduct, getUniqueColors } from '../../controllers/admin/product.js';
+import { listAttributeTemplates, createAttributeTemplate, deleteAttributeTemplate } from '../../controllers/admin/attributeTemplate.js';
 import {
   createCollectionSchema, updateCollectionSchema,
   createRoomSchema, updateRoomSchema,
@@ -27,6 +28,13 @@ const router = Router();
 
 // Apply admin authentication to all routes in this router
 router.use(authenticateAdmin);
+
+// ========================================
+// Attribute Templates (Admin)
+// ========================================
+router.get('/attribute-templates', authorize('products.read'), listAttributeTemplates);
+router.post('/attribute-templates', authorize('products.create'), createAttributeTemplate);
+router.delete('/attribute-templates/:id', authorize('products.delete'), deleteAttributeTemplate);
 
 // ========================================
 // Collections (Admin)

@@ -206,7 +206,10 @@ export default function ThemeSettings() {
         ])),
         features: withId(settingsMap['theme.home.features']),
         testimonials: withId(settingsMap['theme.home.testimonials']),
-        socialFeed: withId(settingsMap['theme.home.social_feed']),
+        socialFeed: (settingsMap['theme.home.social_feed'] || []).map(item => {
+          if (typeof item === 'string') return { _id: generateId(), image: item, link: '' };
+          return { ...item, _id: item._id || generateId() };
+        }),
         stats: withId(settingsMap['theme.home.stats']),
         hero: settingsMap['theme.home.hero'] || {
           title: '', subtitle: '', description: '',
@@ -264,6 +267,8 @@ export default function ThemeSettings() {
       const newArray = [...settings[fieldName]];
       if (fieldName === 'signatures') {
         newArray[idx].imageUrl = data.data.url;
+      } else if (fieldName === 'testimonials' || fieldName === 'socialFeed') {
+        newArray[idx].image = data.data.url;
       } else {
         newArray[idx].value = data.data.url;
       }
@@ -987,39 +992,53 @@ export default function ThemeSettings() {
         {activeTab === 'socialFeed' && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-lg font-medium">Social Feed Images</h2>
-              <button type="button" onClick={() => setSettings(p => ({ ...p, socialFeed: [...p.socialFeed, { _id: generateId(), value: '' }] }))} className="text-sm text-brand flex items-center gap-1"><Plus className="w-4 h-4"/> Add Image URL</button>
+              <h2 className="text-lg font-medium">Social Feed Items</h2>
+              <button type="button" onClick={() => setSettings(p => ({ ...p, socialFeed: [...p.socialFeed, { _id: generateId(), image: '', link: '' }] }))} className="text-sm text-brand flex items-center gap-1"><Plus className="w-4 h-4"/> Add Item</button>
             </div>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleDragEnd(e, 'socialFeed')}>
               <SortableContext items={settings.socialFeed.map(i => i._id)} strategy={verticalListSortingStrategy}>
-                {settings.socialFeed.map((img, idx) => (
-                  <SortableItem key={img._id} id={img._id}>
-                    <div className="flex gap-4 items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                      <div className="w-12 h-12 rounded bg-gray-200 overflow-hidden flex-shrink-0 relative group">
-                        {img.value ? (
-                          <img src={img.value} alt="" className="w-full h-full object-cover" />
+                {settings.socialFeed.map((item, idx) => (
+                  <SortableItem key={item._id} id={item._id}>
+                    <div className="flex flex-col md:flex-row gap-4 items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                      <div className="w-16 h-16 rounded bg-gray-200 overflow-hidden flex-shrink-0 relative group">
+                        {item.image ? (
+                          <img src={item.image} alt="" className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
                             <Upload className="w-4 h-4" />
                           </div>
                         )}
-                        <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
-                          <Upload className="w-4 h-4 text-white" />
+                        <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-opacity">
+                          <Upload className="w-4 h-4 text-white mb-1" />
+                          <span className="text-[10px] text-white">Upload</span>
                           <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, idx, 'socialFeed')} />
                         </label>
                       </div>
-                      <input
-                        type="text"
-                        placeholder="Image URL or click thumbnail to upload"
-                        value={img.value}
-                        onChange={(e) => {
-                          const newFeed = [...settings.socialFeed];
-                          newFeed[idx].value = e.target.value;
-                          setSettings({ ...settings, socialFeed: newFeed });
-                        }}
-                        className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                      />
-                      <button type="button" onClick={() => setSettings(p => ({ ...p, socialFeed: p.socialFeed.filter((_, i) => i !== idx) }))} className="p-2 text-red-500 hover:bg-red-50 rounded-md">
+                      <div className="flex-1 w-full space-y-2">
+                        <input
+                          type="text"
+                          placeholder="Image URL (or upload via thumbnail)"
+                          value={item.image}
+                          onChange={(e) => {
+                            const newFeed = [...settings.socialFeed];
+                            newFeed[idx].image = e.target.value;
+                            setSettings({ ...settings, socialFeed: newFeed });
+                          }}
+                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand text-sm"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Instagram Post / Reels URL (Optional Link)"
+                          value={item.link || ''}
+                          onChange={(e) => {
+                            const newFeed = [...settings.socialFeed];
+                            newFeed[idx].link = e.target.value;
+                            setSettings({ ...settings, socialFeed: newFeed });
+                          }}
+                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand text-sm"
+                        />
+                      </div>
+                      <button type="button" onClick={() => setSettings(p => ({ ...p, socialFeed: p.socialFeed.filter((_, i) => i !== idx) }))} className="p-2 text-red-500 hover:bg-red-50 rounded-md mt-2 md:mt-0">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

@@ -55,7 +55,11 @@ export default function SocialFeed() {
 
         {/* CSS Grid Masonry Layout */}
         <div className="grid grid-flow-dense grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 auto-rows-[120px] sm:auto-rows-[150px] md:auto-rows-[180px] lg:auto-rows-[200px]">
-          {socialFeed.map((img, idx) => {
+          {socialFeed.map((item, idx) => {
+            const isString = typeof item === 'string';
+            const imgUrl = isString ? item : item.image;
+            const postLink = isString ? null : item.link;
+
             let spanClasses = "";
             let hasPlayIcon = false;
             let pos = idx % 6;
@@ -82,11 +86,24 @@ export default function SocialFeed() {
                 delay={idx * 0.1} 
                 className={`group relative rounded-2xl overflow-hidden cursor-pointer ${spanClasses} shadow-sm hover:shadow-xl transition-all duration-300 bg-white`}
               >
-                <img 
-                  src={img} 
-                  alt={`Instagram post ${idx + 1}`} 
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+                {postLink ? (
+                  <a href={postLink} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-30">
+                    <span className="sr-only">View on Instagram</span>
+                  </a>
+                ) : null}
+
+                {imgUrl && !imgUrl.includes('instagram.com/p/') && !imgUrl.includes('instagram.com/reel/') ? (
+                  <img 
+                    src={imgUrl} 
+                    alt={`Instagram post ${idx + 1}`} 
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="absolute inset-0 w-full h-full bg-gray-100 flex flex-col items-center justify-center p-4 text-center border border-dashed border-gray-300">
+                    <span className="text-xs text-gray-500 font-medium mb-1">Image Required</span>
+                    <span className="text-[10px] text-gray-400">Please upload a screenshot in Theme Settings. Instagram links cannot be used as images.</span>
+                  </div>
+                )}
                 
                 {hasPlayIcon && (
                   <div className="absolute top-3 right-3 md:top-4 md:right-4 text-white bg-black/20 rounded-full p-1.5 backdrop-blur-sm shadow-sm z-10">

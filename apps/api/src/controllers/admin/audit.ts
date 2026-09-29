@@ -5,7 +5,7 @@ import { sendSuccess, sendPaginated } from '../../utils/ApiResponse.js';
 export async function listAuditLogs(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = Math.min(parseInt(req.query.limit as string) || 50, 200);
+    const limit = parseInt(req.query.limit as string) || 1000;
     const skip = (page - 1) * limit;
 
     const query: any = {};

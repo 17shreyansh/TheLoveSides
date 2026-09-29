@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import Button from '../components/ui/Button';
 import { Truck } from 'lucide-react';
 
 export default function CheckoutPage() {
   const { state, fetchCart } = useCart();
   const { user, isAuthenticated } = useAuth();
+  const { shipping } = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -41,6 +43,106 @@ export default function CheckoutPage() {
   const [selectedRate, setSelectedRate] = useState(null);
   const [ratesError, setRatesError] = useState('');
 
+  const [statesList, setStatesList] = useState([]);
+  const [citiesList, setCitiesList] = useState([]);
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
+
+  // Fetch states for India
+  useEffect(() => {
+    const fetchStates = async () => {
+      setLoadingStates(true);
+      try {
+        const res = await fetch('https://countriesnow.space/api/v0.1/countries/states', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ country: 'India' })
+        });
+        const data = await res.json();
+        if (!data.error) {
+          const uniqueStates = [];
+          const seen = new Set();
+          for (const s of data.data.states) {
+            if (s && s.name) {
+              const normalized = s.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+              const lower = normalized.toLowerCase();
+              if (!seen.has(lower)) {
+                seen.add(lower);
+                uniqueStates.push(normalized);
+              }
+            }
+          }
+          setStatesList(uniqueStates.sort());
+        }
+      } catch (err) {
+        console.error('Failed to fetch states', err);
+      } finally {
+        setLoadingStates(false);
+      }
+    };
+    fetchStates();
+  }, []);
+
+  // Fetch cities when state changes
+  useEffect(() => {
+    const fetchCities = async () => {
+      if (!formData.state) {
+        setCitiesList([]);
+        return;
+      }
+      setLoadingCities(true);
+      try {
+        const res = await fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ country: 'India', state: formData.state })
+        });
+        const data = await res.json();
+        if (!data.error) {
+          const uniqueCities = [];
+          const seen = new Set();
+          for (const city of data.data) {
+            if (city) {
+              const normalized = city.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+              const lower = normalized.toLowerCase();
+              if (!seen.has(lower)) {
+                seen.add(lower);
+                uniqueCities.push(normalized);
+              }
+            }
+          }
+          uniqueCities.sort();
+          setCitiesList(uniqueCities);
+          
+          setFormData(prev => {
+            if (prev.city) {
+              const lowerCity = prev.city.toLowerCase();
+              const fuzzyMatch = uniqueCities.find(c => {
+                const cLow = c.toLowerCase();
+                return cLow === lowerCity || 
+                       cLow.replace('ahmad', 'ahmed') === lowerCity ||
+                       cLow.replace('ahmed', 'ahmad') === lowerCity ||
+                       cLow.replace('bengaluru', 'bangalore') === lowerCity ||
+                       cLow.replace('bangalore', 'bengaluru') === lowerCity;
+              });
+              if (fuzzyMatch && fuzzyMatch !== prev.city) {
+                return { ...prev, city: fuzzyMatch };
+              }
+            }
+            return prev;
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch cities', err);
+      } finally {
+        setLoadingCities(false);
+      }
+    };
+    fetchCities();
+  }, [formData.state]);
+
+
+
   // Fetch shipping rates when pincode is valid
   useEffect(() => {
     if (/^\d{6}$/.test(formData.postalCode)) {
@@ -54,11 +156,21 @@ export default function CheckoutPage() {
             const pinData = await pinRes.json();
             if (pinData[0].Status === 'Success') {
               const postOffice = pinData[0].PostOffice[0];
-              setFormData(prev => ({
-                ...prev,
-                city: postOffice.District,
-                state: postOffice.State
-              }));
+              setFormData(prev => {
+                let sName = postOffice.State || '';
+                let cName = postOffice.District || postOffice.Block || '';
+                
+                if (sName.toLowerCase() === 'chattisgarh') sName = 'Chhattisgarh';
+                
+                const matchedState = statesList.find(s => s.toLowerCase() === sName.toLowerCase());
+                if (matchedState) sName = matchedState;
+                
+                return {
+                  ...prev,
+                  city: cName,
+                  state: sName
+                };
+              });
             }
           } catch (e) {
             console.error("Error fetching location data", e);
@@ -152,7 +264,7 @@ ${itemsList}`;
         shippingMethod: selectedRate ? {
           courierId: selectedRate.courierId,
           courierName: selectedRate.courierName,
-          rate: selectedRate.rate
+          rate: finalShippingRate
         } : null
       }, { withCredentials: true });
 
@@ -235,6 +347,9 @@ ${itemsList}`;
     );
   }
 
+  const isFreeShipping = shipping?.sitewideFreeShipping || (shipping?.freeShippingThreshold > 0 && state.subtotal >= shipping.freeShippingThreshold);
+  const finalShippingRate = isFreeShipping ? 0 : (selectedRate?.rate || 0);
+
   return (
     <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-16 md:pb-24">
       <div className="max-w-6xl mx-auto px-6 md:px-10">
@@ -252,7 +367,7 @@ ${itemsList}`;
                   <input 
                     type="email" id="email" name="email" required
                     value={formData.email} onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border border-charcoal/20 focus:outline-none focus:border-pink-primary font-sans text-charcoal"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20"
                   />
                 </div>
                 <div className="mt-4">
@@ -260,7 +375,7 @@ ${itemsList}`;
                   <input 
                     type="tel" id="phone" name="phone" required
                     value={formData.phone} onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border border-charcoal/20 focus:outline-none focus:border-pink-primary font-sans text-charcoal"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20"
                   />
                 </div>
               </div>
@@ -274,7 +389,7 @@ ${itemsList}`;
                     <input 
                       type="text" id="firstName" name="firstName" required
                       value={formData.firstName} onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border border-charcoal/20 focus:outline-none focus:border-pink-primary font-sans text-charcoal"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20"
                     />
                   </div>
                   <div>
@@ -282,47 +397,7 @@ ${itemsList}`;
                     <input 
                       type="text" id="lastName" name="lastName" required
                       value={formData.lastName} onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border border-charcoal/20 focus:outline-none focus:border-pink-primary font-sans text-charcoal"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="addressLine1">Address Line 1</label>
-                    <input 
-                      type="text" id="addressLine1" name="addressLine1" required
-                      value={formData.addressLine1} onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border border-charcoal/20 focus:outline-none focus:border-pink-primary font-sans text-charcoal"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="addressLine2">Apartment, suite, etc. (optional)</label>
-                    <input 
-                      type="text" id="addressLine2" name="addressLine2"
-                      value={formData.addressLine2} onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border border-charcoal/20 focus:outline-none focus:border-pink-primary font-sans text-charcoal"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="city">City</label>
-                    <input 
-                      type="text" id="city" name="city" required
-                      value={formData.city} onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border border-charcoal/20 focus:outline-none focus:border-pink-primary font-sans text-charcoal"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="state">State</label>
-                    <input 
-                      type="text" id="state" name="state" required
-                      value={formData.state} onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border border-charcoal/20 focus:outline-none focus:border-pink-primary font-sans text-charcoal"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="postalCode">PIN Code</label>
-                    <input 
-                      type="text" id="postalCode" name="postalCode" required
-                      value={formData.postalCode} onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border border-charcoal/20 focus:outline-none focus:border-pink-primary font-sans text-charcoal"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20"
                     />
                   </div>
                   <div>
@@ -330,10 +405,60 @@ ${itemsList}`;
                     <select 
                       id="country" name="country" disabled
                       value={formData.country} onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border border-charcoal/20 focus:outline-none focus:border-pink-primary font-sans text-charcoal bg-gray-50"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20 bg-gray-50"
                     >
                       <option value="IN">India</option>
                     </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="postalCode">PIN Code</label>
+                    <input 
+                      type="text" id="postalCode" name="postalCode" required
+                      value={formData.postalCode} onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="state">State</label>
+                    <select 
+                      id="state" name="state" required
+                      value={formData.state} onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20 bg-white"
+                      disabled={loadingStates}
+                    >
+                      <option value="">{loadingStates ? 'Loading States...' : 'Select State'}</option>
+                      {statesList.map(s => <option key={s} value={s}>{s}</option>)}
+                      {formData.state && !statesList.includes(formData.state) && <option value={formData.state}>{formData.state}</option>}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="city">City</label>
+                    <select 
+                      id="city" name="city" required
+                      value={formData.city} onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20 bg-white"
+                      disabled={!formData.state || loadingCities}
+                    >
+                      <option value="">{loadingCities ? 'Loading Cities...' : 'Select City'}</option>
+                      {citiesList.map(c => <option key={c} value={c}>{c}</option>)}
+                      {formData.city && !citiesList.includes(formData.city) && <option value={formData.city}>{formData.city}</option>}
+                    </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="addressLine1">Address Line 1</label>
+                    <input 
+                      type="text" id="addressLine1" name="addressLine1" required
+                      value={formData.addressLine1} onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="addressLine2">Apartment, suite, etc. (optional)</label>
+                    <input 
+                      type="text" id="addressLine2" name="addressLine2"
+                      value={formData.addressLine2} onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20"
+                    />
                   </div>
                 </div>
               </div>
@@ -380,9 +505,11 @@ ${itemsList}`;
                           </div>
                           <div className="flex flex-col items-end">
                             <p className="font-semibold font-sans text-charcoal text-base">
-                              ₹{selectedRate.rate}
+                              {isFreeShipping ? 'Free' : `₹${selectedRate.rate}`}
                             </p>
-                            <span className="text-[10px] uppercase tracking-wider text-green-600 font-semibold mt-1 bg-green-50 px-2 py-0.5 rounded-full">Best Price</span>
+                            <span className="text-[10px] uppercase tracking-wider text-green-600 font-semibold mt-1 bg-green-50 px-2 py-0.5 rounded-full">
+                              {isFreeShipping ? 'Free Shipping' : 'Best Price'}
+                            </span>
                           </div>
                         </div>
                       )}
@@ -433,7 +560,7 @@ ${itemsList}`;
                 </div>
                 <div className="flex justify-between text-charcoal/80">
                   <span>Shipping</span>
-                  <span>{selectedRate ? `₹${selectedRate.rate}` : 'Calculated at next step'}</span>
+                  <span>{selectedRate ? (isFreeShipping ? 'Free' : `₹${selectedRate.rate}`) : 'Calculated at next step'}</span>
                 </div>
                 <div className="flex justify-between text-charcoal/80">
                   <span>Taxes (included)</span>
@@ -443,7 +570,7 @@ ${itemsList}`;
 
               <div className="border-t border-charcoal/10 mt-4 pt-4 flex justify-between font-serif text-xl text-charcoal">
                 <span>Total</span>
-                <span>₹{Number(state.subtotal + (selectedRate?.rate || 0)).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                <span>₹{Number(state.subtotal + finalShippingRate).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>
