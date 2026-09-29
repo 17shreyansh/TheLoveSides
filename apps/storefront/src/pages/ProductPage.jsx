@@ -192,7 +192,7 @@ export default function ProductPage() {
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                   </span>
                   <span className="text-sm font-sans font-medium text-green-700">
-                    In Stock — Ships in 5-6 days
+                    In Stock — Delivery in {shipping?.estimatedDeliveryMin || 9} - {shipping?.estimatedDeliveryMax || 10} days
                   </span>
                 </>
               ) : (
@@ -417,11 +417,9 @@ export default function ProductPage() {
                           <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
                           <div>
                             <p className="text-sm font-medium text-charcoal">Delivery available to {pincode}</p>
-                            {serviceability.estimatedDays && (
-                              <p className="text-xs text-gray-600 mt-0.5">
-                                Usually delivers in {serviceability.estimatedDays} days
-                              </p>
-                            )}
+                            <p className="text-xs text-gray-600 mt-0.5">
+                              Usually delivers in {serviceability.estimatedDays || `${shipping?.estimatedDeliveryMin || 9} - ${shipping?.estimatedDeliveryMax || 10}`} days
+                            </p>
                           </div>
                         </div>
                         {serviceability.codAvailable ? (
@@ -542,8 +540,8 @@ export default function ProductPage() {
                           {tab === 'shipping' && (
                             <div>
                               {isFreeShipping 
-                                ? 'This product is eligible for FREE shipping! Standard delivery takes 3-5 business days. Expedited shipping is available at checkout.' 
-                                : `Free standard shipping on all orders over ₹${shipping?.freeShippingThreshold || 200}. Standard delivery takes 3-5 business days. Expedited shipping is available at checkout.`}
+                                ? `This product is eligible for FREE shipping! Standard delivery takes ${shipping?.estimatedDeliveryMin || 9} - ${shipping?.estimatedDeliveryMax || 10} business days.` 
+                                : `Free standard shipping on all orders over ₹${shipping?.freeShippingThreshold || 200}. Standard delivery takes ${shipping?.estimatedDeliveryMin || 9} - ${shipping?.estimatedDeliveryMax || 10} business days.`}
                             </div>
                           )}
                         </div>

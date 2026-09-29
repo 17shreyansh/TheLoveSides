@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CheckCircle, Package, Truck, MapPin } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 import Button from '../components/ui/Button';
 
 export default function OrderSuccessPage() {
   const location = useLocation();
+  const { shipping } = useTheme();
   const { orderId, orderNumber, amount, items, shippingAddress } = location.state || {};
 
   useEffect(() => {
@@ -99,7 +101,7 @@ export default function OrderSuccessPage() {
                     <Truck className="w-5 h-5 text-pink-primary" /> What's Next?
                   </h3>
                   <p className="text-sm text-charcoal/70 bg-pink-50 p-5 rounded-2xl border border-pink-100">
-                    We are currently processing your order. You will receive an email with tracking information as soon as your items ship. Standard delivery usually takes 3-5 business days.
+                    We are currently processing your order. You will receive an email with tracking information as soon as your items ship. Standard delivery usually takes {shipping?.estimatedDeliveryMin || 9} - {shipping?.estimatedDeliveryMax || 10} business days.
                   </p>
                 </div>
               </div>

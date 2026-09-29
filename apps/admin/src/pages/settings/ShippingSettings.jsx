@@ -21,6 +21,8 @@ export default function ShippingSettings() {
       
       if (!settingsMap.sitewideFreeShipping) settingsMap.sitewideFreeShipping = 'false';
       if (!settingsMap.freeShippingThreshold) settingsMap.freeShippingThreshold = '1000';
+      if (!settingsMap['shipping.estimatedDeliveryMin']) settingsMap['shipping.estimatedDeliveryMin'] = '9';
+      if (!settingsMap['shipping.estimatedDeliveryMax']) settingsMap['shipping.estimatedDeliveryMax'] = '10';
       if (!settingsMap['shiprocket.pickup_pincode']) settingsMap['shiprocket.pickup_pincode'] = '';
       if (!settingsMap['shiprocket.default_weight']) settingsMap['shiprocket.default_weight'] = '0.5';
       
@@ -92,7 +94,47 @@ export default function ShippingSettings() {
         </div>
 
         <div className="pt-4 border-t border-charcoal/5">
-          <h2 className="text-lg font-medium text-charcoal mb-4">Shiprocket Integrations</h2>
+          <h2 className="text-lg font-medium text-charcoal mb-2">Estimated Delivery Time</h2>
+          <p className="text-xs text-charcoal/60 mb-4">
+            This delivery estimate is shown on all product pages and in pincode delivery checks. Shipping is managed manually by admin after payment.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-charcoal">Minimum Days</label>
+              <input
+                type="number"
+                name="shipping.estimatedDeliveryMin"
+                min="1"
+                max="60"
+                value={settings['shipping.estimatedDeliveryMin'] || ''}
+                onChange={handleChange}
+                className="w-full px-4 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition-colors"
+              />
+              <p className="text-xs text-charcoal/60">
+                e.g. 9 (shown as "9 - 10 days" on product pages)
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-charcoal">Maximum Days</label>
+              <input
+                type="number"
+                name="shipping.estimatedDeliveryMax"
+                min="1"
+                max="60"
+                value={settings['shipping.estimatedDeliveryMax'] || ''}
+                onChange={handleChange}
+                className="w-full px-4 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition-colors"
+              />
+              <p className="text-xs text-charcoal/60">
+                e.g. 10 (shown as "9 - 10 days" on product pages)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-charcoal/5">
+          <h2 className="text-lg font-medium text-charcoal mb-4">Shiprocket Integration</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-charcoal">Pickup Pincode (Warehouse)</label>

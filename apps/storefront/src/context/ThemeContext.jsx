@@ -32,7 +32,7 @@ export function ThemeProvider({ children }) {
     signatures: [],
     socialLinks: [],
     contactInfo: { email: '', phone: '', address: '', hours: '' },
-    shipping: { sitewideFreeShipping: false, freeShippingThreshold: 0 },
+    shipping: { sitewideFreeShipping: false, freeShippingThreshold: 0, estimatedDeliveryMin: 9, estimatedDeliveryMax: 10 },
     loading: true
   });
 
@@ -77,7 +77,9 @@ export function ThemeProvider({ children }) {
           contactInfo: settingsMap['theme.contact.info'] || { email: '', phone: '', address: '', hours: '' },
           shipping: {
             sitewideFreeShipping: settingsMap['sitewideFreeShipping'] === 'true',
-            freeShippingThreshold: Number(settingsMap['freeShippingThreshold'] || 1000)
+            freeShippingThreshold: Number(settingsMap['freeShippingThreshold'] || 1000),
+            estimatedDeliveryMin: Number(settingsMap['shipping.estimatedDeliveryMin'] || 9),
+            estimatedDeliveryMax: Number(settingsMap['shipping.estimatedDeliveryMax'] || 10),
           },
           loading: false
         });

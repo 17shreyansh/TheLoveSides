@@ -111,11 +111,22 @@ export default function OrderDetails() {
   if (!order) return null;
 
   const getStatusColor = (status) => {
-    if (status === 'DELIVERED') return 'bg-green-100 text-green-800 border-green-200';
-    if (status === 'CANCELLED') return 'bg-red-100 text-red-800 border-red-200';
-    if (status === 'PENDING_PAYMENT') return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    if (status === 'PAID') return 'bg-blue-100 text-blue-800 border-blue-200';
-    return 'bg-ivory text-charcoal border-charcoal/10';
+    const colors = {
+      PENDING_PAYMENT: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      PAYMENT_FAILED: 'bg-red-100 text-red-800 border-red-200',
+      PAID: 'bg-blue-100 text-blue-800 border-blue-200',
+      PROCESSING: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+      READY_TO_SHIP: 'bg-purple-100 text-purple-800 border-purple-200',
+      SHIPPED: 'bg-cyan-100 text-cyan-800 border-cyan-200',
+      OUT_FOR_DELIVERY: 'bg-teal-100 text-teal-800 border-teal-200',
+      DELIVERED: 'bg-green-100 text-green-800 border-green-200',
+      CANCELLED: 'bg-red-100 text-red-800 border-red-200',
+      RETURN_REQUESTED: 'bg-amber-100 text-amber-800 border-amber-200',
+      RETURNED: 'bg-orange-100 text-orange-800 border-orange-200',
+      REFUNDED: 'bg-lime-100 text-lime-800 border-lime-200',
+      RTO: 'bg-rose-100 text-rose-800 border-rose-200',
+    };
+    return colors[status] || 'bg-ivory text-charcoal border-charcoal/10';
   };
 
   return (
@@ -152,12 +163,18 @@ export default function OrderDetails() {
               className="appearance-none pl-4 pr-10 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg text-sm font-medium text-charcoal focus:outline-none focus:ring-2 focus:ring-pink-primary/50 hover:bg-ivory transition-colors disabled:opacity-50 cursor-pointer"
             >
               <option value="PENDING_PAYMENT">Pending Payment</option>
+              <option value="PAYMENT_FAILED">Payment Failed</option>
               <option value="PAID">Paid</option>
               <option value="PROCESSING">Processing</option>
               <option value="READY_TO_SHIP">Ready to Ship</option>
               <option value="SHIPPED">Shipped</option>
+              <option value="OUT_FOR_DELIVERY">Out for Delivery</option>
               <option value="DELIVERED">Delivered</option>
               <option value="CANCELLED">Cancelled</option>
+              <option value="RETURN_REQUESTED">Return Requested</option>
+              <option value="RETURNED">Returned</option>
+              <option value="REFUNDED">Refunded</option>
+              <option value="RTO">RTO</option>
             </select>
             <ChevronDown className="w-4 h-4 text-charcoal/60 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>

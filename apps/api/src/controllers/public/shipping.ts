@@ -63,6 +63,20 @@ export async function checkDeliveryAvailability(req: Request, res: Response, nex
     const pickupPincode = await getPickupPincode();
     const defaultWeight = await getDefaultWeight();
 
+    // Fetch admin-configured delivery estimate
+    let estimatedDeliveryMin = 9;
+    let estimatedDeliveryMax = 10;
+    try {
+      const [minSetting, maxSetting] = await Promise.all([
+        Setting.findOne({ key: 'shipping.estimatedDeliveryMin' }).lean(),
+        Setting.findOne({ key: 'shipping.estimatedDeliveryMax' }).lean(),
+      ]);
+      if (minSetting?.value) estimatedDeliveryMin = parseInt(String(minSetting.value), 10) || 9;
+      if (maxSetting?.value) estimatedDeliveryMax = parseInt(String(maxSetting.value), 10) || 10;
+    } catch {
+      // Fallback to defaults
+    }
+
     let data;
     try {
       data = await checkPincodeServiceability({
@@ -75,12 +89,13 @@ export async function checkDeliveryAvailability(req: Request, res: Response, nex
       throw ApiError.badRequest('Failed to check serviceability from Shiprocket');
     }
 
+    // Return availability from Shiprocket but estimated days from admin config
     sendSuccess({
       res,
       data: {
         pincode,
         serviceable: data.serviceable,
-        estimatedDays: data.estimatedDays,
+        estimatedDays: `${estimatedDeliveryMin} - ${estimatedDeliveryMax}`,
         codAvailable: data.codAvailable,
         courierCount: data.courierCount,
       },

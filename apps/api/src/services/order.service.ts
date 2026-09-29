@@ -3,7 +3,6 @@ import { Order, type OrderStatus, type IOrderTimeline } from '../models/Order.js
 import { Cart } from '../models/Cart.js';
 import { CouponUsage } from '../models/Coupon.js';
 import { Coupon } from '../models/Coupon.js';
-import { enqueueShipment } from '../queues/index.js';
 import { generateOrderNumber } from '../utils/orderNumber.js';
 import { calculateCartPricing, validateCartInventory, type CartPricing } from './pricing.service.js';
 import { reserveInventory, releaseReservation, confirmReservation } from './inventory.service.js';
@@ -241,10 +240,8 @@ export async function transitionOrderStatus(
 
   // Side effects based on status change
   if (newStatus === 'PAID') {
-    // Fire and forget shipment enqueue to prevent hanging if Redis is down
-    enqueueShipment(order.id).catch(err => {
-      logger.error({ err, orderId: order.id }, 'Failed to enqueue shipment job');
-    });
+    // Shipping is handled manually by admin — no auto-shipment creation
+    logger.info({ orderId: order.id }, 'Order paid — awaiting manual shipment by admin');
   }
 
   // Side effects based on status change

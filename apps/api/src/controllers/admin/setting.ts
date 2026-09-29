@@ -31,12 +31,12 @@ export async function updateSettings(req: Request, res: Response, next: NextFunc
         { 
           $set: { 
             value: item.value,
-            ...( ['returnPolicyDays', 'replacementPolicyDays', 'sitewideFreeShipping', 'freeShippingThreshold'].includes(item.key) ? { isPublic: true } : {} ),
+            ...( ['returnPolicyDays', 'replacementPolicyDays', 'sitewideFreeShipping', 'freeShippingThreshold', 'shipping.estimatedDeliveryMin', 'shipping.estimatedDeliveryMax'].includes(item.key) ? { isPublic: true } : {} ),
             ...( item.group ? { group: item.group } : {} )
           },
           $setOnInsert: { 
             group: item.group || (item.key.startsWith('theme.') ? 'theme' : 'general'),
-            isPublic: item.key.startsWith('theme.') || ['sitewideFreeShipping', 'freeShippingThreshold'].includes(item.key)
+            isPublic: item.key.startsWith('theme.') || ['sitewideFreeShipping', 'freeShippingThreshold', 'shipping.estimatedDeliveryMin', 'shipping.estimatedDeliveryMax'].includes(item.key)
           }
         },
         { new: true, upsert: true }

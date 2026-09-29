@@ -496,11 +496,7 @@ ${itemsList}`;
                             </div>
                             <div>
                               <p className="font-medium font-sans text-charcoal text-base">Standard Delivery</p>
-                              {selectedRate.estimatedDays ? (
-                                <p className="text-xs text-charcoal/60 font-sans mt-1">Estimated delivery: {selectedRate.estimatedDays} business days</p>
-                              ) : (
-                                <p className="text-xs text-charcoal/60 font-sans mt-1">Safe and secure delivery</p>
-                              )}
+                              <p className="text-xs text-charcoal/60 font-sans mt-1">Estimated delivery: {shipping?.estimatedDeliveryMin || 9} - {shipping?.estimatedDeliveryMax || 10} business days</p>
                             </div>
                           </div>
                           <div className="flex flex-col items-end">

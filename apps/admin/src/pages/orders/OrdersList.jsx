@@ -52,10 +52,22 @@ export default function OrdersList() {
                   <td className="p-4 text-sm font-medium text-charcoal">₹{order.grandTotal}</td>
                   <td className="p-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                      ${order.status === 'PAID' ? 'bg-green-100 text-green-800' : 
-                        order.status === 'PENDING_PAYMENT' ? 'bg-yellow-100 text-yellow-800' : 
-                        'bg-blue-100 text-blue-800'}`}>
-                      {order.status}
+                      ${{
+                        PENDING_PAYMENT: 'bg-yellow-100 text-yellow-800',
+                        PAYMENT_FAILED: 'bg-red-100 text-red-800',
+                        PAID: 'bg-blue-100 text-blue-800',
+                        PROCESSING: 'bg-indigo-100 text-indigo-800',
+                        READY_TO_SHIP: 'bg-purple-100 text-purple-800',
+                        SHIPPED: 'bg-cyan-100 text-cyan-800',
+                        OUT_FOR_DELIVERY: 'bg-teal-100 text-teal-800',
+                        DELIVERED: 'bg-green-100 text-green-800',
+                        CANCELLED: 'bg-red-100 text-red-800',
+                        RETURN_REQUESTED: 'bg-amber-100 text-amber-800',
+                        RETURNED: 'bg-orange-100 text-orange-800',
+                        REFUNDED: 'bg-lime-100 text-lime-800',
+                        RTO: 'bg-rose-100 text-rose-800',
+                      }[order.status] || 'bg-gray-100 text-gray-800'}`}>
+                      {order.status.replace(/_/g, ' ')}
                     </span>
                   </td>
                   <td className="p-4 text-right">
