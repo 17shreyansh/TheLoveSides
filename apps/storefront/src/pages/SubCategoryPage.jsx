@@ -21,8 +21,8 @@ export default function SubCategoryPage() {
         setLoadingInfo(true);
         try {
           const { data } = await api.get(`/catalog/subcategories/${subCategorySlug}`);
-          if (active && data?.data) {
-            setSubCategory(data.data);
+          if (active && data) {
+            setSubCategory(data);
           }
         } catch (err) {
           console.error("Failed to load sub-category", err);

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -13,6 +13,7 @@ export default function ImageZoomViewer({ images = [] }) {
   const [isHovering, setIsHovering] = useState(false);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 }); // relative percentages (0-100)
   const [lensPos, setLensPos] = useState({ top: 0, left: 0 }); // pixels for the lens box
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   const imgContainerRef = useRef(null);
   
@@ -88,6 +89,7 @@ export default function ImageZoomViewer({ images = [] }) {
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           onMouseMove={handleMouseMove}
+          onClick={() => setIsFullscreen(true)}
         >
           <img 
             src={images[activeIndex]} 
@@ -165,12 +167,80 @@ export default function ImageZoomViewer({ images = [] }) {
           onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
         >
           {images.map((img, idx) => (
-            <SwiperSlide key={idx}>
-              <img src={img} alt={`Product view ${idx + 1}`} className="w-full h-full object-cover" />
+            <SwiperSlide key={idx} onClick={() => setIsFullscreen(true)}>
+              <img src={img} alt={`Product view ${idx + 1}`} className="w-full h-full object-cover cursor-pointer" />
             </SwiperSlide>
           ))}
         </Swiper>
       </div>
+
+      {/* Fullscreen Lightbox Modal */}
+      <AnimatePresence>
+        {isFullscreen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-black/95 flex flex-col"
+          >
+            {/* Header / Close */}
+            <div className="absolute top-0 right-0 p-4 md:p-6 z-50">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsFullscreen(false);
+                }}
+                className="text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
+              >
+                <X className="w-8 h-8" />
+              </button>
+            </div>
+
+            {/* Main Content */}
+            <div className="flex-1 w-full h-full flex items-center justify-center relative overflow-hidden p-4 md:p-12" onClick={() => setIsFullscreen(false)}>
+              <img 
+                src={images[activeIndex]} 
+                alt="Fullscreen View" 
+                className="max-w-full max-h-full object-contain cursor-default"
+                onClick={(e) => e.stopPropagation()}
+              />
+              
+              {/* Navigation */}
+              {images.length > 1 && (
+                <>
+                  <button 
+                    onClick={prevImage}
+                    className="absolute left-4 md:left-8 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-50"
+                  >
+                    <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
+                  </button>
+                  <button 
+                    onClick={nextImage}
+                    className="absolute right-4 md:right-8 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-50"
+                  >
+                    <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
+                  </button>
+                </>
+              )}
+            </div>
+            
+            {/* Thumbnails */}
+            {images.length > 1 && (
+              <div className="h-24 md:h-32 bg-black/20 w-full flex items-center justify-center gap-2 md:gap-4 px-4 overflow-x-auto pb-4 shrink-0" onClick={(e) => e.stopPropagation()}>
+                {images.map((img, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveIndex(index)}
+                    className={`h-16 md:h-20 aspect-square rounded overflow-hidden flex-shrink-0 transition-all ${index === activeIndex ? 'ring-2 ring-white opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                  >
+                    <img src={img} alt={`thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
