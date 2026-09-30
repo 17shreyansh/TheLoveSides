@@ -879,14 +879,14 @@ export default function ThemeSettings() {
                         <Trash2 className="w-4 h-4" />
                       </button>
                       <div className="flex flex-col md:flex-row gap-4 items-start mt-2">
-                        <div className="w-full md:w-1/3 h-32 rounded-lg bg-gray-200 flex-shrink-0 relative group overflow-hidden border border-gray-300">
+                        <div className="w-full md:w-1/3 h-40 rounded-lg bg-gray-200 flex-shrink-0 relative group overflow-hidden border border-gray-300">
                           {test.image ? (
-                            <img src={test.image} alt={test.author || 'Testimonial'} className="w-full h-full object-cover object-top" />
+                            <img src={test.image} alt={test.author || 'Testimonial'} className="w-full h-full object-contain bg-gray-50" />
                           ) : (
                             <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 p-2 text-center">
                               <Upload className="w-6 h-6 mb-2" />
                               <span className="text-xs">Upload Screenshot</span>
-                              <span className="text-[10px] text-gray-400 mt-1">(1:1 Square recommended)</span>
+                              <span className="text-[10px] text-gray-400 mt-1">(Flexible size, usually portrait)</span>
                             </div>
                           )}
                           <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-opacity text-white">

@@ -12,8 +12,8 @@ export default function Testimonials() {
     if (testimonial.image) {
       return (
         <RevealOnScroll delay={idx * 0.1} className="h-full w-full flex justify-center">
-          <div className="rounded-2xl shadow-sm hover:shadow-md transition-shadow w-full max-w-sm mx-auto overflow-hidden border border-pink-primary/10 flex flex-col bg-white aspect-square">
-            <img src={testimonial.image} alt="Customer Review" className="w-full h-full object-cover" />
+          <div className="rounded-2xl shadow-sm hover:shadow-md transition-shadow w-full max-w-sm mx-auto overflow-hidden border border-pink-primary/10 flex flex-col bg-white">
+            <img src={testimonial.image} alt="Customer Review" className="w-full h-auto object-contain max-h-[500px]" />
           </div>
         </RevealOnScroll>
       );
@@ -21,7 +21,7 @@ export default function Testimonials() {
 
     return (
       <RevealOnScroll delay={idx * 0.1} className="h-full w-full flex justify-center">
-        <div className="bg-ivory rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col border border-pink-primary/10 w-full max-w-sm mx-auto aspect-square">
+        <div className="bg-ivory rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col border border-pink-primary/10 w-full max-w-sm mx-auto h-full min-h-[300px]">
           <div className="flex gap-1 mb-4 text-gold">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="w-4 h-4 md:w-5 md:h-5 fill-current" />
