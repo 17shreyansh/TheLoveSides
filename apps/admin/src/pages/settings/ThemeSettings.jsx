@@ -207,8 +207,13 @@ export default function ThemeSettings() {
         features: withId(settingsMap['theme.home.features']),
         testimonials: withId(settingsMap['theme.home.testimonials']),
         socialFeed: (settingsMap['theme.home.social_feed'] || []).map(item => {
-          if (typeof item === 'string') return { _id: generateId(), image: item, link: '' };
-          return { ...item, _id: item._id || generateId() };
+          if (typeof item === 'string') return { _id: generateId(), type: 'instagram', embedUrl: item };
+          return { 
+            _id: item._id || generateId(), 
+            type: item.type || (item.embedUrl ? 'instagram' : 'media'),
+            embedUrl: item.embedUrl || item.link || '',
+            mediaUrl: item.mediaUrl || item.image || ''
+          };
         }),
         stats: withId(settingsMap['theme.home.stats']),
         hero: settingsMap['theme.home.hero'] || {
@@ -267,8 +272,10 @@ export default function ThemeSettings() {
       const newArray = [...settings[fieldName]];
       if (fieldName === 'signatures') {
         newArray[idx].imageUrl = data.data.url;
-      } else if (fieldName === 'testimonials' || fieldName === 'socialFeed') {
+      } else if (fieldName === 'testimonials') {
         newArray[idx].image = data.data.url;
+      } else if (fieldName === 'socialFeed') {
+        newArray[idx].mediaUrl = data.data.url;
       } else {
         newArray[idx].value = data.data.url;
       }
@@ -993,53 +1000,93 @@ export default function ThemeSettings() {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-medium">Social Feed Items</h2>
-              <button type="button" onClick={() => setSettings(p => ({ ...p, socialFeed: [...p.socialFeed, { _id: generateId(), image: '', link: '' }] }))} className="text-sm text-brand flex items-center gap-1"><Plus className="w-4 h-4"/> Add Item</button>
+              <button type="button" onClick={() => setSettings(p => ({ ...p, socialFeed: [...p.socialFeed, { _id: generateId(), type: 'media', mediaUrl: '', embedUrl: '' }] }))} className="text-sm text-brand flex items-center gap-1"><Plus className="w-4 h-4"/> Add Post</button>
             </div>
+            <p className="text-xs text-gray-500">Add media uploads (images/videos) or Instagram embed URLs.</p>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleDragEnd(e, 'socialFeed')}>
               <SortableContext items={settings.socialFeed.map(i => i._id)} strategy={verticalListSortingStrategy}>
                 {settings.socialFeed.map((item, idx) => (
                   <SortableItem key={item._id} id={item._id}>
-                    <div className="flex flex-col md:flex-row gap-4 items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                      <div className="w-16 h-16 rounded bg-gray-200 overflow-hidden flex-shrink-0 relative group">
-                        {item.image ? (
-                          <img src={item.image} alt="" className="w-full h-full object-cover" />
+                    <div className="flex flex-col md:flex-row gap-4 items-start md:items-center bg-gray-50 p-4 rounded-lg border border-gray-100">
+                      
+                      {item.type === 'media' ? (
+                        <div className="w-20 h-20 rounded bg-gray-200 overflow-hidden flex-shrink-0 relative group">
+                          {item.mediaUrl ? (
+                            item.mediaUrl.match(/\.(mp4|webm|mov)$/i) ? (
+                              <video src={item.mediaUrl} className="w-full h-full object-cover" muted playsInline />
+                            ) : (
+                              <img src={item.mediaUrl} alt="" className="w-full h-full object-cover" />
+                            )
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                              <Upload className="w-5 h-5" />
+                            </div>
+                          )}
+                          <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-opacity">
+                            <Upload className="w-5 h-5 text-white mb-1" />
+                            <span className="text-[10px] text-white">Upload Media</span>
+                            <input type="file" className="hidden" accept="image/*,video/mp4,video/webm,video/quicktime" onChange={(e) => handleImageUpload(e, idx, 'socialFeed')} />
+                          </label>
+                        </div>
+                      ) : (
+                        <div className="w-20 h-20 rounded bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center flex-shrink-0 shadow-inner">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                        </div>
+                      )}
+                      
+                      <div className="flex-1 w-full space-y-3">
+                        <div className="flex items-center gap-2">
+                          <select 
+                            value={item.type || 'media'} 
+                            onChange={(e) => {
+                              const newFeed = [...settings.socialFeed];
+                              newFeed[idx] = { ...newFeed[idx], type: e.target.value };
+                              setSettings({ ...settings, socialFeed: newFeed });
+                            }}
+                            className="px-2 py-1 bg-white border border-gray-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-brand font-medium text-gray-700"
+                          >
+                            <option value="media">Media Upload</option>
+                            <option value="instagram">Instagram Embed</option>
+                          </select>
+                        </div>
+                        
+                        {item.type === 'media' ? (
+                          <input
+                            type="url"
+                            placeholder="Media URL (Image or Video) or upload via thumbnail"
+                            value={item.mediaUrl || ''}
+                            onChange={(e) => {
+                              const newFeed = [...settings.socialFeed];
+                              newFeed[idx] = { ...newFeed[idx], mediaUrl: e.target.value };
+                              setSettings({ ...settings, socialFeed: newFeed });
+                            }}
+                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand text-sm"
+                          />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <Upload className="w-4 h-4" />
+                          <div>
+                            <input
+                              type="url"
+                              placeholder="https://www.instagram.com/reel/Dd56Cenw2y0/"
+                              value={item.embedUrl || ''}
+                              onChange={(e) => {
+                                const newFeed = [...settings.socialFeed];
+                                newFeed[idx] = { ...newFeed[idx], embedUrl: e.target.value };
+                                setSettings({ ...settings, socialFeed: newFeed });
+                              }}
+                              className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand text-sm"
+                            />
+                            {item.embedUrl && (
+                              <p className="text-[11px] text-green-600 mt-1 flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                Embed will render on storefront
+                              </p>
+                            )}
                           </div>
                         )}
-                        <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-opacity">
-                          <Upload className="w-4 h-4 text-white mb-1" />
-                          <span className="text-[10px] text-white">Upload</span>
-                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, idx, 'socialFeed')} />
-                        </label>
                       </div>
-                      <div className="flex-1 w-full space-y-2">
-                        <input
-                          type="text"
-                          placeholder="Image URL (or upload via thumbnail)"
-                          value={item.image}
-                          onChange={(e) => {
-                            const newFeed = [...settings.socialFeed];
-                            newFeed[idx].image = e.target.value;
-                            setSettings({ ...settings, socialFeed: newFeed });
-                          }}
-                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand text-sm"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Instagram Post / Reels URL (Optional Link)"
-                          value={item.link || ''}
-                          onChange={(e) => {
-                            const newFeed = [...settings.socialFeed];
-                            newFeed[idx].link = e.target.value;
-                            setSettings({ ...settings, socialFeed: newFeed });
-                          }}
-                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand text-sm"
-                        />
-                      </div>
-                      <button type="button" onClick={() => setSettings(p => ({ ...p, socialFeed: p.socialFeed.filter((_, i) => i !== idx) }))} className="p-2 text-red-500 hover:bg-red-50 rounded-md mt-2 md:mt-0">
-                        <Trash2 className="w-4 h-4" />
+                      
+                      <button type="button" onClick={() => setSettings(p => ({ ...p, socialFeed: p.socialFeed.filter((_, i) => i !== idx) }))} className="p-2 text-red-500 hover:bg-red-50 rounded-md mt-2 md:mt-0 self-start md:self-center">
+                        <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
                   </SortableItem>
