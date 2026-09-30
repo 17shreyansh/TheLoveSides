@@ -23,8 +23,8 @@ export default function Home() {
     <div className="flex flex-col w-full">
       <Hero />
 
-      <CollectionShowcase />
       <CategoryShowcase />
+      <CollectionShowcase />
       {homeSections?.showBestSellers !== false && <BestSellers mode={homeSections?.bestSellersMode || 'manual'} />}
       <PromoBanner />
       <ShopByRoom />

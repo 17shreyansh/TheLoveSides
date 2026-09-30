@@ -1,10 +1,12 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper/modules';
+import { Pagination, Navigation, Zoom } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
+import 'swiper/css/navigation';
+import 'swiper/css/zoom';
 
 export default function ImageZoomViewer({ images = [] }) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -58,6 +60,18 @@ export default function ImageZoomViewer({ images = [] }) {
     e.stopPropagation();
     setActiveIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
+
+  // Lock body scroll when fullscreen is open
+  useEffect(() => {
+    if (isFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isFullscreen]);
   
   if (!images || images.length === 0) return null;
 
@@ -174,70 +188,95 @@ export default function ImageZoomViewer({ images = [] }) {
         </Swiper>
       </div>
 
-      {/* Fullscreen Lightbox Modal */}
+      {/* Fullscreen Lightbox Modal (Pro Version) */}
       <AnimatePresence>
         {isFullscreen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-black/95 flex flex-col"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="fixed inset-0 z-[99999] bg-black/98 flex flex-col"
           >
-            {/* Header / Close */}
-            <div className="absolute top-0 right-0 p-4 md:p-6 z-50">
+            {/* Header / Close - High Visibility */}
+            <div className="absolute top-4 right-4 md:top-6 md:right-6 z-[100000]">
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsFullscreen(false);
                 }}
-                className="text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
+                className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-white/20 group cursor-pointer"
+                aria-label="Close fullscreen"
               >
-                <X className="w-8 h-8" />
+                <X className="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
               </button>
             </div>
 
-            {/* Main Content */}
-            <div className="flex-1 w-full h-full flex items-center justify-center relative overflow-hidden p-4 md:p-12" onClick={() => setIsFullscreen(false)}>
-              <img 
-                src={images[activeIndex]} 
-                alt="Fullscreen View" 
-                className="max-w-full max-h-full object-contain cursor-default"
-                onClick={(e) => e.stopPropagation()}
-              />
+            {/* Main Content - Swiper with Zoom */}
+            <div className="flex-1 w-full h-full relative" onClick={() => setIsFullscreen(false)}>
+              <Swiper
+                modules={[Zoom, Navigation, Pagination]}
+                zoom={{ maxRatio: 3, minRatio: 1 }}
+                navigation={{
+                  prevEl: '.swiper-button-prev-custom',
+                  nextEl: '.swiper-button-next-custom',
+                }}
+                pagination={{ type: 'fraction', el: '.swiper-pagination-custom' }}
+                initialSlide={activeIndex}
+                onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+                className="w-full h-full"
+                onClick={(e) => e.stopPropagation()} 
+              >
+                {images.map((img, idx) => (
+                  <SwiperSlide key={idx} className="flex items-center justify-center p-0 md:p-12">
+                    <div className="swiper-zoom-container cursor-grab active:cursor-grabbing w-full h-full flex items-center justify-center">
+                      <img 
+                        src={img} 
+                        alt={`Fullscreen View ${idx + 1}`} 
+                        className="max-w-full max-h-full object-contain rounded-sm select-none"
+                      />
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
               
-              {/* Navigation */}
+              {/* Custom Navigation */}
               {images.length > 1 && (
                 <>
-                  <button 
-                    onClick={prevImage}
-                    className="absolute left-4 md:left-8 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-50"
-                  >
-                    <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
+                  <button className="swiper-button-prev-custom absolute left-2 md:left-8 top-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-full transition-all z-[10000] border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed group">
+                    <ChevronLeft className="w-5 h-5 md:w-8 md:h-8 group-hover:-translate-x-0.5 transition-transform" />
                   </button>
-                  <button 
-                    onClick={nextImage}
-                    className="absolute right-4 md:right-8 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-50"
-                  >
-                    <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
+                  <button className="swiper-button-next-custom absolute right-2 md:right-8 top-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-full transition-all z-[10000] border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed group">
+                    <ChevronRight className="w-5 h-5 md:w-8 md:h-8 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                 </>
               )}
-            </div>
-            
-            {/* Thumbnails */}
-            {images.length > 1 && (
-              <div className="h-24 md:h-32 bg-black/20 w-full flex items-center justify-center gap-2 md:gap-4 px-4 overflow-x-auto pb-4 shrink-0" onClick={(e) => e.stopPropagation()}>
-                {images.map((img, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setActiveIndex(index)}
-                    className={`h-16 md:h-20 aspect-square rounded overflow-hidden flex-shrink-0 transition-all ${index === activeIndex ? 'ring-2 ring-white opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                  >
-                    <img src={img} alt={`thumbnail ${index + 1}`} className="w-full h-full object-cover" />
-                  </button>
-                ))}
+
+              {/* Custom Pagination & Thumbnails */}
+              <div className="absolute bottom-0 left-0 right-0 z-[10000] bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-20 pb-6 px-4 md:px-6 flex flex-col items-center gap-4 pointer-events-none">
+                
+                {images.length > 1 && (
+                  <div className="flex items-center gap-2 md:gap-3 pointer-events-auto overflow-x-auto max-w-full no-scrollbar pb-2 px-2">
+                    {images.map((img, index) => (
+                      <button
+                        key={index}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveIndex(index);
+                          const swiperEl = document.querySelector('.swiper').swiper;
+                          if (swiperEl) swiperEl.slideTo(index);
+                        }}
+                        className={`h-14 w-14 md:h-20 md:w-20 rounded-xl overflow-hidden flex-shrink-0 transition-all duration-300 shadow-lg ${index === activeIndex ? 'ring-2 ring-white scale-105 opacity-100' : 'opacity-50 hover:opacity-100 hover:scale-100 border border-white/20'}`}
+                      >
+                        <img src={img} alt={`thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="swiper-pagination-custom text-white/80 font-medium font-sans tracking-widest text-xs md:text-sm bg-black/40 px-3 md:px-4 py-1 md:py-1.5 rounded-full backdrop-blur-md border border-white/10"></div>
               </div>
-            )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
