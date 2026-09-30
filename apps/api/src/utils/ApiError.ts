@@ -2,17 +2,20 @@ export class ApiError extends Error {
   public readonly statusCode: number;
   public readonly code: string;
   public readonly isOperational: boolean;
+  public readonly retryAfter?: number;
 
   constructor(
     statusCode: number,
     code: string,
     message: string,
     isOperational = true,
+    retryAfter?: number
   ) {
     super(message);
     this.statusCode = statusCode;
     this.code = code;
     this.isOperational = isOperational;
+    this.retryAfter = retryAfter;
 
     // Maintain proper stack trace
     Error.captureStackTrace(this, this.constructor);
@@ -39,8 +42,8 @@ export class ApiError extends Error {
     return new ApiError(409, code, message);
   }
 
-  static tooManyRequests(message = 'Too many requests', code = 'RATE_LIMIT_EXCEEDED') {
-    return new ApiError(429, code, message);
+  static tooManyRequests(message = 'Too many requests', code = 'RATE_LIMIT_EXCEEDED', retryAfter?: number) {
+    return new ApiError(429, code, message, true, retryAfter);
   }
 
   static internal(message = 'Internal server error', code = 'INTERNAL_ERROR') {

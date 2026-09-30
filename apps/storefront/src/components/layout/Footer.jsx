@@ -1,4 +1,5 @@
 import React from 'react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import NewsletterCTA from './NewsletterCTA';
@@ -6,7 +7,7 @@ import LogoImage from '../../assets/images/LogoProcessed.png';
 import SocialIcon from '../ui/SocialIcon';
 
 export default function Footer() {
-  const { footerLinks, socialLinks } = useTheme();
+  const { footerLinks, socialLinks, contactInfo } = useTheme();
 
   return (
     <footer className="bg-hero-dark text-ivory pt-16 pb-8">
@@ -15,12 +16,37 @@ export default function Footer() {
           
           {/* Brand Col */}
           <div className="md:col-span-1 flex flex-col items-start">
-            <Link to="/" className="mb-6 inline-block">
+            <Link to="/" className="mb-6 flex items-center gap-3">
               <img src={LogoImage} alt="THELOVESIDES" className="h-10 md:h-12 object-contain" />
+              <span className="font-serif text-xl tracking-[0.1em] text-ivory uppercase whitespace-nowrap">
+                THELOVESIDES
+              </span>
             </Link>
             <p className="text-ivory/60 text-sm leading-relaxed max-w-xs mb-6">
               Premium window treatments with expert installation since 2018.
             </p>
+
+            <div className="space-y-4 mb-8">
+              <div className="flex items-start gap-3 text-sm text-ivory/70">
+                <Mail className="w-4 h-4 mt-0.5 shrink-0 text-ivory/50" />
+                <a href={`mailto:${contactInfo?.email || 'hello@thelovesides.com'}`} className="hover:text-pink-primary transition-colors break-all">
+                  {contactInfo?.email || 'hello@thelovesides.com'}
+                </a>
+              </div>
+              <div className="flex items-start gap-3 text-sm text-ivory/70">
+                <Phone className="w-4 h-4 mt-0.5 shrink-0 text-ivory/50" />
+                <a href={`tel:${contactInfo?.phone || '+1 (234) 567-890'}`} className="hover:text-pink-primary transition-colors">
+                  {contactInfo?.phone || '+1 (234) 567-890'}
+                </a>
+              </div>
+              <div className="flex items-start gap-3 text-sm text-ivory/70">
+                <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-ivory/50" />
+                <span className="whitespace-pre-line leading-relaxed">
+                  {contactInfo?.address || '123 Design Avenue,\nCreative District, NY 10001\nUnited States'}
+                </span>
+              </div>
+            </div>
+
             <div className="flex items-center gap-4">
               {(socialLinks || []).map((link, idx) => {
                 if (!link.url) return null;

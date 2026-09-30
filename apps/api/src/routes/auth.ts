@@ -1,6 +1,13 @@
 import { Router } from 'express';
 import { validate } from '../middleware/validate.js';
-import { rateLimitAuth } from '../middleware/rateLimiter.js';
+import { 
+  otpSendLimiter, 
+  otpVerifyLimiter, 
+  adminLoginLimiter, 
+  refreshCustomerLimiter,
+  refreshAdminLimiter,
+  passwordResetLimiter
+} from '../middleware/rateLimit/index.js';
 import { authenticateCustomer, authenticateAdmin } from '../middleware/auth.js';
 import { 
   requestOtpSchema, 
@@ -30,40 +37,40 @@ const router = Router();
 // ========================================
 router.post(
   '/request-otp',
-  rateLimitAuth,
+  otpSendLimiter,
   validate({ body: requestOtpSchema }),
   requestOtp
 );
 
 router.post(
   '/verify-otp',
-  rateLimitAuth,
+  otpVerifyLimiter,
   validate({ body: verifyOtpSchema }),
   verifyOtp
 );
 
 router.post('/logout', logoutCustomer);
 
-router.post('/refresh', rateLimitAuth, refreshCustomerToken);
+router.post('/refresh', refreshCustomerLimiter, refreshCustomerToken);
 
 router.get('/me', authenticateCustomer, getMe);
 
-router.post('/forgot-password', rateLimitAuth, forgotPassword);
-router.post('/reset-password', rateLimitAuth, resetPassword);
+router.post('/forgot-password', passwordResetLimiter, forgotPassword);
+router.post('/reset-password', passwordResetLimiter, resetPassword);
 
 // ========================================
 // Admin Routes
 // ========================================
 router.post(
   '/admin/login',
-  rateLimitAuth,
+  adminLoginLimiter,
   validate({ body: adminLoginSchema }),
   loginAdmin
 );
 
 router.post('/admin/logout', logoutAdmin);
 
-router.post('/admin/refresh', rateLimitAuth, refreshAdminToken);
+router.post('/admin/refresh', refreshAdminLimiter, refreshAdminToken);
 
 router.get('/admin/me', authenticateAdmin, getAdminMe);
 

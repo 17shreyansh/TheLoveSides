@@ -8,6 +8,8 @@ import { useProducts } from '../hooks/useProducts';
 import { useCollections } from '../hooks/useCollections';
 import { useRooms } from '../hooks/useRooms';
 import { useColors } from '../hooks/useColors';
+import { useCategories } from '../hooks/useCategories';
+import { useSubCategories } from '../hooks/useSubCategories';
 import clsx from 'clsx';
 
 const Accordion = ({ title, children, defaultOpen = true }) => {
@@ -38,6 +40,8 @@ export default function ProductsPage() {
   
   const selectedCollection = searchParams.get('collection') || '';
   const selectedRoom = searchParams.get('room') || '';
+  const selectedCategory = searchParams.get('category') || '';
+  const selectedSubcategory = searchParams.get('subcategory') || '';
   const selectedColor = searchParams.get('color') || '';
   const searchQuery = searchParams.get('q') || '';
   const selectedSort = searchParams.get('sort') || 'newest';
@@ -77,10 +81,14 @@ export default function ProductsPage() {
   const { collections, loading: collectionsLoading } = useCollections();
   const { rooms, loading: roomsLoading } = useRooms();
   const { colors, loading: colorsLoading } = useColors();
+  const { categories, loading: categoriesLoading } = useCategories();
+  const { subCategories, loading: subCategoriesLoading } = useSubCategories();
 
   const query = {};
   if (selectedCollection) query.collection = selectedCollection;
   if (selectedRoom) query.room = selectedRoom;
+  if (selectedCategory) query.category = selectedCategory;
+  if (selectedSubcategory) query.subcategory = selectedSubcategory;
   if (selectedColor) query.color = selectedColor;
   if (searchQuery) query.q = searchQuery;
   if (selectedSort) query.sort = selectedSort;
@@ -100,7 +108,7 @@ export default function ProductsPage() {
   // Reset pagination when filters change
   useEffect(() => {
     setVisibleCount(12);
-  }, [selectedCollection, selectedRoom, selectedSort, selectedColor, searchQuery, minPrice, maxPrice, inStock]);
+  }, [selectedCollection, selectedRoom, selectedCategory, selectedSubcategory, selectedSort, selectedColor, searchQuery, minPrice, maxPrice, inStock]);
 
   const FilterSidebarContent = () => (
     <div className="font-sans">
@@ -154,6 +162,82 @@ export default function ProductsPage() {
             Apply Price
           </Button>
         </div>
+      </Accordion>
+
+      {/* Categories Filter */}
+      <Accordion title="Categories" defaultOpen={false}>
+        {categoriesLoading ? (
+          <div className="animate-pulse space-y-2">
+            {[1, 2, 3].map(i => <div key={i} className="h-4 bg-charcoal/10 rounded w-2/3"></div>)}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <button
+              onClick={() => { updateParam('category', ''); updateParam('subcategory', ''); }}
+              className={clsx(
+                "block text-sm transition-colors text-left",
+                selectedCategory === '' ? "text-pink-primary font-medium" : "text-charcoal/70 hover:text-charcoal"
+              )}
+            >
+              All Categories
+            </button>
+            {categories.map(category => (
+              <button
+                key={category._id}
+                onClick={() => {
+                  updateParam('category', category.slug);
+                  updateParam('subcategory', '');
+                }}
+                className={clsx(
+                  "block text-sm transition-colors text-left",
+                  selectedCategory === category.slug ? "text-pink-primary font-medium" : "text-charcoal/70 hover:text-charcoal"
+                )}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </Accordion>
+
+      {/* Subcategories Filter */}
+      <Accordion title="Subcategories" defaultOpen={false}>
+        {subCategoriesLoading ? (
+          <div className="animate-pulse space-y-2">
+            {[1, 2, 3].map(i => <div key={i} className="h-4 bg-charcoal/10 rounded w-2/3"></div>)}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <button
+              onClick={() => updateParam('subcategory', '')}
+              className={clsx(
+                "block text-sm transition-colors text-left",
+                selectedSubcategory === '' ? "text-pink-primary font-medium" : "text-charcoal/70 hover:text-charcoal"
+              )}
+            >
+              All Subcategories
+            </button>
+            {subCategories
+              .filter(sub => {
+                if (!selectedCategory) return true;
+                const cat = categories.find(c => c.slug === selectedCategory);
+                if (cat && sub.categoryIds && sub.categoryIds.includes(cat._id)) return true;
+                return false;
+              })
+              .map(subcategory => (
+              <button
+                key={subcategory._id}
+                onClick={() => updateParam('subcategory', subcategory.slug)}
+                className={clsx(
+                  "block text-sm transition-colors text-left",
+                  selectedSubcategory === subcategory.slug ? "text-pink-primary font-medium" : "text-charcoal/70 hover:text-charcoal"
+                )}
+              >
+                {subcategory.name}
+              </button>
+            ))}
+          </div>
+        )}
       </Accordion>
 
       {/* Collections Filter */}
@@ -251,7 +335,7 @@ export default function ProductsPage() {
     </div>
   );
 
-  const activeFiltersCount = [selectedCollection, selectedRoom, selectedColor, minPrice, maxPrice, inStock].filter(Boolean).length;
+  const activeFiltersCount = [selectedCollection, selectedRoom, selectedCategory, selectedSubcategory, selectedColor, minPrice, maxPrice, inStock].filter(Boolean).length;
 
   return (
     <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-16 md:pb-24">
@@ -342,6 +426,18 @@ export default function ProductsPage() {
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-charcoal/10 rounded-full text-charcoal">
                       Room: {rooms?.find(r => r.slug === selectedRoom)?.name || selectedRoom}
                       <button onClick={() => removeFilter('room')} className="hover:text-pink-primary"><X className="w-3.5 h-3.5" /></button>
+                    </span>
+                  )}
+                  {selectedCategory && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-charcoal/10 rounded-full text-charcoal">
+                      Category: {categories?.find(c => c.slug === selectedCategory)?.name || selectedCategory}
+                      <button onClick={() => { removeFilter('category'); removeFilter('subcategory'); }} className="hover:text-pink-primary"><X className="w-3.5 h-3.5" /></button>
+                    </span>
+                  )}
+                  {selectedSubcategory && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-charcoal/10 rounded-full text-charcoal">
+                      Subcategory: {subCategories?.find(s => s.slug === selectedSubcategory)?.name || selectedSubcategory}
+                      <button onClick={() => removeFilter('subcategory')} className="hover:text-pink-primary"><X className="w-3.5 h-3.5" /></button>
                     </span>
                   )}
                   {selectedColor && (

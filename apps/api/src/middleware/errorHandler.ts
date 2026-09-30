@@ -35,7 +35,12 @@ export function errorHandler(
       }, err.message);
     }
 
-    sendError(res, err.statusCode, err.code, err.message);
+    if (err.statusCode === 429 && err.retryAfter) {
+      res.setHeader('Retry-After', err.retryAfter);
+    }
+
+    // Pass retryAfter to sendError so it can be included in the JSON response
+    sendError(res, err.statusCode, err.code, err.message, err.retryAfter);
     return;
   }
 

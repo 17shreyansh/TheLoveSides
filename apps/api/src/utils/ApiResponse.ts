@@ -49,10 +49,15 @@ export function sendError(
   statusCode: number,
   code: string,
   message: string,
+  retryAfter?: number,
 ): void {
   res.status(statusCode).json({
     success: false,
-    error: { code, message },
+    error: { 
+      code, 
+      message,
+      ...(retryAfter !== undefined && { retryAfter })
+    },
   });
 }
 

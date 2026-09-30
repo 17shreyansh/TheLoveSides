@@ -7,6 +7,7 @@ import path from 'path';
 import { env } from './config/env.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { rateLimitGeneral } from './middleware/rateLimit/index.js';
 import { sendSuccess } from './utils/ApiResponse.js';
 
 // Import routers
@@ -34,6 +35,9 @@ import contactRouter from './routes/contact.js';
 import adminContactRouter from './routes/admin/contact.js';
 
 export const app = express();
+
+// Trust proxy if behind a load balancer (e.g. Nginx, Vercel)
+app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet({
@@ -72,7 +76,7 @@ app.use(requestIdMiddleware);
 app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
 // Global Rate Limiting
-// app.use(rateLimitGeneral);
+app.use(rateLimitGeneral);
 
 // Health check (do not rate limit health check)
 app.get('/health', (_req, res) => {
