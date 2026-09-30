@@ -5,8 +5,8 @@ import { useTheme } from '../../context/ThemeContext';
 const WhatsAppButton = () => {
   const { contactInfo } = useTheme();
   
-  // Use specific phone number provided
-  const phoneNumber = '919738409668'; // Included country code for WhatsApp API
+  // Use specific phone number provided dynamically
+  const phoneNumber = contactInfo?.phone ? contactInfo.phone.replace(/\D/g, '') : '919738409668';
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=Hi!%20I'd%20like%20to%20know%20more%20about%20your%20products.`;
 
   return (

@@ -10,7 +10,7 @@ import { Truck } from 'lucide-react';
 export default function CheckoutPage() {
   const { state, fetchCart } = useCart();
   const { user, isAuthenticated } = useAuth();
-  const { shipping } = useTheme();
+  const { shipping, contactInfo } = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -477,7 +477,7 @@ ${itemsList}`;
                     <div className="space-y-4">
                       <p className="text-sm text-red-500 font-sans">{ratesError}</p>
                       <a 
-                        href={`https://wa.me/919999999999?text=${getWhatsAppMessage()}`} 
+                        href={`https://wa.me/${contactInfo?.phone ? contactInfo.phone.replace(/\D/g, '') : '919738409668'}?text=${getWhatsAppMessage()}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white py-3 rounded-xl text-base shadow-sm font-medium transition-colors"
