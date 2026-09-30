@@ -43,8 +43,12 @@ function normalizeInstagramUrl(url) {
 }
 
 export default function SocialFeed() {
-  const { socialFeed = [] } = useTheme();
+  const { socialFeed = [], socialLinks = [] } = useTheme();
   const containerRef = useRef(null);
+
+  const instagramLinkObj = socialLinks.find(link => link.platform?.toLowerCase() === 'instagram');
+  const instagramUrl = instagramLinkObj?.url || "https://www.instagram.com/thelovesides/";
+  const instagramUsername = instagramUrl.replace(/\/$/, '').split('/').pop() || 'thelovesides';
 
   // Load Instagram embed.js and process embeds when feed changes
   useEffect(() => {
@@ -93,7 +97,7 @@ export default function SocialFeed() {
               Join Our Community
             </h2>
             <a 
-              href="https://www.instagram.com/thelovesides/" 
+              href={instagramUrl} 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center gap-3 text-charcoal hover:text-pink-primary transition-all duration-300 transform hover:scale-105 group"
@@ -103,7 +107,7 @@ export default function SocialFeed() {
                   <InstagramIcon className="w-5 h-5 md:w-6 md:h-6 text-charcoal" strokeWidth={1.5} />
                 </div>
               </div>
-              <span className="font-serif text-3xl md:text-4xl lg:text-5xl tracking-wide">@thelovesides</span>
+              <span className="font-serif text-3xl md:text-4xl lg:text-5xl tracking-wide">@{instagramUsername}</span>
             </a>
           </div>
         </RevealOnScroll>
@@ -277,7 +281,7 @@ export default function SocialFeed() {
         <RevealOnScroll delay={0.2}>
           <div className="mt-12 flex justify-center">
             <a 
-              href="https://www.instagram.com/thelovesides/"
+              href={instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center gap-2 px-8 py-3.5 bg-charcoal text-white rounded-full font-medium hover:bg-black transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-1"
