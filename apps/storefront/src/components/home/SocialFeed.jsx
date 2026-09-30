@@ -35,6 +35,12 @@ function normalizeInstagramUrl(url) {
     if (!parsed.hostname.includes('instagram.com')) return null;
     // Return clean path without query params
     let path = parsed.pathname;
+    
+    // Only allow posts, reels, or tv embeds (skip profiles or home page)
+    if (!path.match(/\/(p|reel|tv)\/[a-zA-Z0-9_-]+/)) {
+      return null;
+    }
+    
     if (!path.endsWith('/')) path += '/';
     return `https://www.instagram.com${path}`;
   } catch {
