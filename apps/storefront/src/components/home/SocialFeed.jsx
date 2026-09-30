@@ -31,18 +31,13 @@ function normalizeInstagramUrl(url) {
   if (!url) return null;
   try {
     const parsed = new URL(url.trim());
-    // Only allow instagram.com URLs
     if (!parsed.hostname.includes('instagram.com')) return null;
-    // Return clean path without query params
-    let path = parsed.pathname;
     
-    // Only allow posts, reels, or tv embeds (skip profiles or home page)
-    if (!path.match(/\/(p|reel|tv)\/[a-zA-Z0-9_-]+/)) {
-      return null;
-    }
+    // Extract strictly the type (p, reel, tv) and the ID, discarding /embed/ or extra paths
+    const match = parsed.pathname.match(/\/(p|reel|tv)\/([a-zA-Z0-9_-]+)/);
+    if (!match) return null;
     
-    if (!path.endsWith('/')) path += '/';
-    return `https://www.instagram.com${path}`;
+    return `https://www.instagram.com/${match[1]}/${match[2]}/`;
   } catch {
     return null;
   }
