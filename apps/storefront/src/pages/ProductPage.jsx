@@ -155,7 +155,7 @@ export default function ProductPage() {
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
           
           {/* Left Column: Images (Sticky) */}
-          <div ref={mainImageRef} className="w-full lg:w-5/12 lg:sticky lg:top-32 self-start flex flex-col gap-4 relative z-40">
+          <div ref={mainImageRef} className={`w-full lg:w-5/12 lg:sticky lg:top-32 self-start flex flex-col gap-4 relative ${isFullscreen ? 'z-[100000]' : 'z-40'}`}>
             <ImageZoomViewer images={product.images || [product.image]} onFullscreenChange={setIsFullscreen} />
           </div>
 
