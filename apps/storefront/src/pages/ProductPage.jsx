@@ -31,6 +31,7 @@ export default function ProductPage() {
   const [added, setAdded] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -155,7 +156,7 @@ export default function ProductPage() {
           
           {/* Left Column: Images (Sticky) */}
           <div ref={mainImageRef} className="w-full lg:w-5/12 lg:sticky lg:top-32 self-start flex flex-col gap-4 relative z-40">
-            <ImageZoomViewer images={product.images || [product.image]} />
+            <ImageZoomViewer images={product.images || [product.image]} onFullscreenChange={setIsFullscreen} />
           </div>
 
           {/* Right Column: Details (Scrollable) */}
@@ -575,8 +576,9 @@ export default function ProductPage() {
       </div>
 
       {/* Mobile Sticky Add to Cart Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 px-6 z-50 md:hidden flex justify-between items-center shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
-        <div>
+      {!isFullscreen && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 px-6 z-50 md:hidden flex justify-between items-center shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+          <div>
           <p className="text-xs text-gray-500 font-sans uppercase font-medium line-clamp-1 max-w-[150px]">{product.name}</p>
           <p className="text-lg font-sans font-semibold text-charcoal">₹{Number(currentPrice * quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</p>
         </div>
@@ -632,6 +634,7 @@ export default function ProductPage() {
         </Button>
         </div>
       </div>
+      )}
     </div>
   );
 }

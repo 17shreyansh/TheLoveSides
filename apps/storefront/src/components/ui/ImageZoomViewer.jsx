@@ -8,7 +8,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/zoom';
 
-export default function ImageZoomViewer({ images = [] }) {
+export default function ImageZoomViewer({ images = [], onFullscreenChange }) {
   const [activeIndex, setActiveIndex] = useState(0);
   
   // Hover & Zoom State
@@ -68,10 +68,13 @@ export default function ImageZoomViewer({ images = [] }) {
     } else {
       document.body.style.overflow = 'unset';
     }
+    if (onFullscreenChange) {
+      onFullscreenChange(isFullscreen);
+    }
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isFullscreen]);
+  }, [isFullscreen, onFullscreenChange]);
   
   if (!images || images.length === 0) return null;
 
@@ -181,8 +184,8 @@ export default function ImageZoomViewer({ images = [] }) {
           onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
         >
           {images.map((img, idx) => (
-            <SwiperSlide key={idx} onClick={() => setIsFullscreen(true)}>
-              <img src={img} alt={`Product view ${idx + 1}`} className="w-full h-full object-cover cursor-pointer" />
+            <SwiperSlide key={idx} onClick={() => setIsFullscreen(true)} className="flex items-center justify-center bg-white">
+              <img src={img} alt={`Product view ${idx + 1}`} className="w-full h-full object-contain cursor-pointer" />
             </SwiperSlide>
           ))}
         </Swiper>
@@ -205,7 +208,7 @@ export default function ImageZoomViewer({ images = [] }) {
                   e.stopPropagation();
                   setIsFullscreen(false);
                 }}
-                className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-white/20 group cursor-pointer"
+                className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all shadow-lg border border-white/20 group cursor-pointer"
                 aria-label="Close fullscreen"
               >
                 <X className="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />

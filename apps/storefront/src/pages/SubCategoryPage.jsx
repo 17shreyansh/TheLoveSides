@@ -10,6 +10,7 @@ import { api } from '../lib/api';
 export default function SubCategoryPage() {
   const { subCategorySlug } = useParams();
   const [visibleCount, setVisibleCount] = useState(12);
+  const [selectedSort, setSelectedSort] = useState('newest');
   const [subCategory, setSubCategory] = useState(null);
   const [loadingInfo, setLoadingInfo] = useState(false);
 
@@ -37,16 +38,17 @@ export default function SubCategoryPage() {
 
   const query = {};
   if (subCategorySlug && subCategory) query.subcategory = subCategory._id;
+  if (selectedSort && selectedSort !== 'newest') query.sort = selectedSort;
 
   const shouldFetchProducts = subCategorySlug && subCategory;
   const { products, loading: loadingProducts } = useProducts(shouldFetchProducts ? query : { _skip: true });
 
   const loading = loadingInfo || loadingProducts;
 
-  // Reset visible count when route changes
+  // Reset visible count when route or sort changes
   useEffect(() => {
     setVisibleCount(12);
-  }, [subCategorySlug]);
+  }, [subCategorySlug, selectedSort]);
 
   let pageTitle = subCategory ? subCategory.name : subCategorySlug?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
@@ -83,12 +85,14 @@ export default function SubCategoryPage() {
             <label htmlFor="sort" className="text-xs md:text-sm text-charcoal/60 hidden sm:block font-sans">Sort by:</label>
             <select 
               id="sort" 
+              value={selectedSort}
+              onChange={(e) => setSelectedSort(e.target.value)}
               className="bg-transparent border border-charcoal/20 rounded px-2 py-1 text-xs md:text-sm text-charcoal focus:outline-none focus:border-pink-primary cursor-pointer font-sans"
             >
-              <option value="featured">Featured</option>
               <option value="newest">Newest</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="bestseller_auto">Best Sellers</option>
             </select>
           </div>
         </div>

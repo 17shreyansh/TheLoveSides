@@ -26,17 +26,19 @@ export async function updateSettings(req: Request, res: Response, next: NextFunc
 
     const updatedSettings = [];
     for (const item of settings) {
+      const isAlwaysPublic = ['returnPolicyDays', 'replacementPolicyDays', 'sitewideFreeShipping', 'freeShippingThreshold', 'shipping.estimatedDeliveryMin', 'shipping.estimatedDeliveryMax'].includes(item.key);
+
       const setting = await Setting.findOneAndUpdate(
         { key: item.key },
         { 
           $set: { 
             value: item.value,
-            ...( ['returnPolicyDays', 'replacementPolicyDays', 'sitewideFreeShipping', 'freeShippingThreshold', 'shipping.estimatedDeliveryMin', 'shipping.estimatedDeliveryMax'].includes(item.key) ? { isPublic: true } : {} ),
+            ...( isAlwaysPublic ? { isPublic: true } : {} ),
             ...( item.group ? { group: item.group } : {} )
           },
           $setOnInsert: { 
             group: item.group || (item.key.startsWith('theme.') ? 'theme' : 'general'),
-            isPublic: item.key.startsWith('theme.') || ['sitewideFreeShipping', 'freeShippingThreshold', 'shipping.estimatedDeliveryMin', 'shipping.estimatedDeliveryMax'].includes(item.key)
+            ...( !isAlwaysPublic ? { isPublic: item.key.startsWith('theme.') } : {} )
           }
         },
         { new: true, upsert: true }

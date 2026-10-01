@@ -10,6 +10,7 @@ import { api } from '../lib/api';
 export default function CategoryPage({ type }) {
   const { categorySlug } = useParams();
   const [visibleCount, setVisibleCount] = useState(12);
+  const [selectedSort, setSelectedSort] = useState('newest');
   const [category, setCategory] = useState(null);
   const [subCategories, setSubCategories] = useState([]);
   const [loadingCategory, setLoadingCategory] = useState(false);
@@ -49,7 +50,9 @@ export default function CategoryPage({ type }) {
   // Determine query based on route
   const query = {};
   if (type === 'arrivals') query.sort = 'createdAt:desc';
-  if (type === 'bestsellers') query.isBestSeller = true;
+  if (type === 'bestsellers') query.bestseller = 'true';
+  if (selectedSort && selectedSort !== 'newest') query.sort = selectedSort;
+  
   // If it's a category page, only fetch products once we have the category ID
   if (categorySlug && category) query.category = category._id;
 
@@ -64,10 +67,10 @@ export default function CategoryPage({ type }) {
 
   const loading = loadingCategory || loadingProducts;
 
-  // Reset visible count when category changes
+  // Reset visible count when category changes or sort changes
   useEffect(() => {
     setVisibleCount(12);
-  }, [categorySlug, type]);
+  }, [categorySlug, type, selectedSort]);
 
   // Frontend filter for static types
   const filteredProducts = products.filter(product => {
@@ -159,12 +162,14 @@ export default function CategoryPage({ type }) {
             <label htmlFor="sort" className="text-xs md:text-sm text-charcoal/60 hidden sm:block font-sans">Sort by:</label>
             <select 
               id="sort" 
+              value={selectedSort}
+              onChange={(e) => setSelectedSort(e.target.value)}
               className="bg-transparent border border-charcoal/20 rounded px-2 py-1 text-xs md:text-sm text-charcoal focus:outline-none focus:border-pink-primary cursor-pointer font-sans"
             >
-              <option value="featured">Featured</option>
               <option value="newest">Newest</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="bestseller_auto">Best Sellers</option>
             </select>
           </div>
         </div>
