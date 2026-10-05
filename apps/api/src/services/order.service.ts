@@ -81,7 +81,8 @@ export async function createOrderFromCart(input: CreateOrderInput) {
       cart.items,
       input.couponCode || cart.couponCode || undefined,
       input.userId,
-      input.shippingMethod
+      input.shippingMethod,
+      input.shippingAddress?.country || 'India'
     );
 
     if (pricing.items.length === 0) {

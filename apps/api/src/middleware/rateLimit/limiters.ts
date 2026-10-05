@@ -45,6 +45,11 @@ function handleRateLimitExceeded(req: Request, next: NextFunction, rlRes: RateLi
 
 export async function rateLimitGeneral(req: Request, _res: Response, next: NextFunction) {
   try {
+    // Bypass general rate limit for requests with an admin token
+    if (req.cookies?.adminAccessToken || req.cookies?.adminRefreshToken) {
+      return next();
+    }
+
     const key = getClientIp(req);
     await getLimiter('general', RateLimitConfig.GENERAL).consume(key);
     next();

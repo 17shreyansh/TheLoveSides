@@ -16,6 +16,7 @@ export default function ImageZoomViewer({ images = [], onFullscreenChange }) {
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 }); // relative percentages (0-100)
   const [lensPos, setLensPos] = useState({ top: 0, left: 0 }); // pixels for the lens box
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [fullscreenSwiper, setFullscreenSwiper] = useState(null);
   
   const imgContainerRef = useRef(null);
   
@@ -218,6 +219,7 @@ export default function ImageZoomViewer({ images = [], onFullscreenChange }) {
             {/* Main Content - Swiper with Zoom */}
             <div className="flex-1 w-full h-full relative" onClick={() => setIsFullscreen(false)}>
               <Swiper
+                onSwiper={setFullscreenSwiper}
                 modules={[Zoom, Navigation, Pagination]}
                 zoom={{ maxRatio: 3, minRatio: 1 }}
                 navigation={{
@@ -266,8 +268,7 @@ export default function ImageZoomViewer({ images = [], onFullscreenChange }) {
                         onClick={(e) => {
                           e.stopPropagation();
                           setActiveIndex(index);
-                          const swiperEl = document.querySelector('.swiper').swiper;
-                          if (swiperEl) swiperEl.slideTo(index);
+                          if (fullscreenSwiper) fullscreenSwiper.slideTo(index);
                         }}
                         className={`h-14 w-14 md:h-20 md:w-20 rounded-xl overflow-hidden flex-shrink-0 transition-all duration-300 shadow-lg ${index === activeIndex ? 'ring-2 ring-white scale-105 opacity-100' : 'opacity-50 hover:opacity-100 hover:scale-100 border border-white/20'}`}
                       >

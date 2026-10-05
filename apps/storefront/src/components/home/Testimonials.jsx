@@ -1,5 +1,5 @@
 import React from 'react';
-import SectionHeading from '../ui/SectionHeading';
+import clientImg from '../../assets/client.PNG';
 import RevealOnScroll from '../ui/RevealOnScroll';
 import ResponsiveCardSlider from '../ui/ResponsiveCardSlider';
 import { useTheme } from '../../context/ThemeContext';
@@ -41,15 +41,14 @@ export default function Testimonials() {
   };
 
   return (
-    <section className="py-10 md:py-16 bg-ivory/50">
-      <div className="max-w-7xl mx-auto px-6 md:px-10 overflow-hidden md:overflow-visible">
-        <RevealOnScroll>
-          <SectionHeading 
-            title="What Our Clients Say" 
-            subtitle="Trusted by thousands of happy customers" 
-          />
-        </RevealOnScroll>
+    <section className="pb-10 md:pb-16 bg-[#ffeaef]">
+      <RevealOnScroll>
+        <div className="w-full mb-8 md:mb-12">
+          <img src={clientImg} alt="Client love" className="w-full h-auto object-cover" />
+        </div>
+      </RevealOnScroll>
 
+      <div className="max-w-7xl mx-auto px-6 md:px-10 overflow-hidden md:overflow-visible">
         <ResponsiveCardSlider items={testimonials} renderItem={renderTestimonial} desktopCols={3} />
       </div>
     </section>

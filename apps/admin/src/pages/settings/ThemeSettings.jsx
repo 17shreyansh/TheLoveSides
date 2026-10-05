@@ -216,11 +216,31 @@ export default function ThemeSettings() {
           };
         }),
         stats: withId(settingsMap['theme.home.stats']),
-        hero: settingsMap['theme.home.hero'] || {
-          title: '', subtitle: '', description: '',
-          button1Text: '', button1Link: '', button2Text: '', button2Link: '',
-          desktopImageUrl: '', mobileImageUrl: ''
-        },
+        hero: (() => {
+          const rawHero = settingsMap['theme.home.hero'];
+          if (rawHero && rawHero.slides) {
+             return { ...rawHero, slides: withId(rawHero.slides) };
+          }
+          
+          const defaultSlide = {
+             _id: generateId(),
+             title: rawHero?.title || 'Curtains & <br class="md:hidden" /> Quiet Luxury',
+             subtitle: rawHero?.subtitle || 'Home, Styled with Love',
+             description: rawHero?.description || 'Shop our exclusive collection of premium curtains and blinds. Discover high-quality fabrics, custom sizing, and effortless style to elevate any room.',
+             button1Text: rawHero?.button1Text || 'Shop Now',
+             button1Link: rawHero?.button1Link || '/products',
+             button2Text: rawHero?.button2Text || 'Contact Us',
+             button2Link: rawHero?.button2Link || '/contact',
+             desktopImageUrl: rawHero?.desktopImageUrl || '',
+             mobileImageUrl: rawHero?.mobileImageUrl || ''
+          };
+
+          return {
+             slides: [defaultSlide],
+             autoplay: rawHero?.autoplay !== undefined ? rawHero.autoplay : true,
+             autoplaySpeed: rawHero?.autoplaySpeed || 5000
+          };
+        })(),
         homeSections: settingsMap['theme.home.sections'] || {
           showFeatured: true, showBestSellers: true, bestSellersMode: 'manual'
         },
@@ -240,6 +260,12 @@ export default function ThemeSettings() {
     if (!over || active.id === over.id) return;
 
     setSettings((prev) => {
+      if (fieldName === 'heroSlides') {
+        const list = prev.hero.slides;
+        const oldIndex = list.findIndex(i => i._id === active.id);
+        const newIndex = list.findIndex(i => i._id === over.id);
+        return { ...prev, hero: { ...prev.hero, slides: arrayMove(list, oldIndex, newIndex) } };
+      }
       if (nestedListId) {
         const newParent = [...prev[fieldName]];
         const colIdx = newParent.findIndex(c => c._id === nestedListId);
@@ -316,7 +342,7 @@ export default function ThemeSettings() {
         { key: 'theme.home.testimonials', value: withoutId(settings.testimonials) },
         { key: 'theme.home.social_feed', value: withoutId(settings.socialFeed) },
         { key: 'theme.home.stats', value: withoutId(settings.stats) },
-        { key: 'theme.home.hero', value: settings.hero },
+        { key: 'theme.home.hero', value: { ...settings.hero, slides: withoutId(settings.hero.slides) } },
         { key: 'theme.home.sections', value: settings.homeSections },
         { key: 'theme.home.signatures', value: withoutId(settings.signatures) },
         { key: 'theme.social.links', value: withoutId(settings.socialLinks) },
@@ -401,132 +427,127 @@ export default function ThemeSettings() {
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-charcoal/5 p-6 space-y-8">
         
-        {/* Hero Section */}
+                {/* Hero Section */}
         {activeTab === 'hero' && (
           <div className="space-y-4">
-            <h2 className="text-lg font-medium">Hero Section</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-sm text-gray-600">Title (HTML allowed)</label>
-                <input
-                  type="text"
-                  value={settings.hero.title}
-                  onChange={(e) => setSettings({ ...settings, hero: { ...settings.hero, title: e.target.value } })}
-                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm text-gray-600">Mobile Subtitle</label>
-                <input
-                  type="text"
-                  value={settings.hero.subtitle || ''}
-                  onChange={(e) => setSettings({ ...settings, hero: { ...settings.hero, subtitle: e.target.value } })}
-                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm text-gray-600">Desktop Description</label>
-              <textarea
-                value={settings.hero.description}
-                onChange={(e) => setSettings({ ...settings, hero: { ...settings.hero, description: e.target.value } })}
-                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                rows={2}
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-sm text-gray-600">Primary Button Text</label>
-                <input
-                  type="text"
-                  value={settings.hero.button1Text}
-                  onChange={(e) => setSettings({ ...settings, hero: { ...settings.hero, button1Text: e.target.value } })}
-                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm text-gray-600">Primary Button Link</label>
-                <input
-                  type="text"
-                  list="available-pages"
-                  value={settings.hero.button1Link}
-                  onChange={(e) => setSettings({ ...settings, hero: { ...settings.hero, button1Link: e.target.value } })}
-                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-sm text-gray-600">Secondary Button Text</label>
-                <input
-                  type="text"
-                  value={settings.hero.button2Text}
-                  onChange={(e) => setSettings({ ...settings, hero: { ...settings.hero, button2Text: e.target.value } })}
-                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm text-gray-600">Secondary Button Link</label>
-                <input
-                  type="text"
-                  list="available-pages"
-                  value={settings.hero.button2Link}
-                  onChange={(e) => setSettings({ ...settings, hero: { ...settings.hero, button2Link: e.target.value } })}
-                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                />
-              </div>
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-medium">Hero Section Slider</h2>
+              <button type="button" onClick={() => setSettings(p => ({ ...p, hero: { ...p.hero, slides: [...(p.hero.slides||[]), { _id: generateId(), title: '', subtitle: '', description: '', button1Text: '', button1Link: '', button2Text: '', button2Link: '', desktopImageUrl: '', mobileImageUrl: '' }] } }))} className="text-sm text-brand flex items-center gap-1"><Plus className="w-4 h-4"/> Add Slide</button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-sm text-gray-600">Desktop Image URL (Aspect Ratio: 16:9 recommended)</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={settings.hero.desktopImageUrl}
-                    onChange={(e) => setSettings({ ...settings, hero: { ...settings.hero, desktopImageUrl: e.target.value } })}
-                    className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                  />
-                  <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md flex items-center justify-center border border-gray-200">
-                    <Upload className="w-4 h-4 text-gray-600" />
-                    <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
-                      const file = e.target.files[0];
-                      if (!file) return;
-                      const fd = new FormData();
-                      fd.append('file', file);
-                      try {
-                        const { data } = await api.post('/admin/upload/single', fd);
-                        setSettings({ ...settings, hero: { ...settings.hero, desktopImageUrl: data.data.url } });
-                      } catch (err) { alert('Upload failed'); }
-                    }} />
-                  </label>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm text-gray-600">Mobile Image URL (Aspect Ratio: 4:5 or 1:1 recommended)</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={settings.hero.mobileImageUrl}
-                    onChange={(e) => setSettings({ ...settings, hero: { ...settings.hero, mobileImageUrl: e.target.value } })}
-                    className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                  />
-                  <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md flex items-center justify-center border border-gray-200">
-                    <Upload className="w-4 h-4 text-gray-600" />
-                    <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
-                      const file = e.target.files[0];
-                      if (!file) return;
-                      const fd = new FormData();
-                      fd.append('file', file);
-                      try {
-                        const { data } = await api.post('/admin/upload/single', fd);
-                        setSettings({ ...settings, hero: { ...settings.hero, mobileImageUrl: data.data.url } });
-                      } catch (err) { alert('Upload failed'); }
-                    }} />
-                  </label>
-                </div>
-              </div>
+            <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-lg border border-gray-100">
+               <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={settings.hero.autoplay !== false} onChange={(e) => setSettings(p => ({ ...p, hero: { ...p.hero, autoplay: e.target.checked } }))} className="w-4 h-4 text-brand rounded border-gray-300 focus:ring-brand" />
+                  <span className="text-sm text-gray-700">Autoplay</span>
+               </label>
+               {settings.hero.autoplay !== false && (
+                 <div className="flex items-center gap-2">
+                   <span className="text-sm text-gray-700">Speed (ms):</span>
+                   <input type="number" value={settings.hero.autoplaySpeed || 5000} onChange={(e) => setSettings(p => ({ ...p, hero: { ...p.hero, autoplaySpeed: parseInt(e.target.value) } }))} className="w-24 px-2 py-1 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand" />
+                 </div>
+               )}
             </div>
+
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleDragEnd(e, 'heroSlides')}>
+              <SortableContext items={(settings.hero?.slides || []).map(i => i._id)} strategy={verticalListSortingStrategy}>
+                {(settings.hero?.slides || []).map((slide, idx) => (
+                  <SortableItem key={slide._id} id={slide._id}>
+                    <div className="flex flex-col gap-4 bg-gray-50 p-4 rounded-lg border border-gray-100 relative w-full">
+                      <button type="button" onClick={() => setSettings(p => ({ ...p, hero: { ...p.hero, slides: p.hero.slides.filter((_, i) => i !== idx) } }))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-50 rounded-md">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      <h3 className="font-medium text-charcoal mb-2">Slide {idx + 1}</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-sm text-gray-600">Title (HTML allowed)</label>
+                          <input type="text" value={slide.title} onChange={(e) => { const newSlides = [...settings.hero.slides]; newSlides[idx].title = e.target.value; setSettings({ ...settings, hero: { ...settings.hero, slides: newSlides } }); }} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-sm text-gray-600">Mobile Subtitle</label>
+                          <input type="text" value={slide.subtitle || ''} onChange={(e) => { const newSlides = [...settings.hero.slides]; newSlides[idx].subtitle = e.target.value; setSettings({ ...settings, hero: { ...settings.hero, slides: newSlides } }); }} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-sm text-gray-600">Desktop Description</label>
+                        <textarea value={slide.description} onChange={(e) => { const newSlides = [...settings.hero.slides]; newSlides[idx].description = e.target.value; setSettings({ ...settings, hero: { ...settings.hero, slides: newSlides } }); }} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand" rows={2} />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-sm text-gray-600">Primary Button Text</label>
+                          <input type="text" value={slide.button1Text} onChange={(e) => { const newSlides = [...settings.hero.slides]; newSlides[idx].button1Text = e.target.value; setSettings({ ...settings, hero: { ...settings.hero, slides: newSlides } }); }} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-sm text-gray-600">Primary Button Link</label>
+                          <input type="text" list="available-pages" value={slide.button1Link} onChange={(e) => { const newSlides = [...settings.hero.slides]; newSlides[idx].button1Link = e.target.value; setSettings({ ...settings, hero: { ...settings.hero, slides: newSlides } }); }} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand" />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-sm text-gray-600">Secondary Button Text</label>
+                          <input type="text" value={slide.button2Text} onChange={(e) => { const newSlides = [...settings.hero.slides]; newSlides[idx].button2Text = e.target.value; setSettings({ ...settings, hero: { ...settings.hero, slides: newSlides } }); }} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-sm text-gray-600">Secondary Button Link</label>
+                          <input type="text" list="available-pages" value={slide.button2Link} onChange={(e) => { const newSlides = [...settings.hero.slides]; newSlides[idx].button2Link = e.target.value; setSettings({ ...settings, hero: { ...settings.hero, slides: newSlides } }); }} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand" />
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-sm text-gray-600">Desktop Image URL</label>
+                          <div className="flex gap-2">
+                            <input type="text" value={slide.desktopImageUrl} onChange={(e) => { const newSlides = [...settings.hero.slides]; newSlides[idx].desktopImageUrl = e.target.value; setSettings({ ...settings, hero: { ...settings.hero, slides: newSlides } }); }} className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand" />
+                            <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md flex items-center justify-center border border-gray-200">
+                              <Upload className="w-4 h-4 text-gray-600" />
+                              <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                const fd = new FormData();
+                                fd.append('file', file);
+                                try {
+                                  const { data } = await api.post('/admin/upload/single', fd);
+                                  const newSlides = [...settings.hero.slides];
+                                  newSlides[idx].desktopImageUrl = data.data.url;
+                                  setSettings({ ...settings, hero: { ...settings.hero, slides: newSlides } });
+                                } catch (err) { alert('Upload failed'); }
+                              }} />
+                            </label>
+                          </div>
+                          {slide.desktopImageUrl && <img src={slide.desktopImageUrl} alt="" className="mt-2 h-20 w-auto rounded object-cover" />}
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <label className="text-sm text-gray-600">Mobile Image URL</label>
+                          <div className="flex gap-2">
+                            <input type="text" value={slide.mobileImageUrl} onChange={(e) => { const newSlides = [...settings.hero.slides]; newSlides[idx].mobileImageUrl = e.target.value; setSettings({ ...settings, hero: { ...settings.hero, slides: newSlides } }); }} className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand" />
+                            <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md flex items-center justify-center border border-gray-200">
+                              <Upload className="w-4 h-4 text-gray-600" />
+                              <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                const fd = new FormData();
+                                fd.append('file', file);
+                                try {
+                                  const { data } = await api.post('/admin/upload/single', fd);
+                                  const newSlides = [...settings.hero.slides];
+                                  newSlides[idx].mobileImageUrl = data.data.url;
+                                  setSettings({ ...settings, hero: { ...settings.hero, slides: newSlides } });
+                                } catch (err) { alert('Upload failed'); }
+                              }} />
+                            </label>
+                          </div>
+                          {slide.mobileImageUrl && <img src={slide.mobileImageUrl} alt="" className="mt-2 h-20 w-auto rounded object-cover" />}
+                        </div>
+                      </div>
+                    </div>
+                  </SortableItem>
+                ))}
+              </SortableContext>
+            </DndContext>
           </div>
         )}
 

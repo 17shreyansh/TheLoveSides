@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { api } from '../../lib/api';
-import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Copy, Wand2, Check, Link as LinkIcon } from 'lucide-react';
 import RichTextEditor from '../../components/ui/RichTextEditor';
+import { MultiSelect } from '../../components/MultiSelect';
+import { ProductSelectionManager } from '../../components/ProductSelectionManager';
+
 export default function CmsPageForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -11,16 +14,28 @@ export default function CmsPageForm() {
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [collections, setCollections] = useState([]);
 
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
     content: '',
+    type: 'page',
     isPublished: false,
     seo: {
       metaTitle: '',
       metaDescription: ''
-    }
+    },
+    linkedProducts: [],
+    linkedCategories: [],
+    linkedSubCategories: [],
+    linkedCollections: [],
   });
 
   useEffect(() => {
@@ -28,6 +43,27 @@ export default function CmsPageForm() {
       fetchPage();
     }
   }, [id]);
+
+  useEffect(() => {
+    const fetchCatalogData = async () => {
+      try {
+        const [prodRes, catRes, subCatRes, colRes] = await Promise.all([
+          api.get('/admin/catalog/products?limit=1000'),
+          api.get('/admin/catalog/categories'),
+          api.get('/admin/catalog/subcategories'),
+          api.get('/admin/catalog/collections')
+        ]);
+        
+        setProducts(prodRes.data?.data?.map(p => ({ ...p, name: p.title })) || []);
+        setCategories(catRes.data?.data || []);
+        setSubCategories(subCatRes.data?.data || []);
+        setCollections(colRes.data?.data || []);
+      } catch (err) {
+        console.error('Failed to load catalog data', err);
+      }
+    };
+    fetchCatalogData();
+  }, []);
 
   const fetchPage = async () => {
     try {
@@ -54,6 +90,32 @@ export default function CmsPageForm() {
         [name]: type === 'checkbox' ? checked : value
       }));
     }
+  };
+
+  const generateSlug = () => {
+    if (!formData.title) return;
+    const slug = formData.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+    setFormData(prev => ({ ...prev, slug }));
+  };
+
+  const copySlug = () => {
+    if (!formData.slug) return;
+    navigator.clipboard.writeText(formData.slug);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copyFrontendLink = () => {
+    if (!formData.slug) return;
+    // Assuming the storefront is running on port 5173 locally, or getting it from env
+    const baseUrl = import.meta.env.VITE_STOREFRONT_URL || 'http://localhost:5173';
+    const url = `${baseUrl}/pages/${formData.slug}`;
+    navigator.clipboard.writeText(url);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
   };
 
   const handleSubmit = async (e) => {
@@ -111,24 +173,84 @@ export default function CmsPageForm() {
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-charcoal">Slug *</label>
-            <input
-              type="text"
-              name="slug"
-              required
-              pattern="[a-z0-9\-]+"
-              value={formData.slug || ''}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition-colors"
-            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                name="slug"
+                required
+                pattern="[a-z0-9\-]+"
+                value={formData.slug || ''}
+                onChange={handleChange}
+                className="w-full px-4 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition-colors"
+              />
+              <button
+                type="button"
+                onClick={generateSlug}
+                title="Generate from title"
+                className="p-2 bg-ivory/50 border border-charcoal/10 rounded-lg hover:bg-ivory hover:text-brand transition-colors flex items-center justify-center text-charcoal/60"
+              >
+                <Wand2 className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={copySlug}
+                title="Copy slug only"
+                className="p-2 bg-ivory/50 border border-charcoal/10 rounded-lg hover:bg-ivory hover:text-brand transition-colors flex items-center justify-center text-charcoal/60"
+              >
+                {copied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
+              </button>
+              <button
+                type="button"
+                onClick={copyFrontendLink}
+                title="Copy full frontend link"
+                className="p-2 bg-ivory/50 border border-charcoal/10 rounded-lg hover:bg-ivory hover:text-brand transition-colors flex items-center justify-center text-charcoal/60"
+              >
+                {linkCopied ? <Check className="w-5 h-5 text-green-500" /> : <LinkIcon className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <label className="block text-sm font-medium text-charcoal mb-2">Content (Rich Text) *</label>
-            <RichTextEditor
-              value={formData.content || ''}
-              onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
-            />
+            <label className="block text-sm font-medium text-charcoal">Page Type</label>
+            <select
+              name="type"
+              value={formData.type || 'page'}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-ivory/50 border border-charcoal/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition-colors"
+            >
+              <option value="page">Standard Page</option>
+              <option value="legal">Legal Page</option>
+              <option value="faq">FAQ</option>
+              <option value="blog">Blog Post</option>
+              <option value="product_collection">Product Collection</option>
+            </select>
           </div>
+
+          {formData.type === 'product_collection' && (
+            <div className="md:col-span-2 space-y-6 pt-4 border-t border-charcoal/5">
+              <div className="flex flex-col space-y-1">
+                <h3 className="text-lg font-bold text-charcoal">Product Curation</h3>
+                <p className="text-sm text-charcoal/60">Search, filter, and reorder products to feature on this page.</p>
+              </div>
+
+              <ProductSelectionManager 
+                selectedIds={formData.linkedProducts || []}
+                onChange={(ids) => setFormData(prev => ({ ...prev, linkedProducts: ids }))}
+                categories={categories}
+                subCategories={subCategories}
+              />
+            </div>
+          )}
+
+          {formData.type !== 'product_collection' && (
+            <div className="space-y-2 md:col-span-2">
+              <label className="block text-sm font-medium text-charcoal mb-2">Content (Rich Text) *</label>
+              <RichTextEditor
+                value={formData.content || ''}
+                onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
+              />
+            </div>
+          )}
 
           <div className="space-y-2 md:col-span-2 pt-4 border-t border-charcoal/5">
             <h3 className="text-sm font-bold text-charcoal mb-4">SEO Metadata</h3>

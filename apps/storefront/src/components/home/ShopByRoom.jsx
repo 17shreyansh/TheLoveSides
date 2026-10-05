@@ -13,7 +13,7 @@ export default function ShopByRoom() {
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <RevealOnScroll>
           <SectionHeading 
-            title="Shop by Room" 
+            title="Shop by Space" 
             subtitle="Find the perfect match for every space" 
           />
         </RevealOnScroll>

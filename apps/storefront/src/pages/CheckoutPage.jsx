@@ -22,7 +22,7 @@ export default function CheckoutPage() {
     city: '',
     state: '',
     postalCode: '',
-    country: 'IN',
+    country: 'India',
     phone: '',
   });
 
@@ -45,18 +45,41 @@ export default function CheckoutPage() {
 
   const [statesList, setStatesList] = useState([]);
   const [citiesList, setCitiesList] = useState([]);
+  const [countriesList, setCountriesList] = useState([]);
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
+  const [loadingCountries, setLoadingCountries] = useState(false);
 
-  // Fetch states for India
+  // Fetch countries
+  useEffect(() => {
+    const fetchCountries = async () => {
+      setLoadingCountries(true);
+      try {
+        const res = await fetch('https://countriesnow.space/api/v0.1/countries');
+        const data = await res.json();
+        if (!data.error) {
+          const countries = data.data.map(c => c.country).sort();
+          setCountriesList(countries);
+        }
+      } catch (err) {
+        console.error('Failed to fetch countries', err);
+      } finally {
+        setLoadingCountries(false);
+      }
+    };
+    fetchCountries();
+  }, []);
+
+  // Fetch states based on selected country
   useEffect(() => {
     const fetchStates = async () => {
+      if (!formData.country) return;
       setLoadingStates(true);
       try {
         const res = await fetch('https://countriesnow.space/api/v0.1/countries/states', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ country: 'India' })
+          body: JSON.stringify({ country: formData.country })
         });
         const data = await res.json();
         if (!data.error) {
@@ -81,7 +104,7 @@ export default function CheckoutPage() {
       }
     };
     fetchStates();
-  }, []);
+  }, [formData.country]);
 
   // Fetch cities when state changes
   useEffect(() => {
@@ -95,7 +118,7 @@ export default function CheckoutPage() {
         const res = await fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ country: 'India', state: formData.state })
+          body: JSON.stringify({ country: formData.country, state: formData.state })
         });
         const data = await res.json();
         if (!data.error) {
@@ -143,8 +166,26 @@ export default function CheckoutPage() {
 
 
 
-  // Fetch shipping rates when pincode is valid
+  // Fetch shipping rates
   useEffect(() => {
+    if (formData.country !== 'India') {
+      // International shipping
+      setShippingRates([{
+        courierId: 'international',
+        courierName: 'International Standard',
+        rate: 2000,
+        estimatedDays: '15-20'
+      }]);
+      setSelectedRate({
+        courierId: 'international',
+        courierName: 'International Standard',
+        rate: 2000,
+        estimatedDays: '15-20'
+      });
+      setRatesError('');
+      return;
+    }
+
     if (/^\d{6}$/.test(formData.postalCode)) {
       const fetchRates = async () => {
         setLoadingRates(true);
@@ -197,7 +238,6 @@ export default function CheckoutPage() {
         }
       };
       
-      // Debounce the fetch slightly
       const timeoutId = setTimeout(fetchRates, 500);
       return () => clearTimeout(timeoutId);
     } else {
@@ -205,7 +245,7 @@ export default function CheckoutPage() {
       setSelectedRate(null);
       setRatesError('');
     }
-  }, [formData.postalCode]);
+  }, [formData.postalCode, formData.country]);
 
   useEffect(() => {
     // If cart is empty, go back to home
@@ -347,7 +387,7 @@ ${itemsList}`;
     );
   }
 
-  const isFreeShipping = shipping?.sitewideFreeShipping || (shipping?.freeShippingThreshold > 0 && state.subtotal >= shipping.freeShippingThreshold);
+  const isFreeShipping = formData.country === 'India' && (shipping?.sitewideFreeShipping || (shipping?.freeShippingThreshold > 0 && state.subtotal >= shipping.freeShippingThreshold));
   const finalShippingRate = isFreeShipping ? 0 : (selectedRate?.rate || 0);
 
   return (
@@ -403,11 +443,13 @@ ${itemsList}`;
                   <div>
                     <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="country">Country</label>
                     <select 
-                      id="country" name="country" disabled
+                      id="country" name="country"
                       value={formData.country} onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20 bg-gray-50"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20 bg-white"
+                      disabled={loadingCountries}
                     >
-                      <option value="IN">India</option>
+                      <option value="India">India</option>
+                      {countriesList.map(c => c !== 'India' && <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                   <div>
@@ -420,29 +462,47 @@ ${itemsList}`;
                   </div>
                   <div>
                     <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="state">State</label>
-                    <select 
-                      id="state" name="state" required
-                      value={formData.state} onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20 bg-white"
-                      disabled={loadingStates}
-                    >
-                      <option value="">{loadingStates ? 'Loading States...' : 'Select State'}</option>
-                      {statesList.map(s => <option key={s} value={s}>{s}</option>)}
-                      {formData.state && !statesList.includes(formData.state) && <option value={formData.state}>{formData.state}</option>}
-                    </select>
+                    {statesList.length > 0 ? (
+                      <select 
+                        id="state" name="state" required
+                        value={formData.state} onChange={handleInputChange}
+                        className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20 bg-white"
+                        disabled={loadingStates}
+                      >
+                        <option value="">{loadingStates ? 'Loading States...' : 'Select State'}</option>
+                        {statesList.map(s => <option key={s} value={s}>{s}</option>)}
+                        {formData.state && !statesList.includes(formData.state) && <option value={formData.state}>{formData.state}</option>}
+                      </select>
+                    ) : (
+                      <input 
+                        type="text" id="state" name="state" required
+                        value={formData.state} onChange={handleInputChange}
+                        className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20"
+                        placeholder="Enter State"
+                      />
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="city">City</label>
-                    <select 
-                      id="city" name="city" required
-                      value={formData.city} onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20 bg-white"
-                      disabled={!formData.state || loadingCities}
-                    >
-                      <option value="">{loadingCities ? 'Loading Cities...' : 'Select City'}</option>
-                      {citiesList.map(c => <option key={c} value={c}>{c}</option>)}
-                      {formData.city && !citiesList.includes(formData.city) && <option value={formData.city}>{formData.city}</option>}
-                    </select>
+                    {citiesList.length > 0 ? (
+                      <select 
+                        id="city" name="city" required
+                        value={formData.city} onChange={handleInputChange}
+                        className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20 bg-white"
+                        disabled={!formData.state || loadingCities}
+                      >
+                        <option value="">{loadingCities ? 'Loading Cities...' : 'Select City'}</option>
+                        {citiesList.map(c => <option key={c} value={c}>{c}</option>)}
+                        {formData.city && !citiesList.includes(formData.city) && <option value={formData.city}>{formData.city}</option>}
+                      </select>
+                    ) : (
+                      <input 
+                        type="text" id="city" name="city" required
+                        value={formData.city} onChange={handleInputChange}
+                        className="w-full px-4 py-3 rounded-xl border-2 border-charcoal/10 focus:outline-none focus:border-pink-primary focus:ring-4 focus:ring-pink-primary/10 font-sans text-charcoal transition-all duration-300 hover:border-charcoal/20"
+                        placeholder="Enter City"
+                      />
+                    )}
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-sans text-charcoal/80 mb-1" htmlFor="addressLine1">Address Line 1</label>
@@ -464,7 +524,7 @@ ${itemsList}`;
               </div>
 
               {/* Shipping Method Selection */}
-              {/^\d{6}$/.test(formData.postalCode) && (
+              {(formData.country !== 'India' || /^\d{6}$/.test(formData.postalCode)) && (
                 <div className="bg-white p-6 md:p-8 rounded-2xl border border-charcoal/5 shadow-sm">
                   <h2 className="font-serif text-xl text-charcoal mb-4">Shipping Method</h2>
                   

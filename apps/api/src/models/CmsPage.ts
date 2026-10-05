@@ -5,7 +5,7 @@ export interface ICmsPage extends Document {
   title: string;
   slug: string;
   content: string; // Rich text / HTML (sanitized)
-  type: 'page' | 'legal' | 'faq' | 'blog';
+  type: 'page' | 'legal' | 'faq' | 'blog' | 'product_collection';
   seo: {
     metaTitle?: string;
     metaDescription?: string;
@@ -18,6 +18,10 @@ export interface ICmsPage extends Document {
   sortOrder: number;
   showInNavigation: boolean;
   showInFooter: boolean;
+  linkedProducts?: Types.ObjectId[];
+  linkedCategories?: Types.ObjectId[];
+  linkedSubCategories?: Types.ObjectId[];
+  linkedCollections?: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,10 +37,15 @@ const cmsPageSchema = new Schema<ICmsPage>(
       trim: true,
       index: true,
     },
-    content: { type: String, required: true },
+    content: { 
+      type: String, 
+      required: function() { 
+        return this.type !== 'product_collection'; 
+      } 
+    },
     type: {
       type: String,
-      enum: ['page', 'legal', 'faq', 'blog'],
+      enum: ['page', 'legal', 'faq', 'blog', 'product_collection'],
       default: 'page',
       index: true,
     },
@@ -57,6 +66,10 @@ const cmsPageSchema = new Schema<ICmsPage>(
     sortOrder: { type: Number, default: 0 },
     showInNavigation: { type: Boolean, default: false },
     showInFooter: { type: Boolean, default: false },
+    linkedProducts: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+    linkedCategories: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
+    linkedSubCategories: [{ type: Schema.Types.ObjectId, ref: 'SubCategory' }],
+    linkedCollections: [{ type: Schema.Types.ObjectId, ref: 'Collection' }],
   },
   { timestamps: true },
 );

@@ -423,17 +423,6 @@ export default function ProductPage() {
                             </p>
                           </div>
                         </div>
-                        {serviceability.codAvailable ? (
-                          <div className="flex items-start gap-3">
-                            <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                            <p className="text-sm font-medium text-charcoal">Cash on Delivery is available</p>
-                          </div>
-                        ) : (
-                          <div className="flex items-start gap-3">
-                            <Info className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                            <p className="text-sm font-medium text-charcoal">Cash on Delivery not available for this location</p>
-                          </div>
-                        )}
                       </div>
                     ) : (
                       <div className="flex items-start gap-3">

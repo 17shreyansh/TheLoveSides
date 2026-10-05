@@ -39,7 +39,8 @@ export async function calculateCartPricing(
   cartItems: ICartItem[],
   couponCode?: string,
   userId?: string,
-  shippingMethod?: { rate: number }
+  shippingMethod?: { rate: number },
+  country: string = 'India'
 ): Promise<CartPricing> {
   if (!cartItems || cartItems.length === 0) {
     return {
@@ -119,23 +120,29 @@ export async function calculateCartPricing(
   // 5. Calculate shipping
   let shippingAmount = 0;
   
-  // Fetch shipping settings
-  const settings = await Setting.find({ key: { $in: ['sitewideFreeShipping', 'freeShippingThreshold'] } }).lean();
-  let sitewideFreeShipping = false;
-  let freeShippingThreshold = 2000; // default
-  
-  settings.forEach(s => {
-    if (s.key === 'sitewideFreeShipping') sitewideFreeShipping = s.value === 'true';
-    if (s.key === 'freeShippingThreshold') freeShippingThreshold = Number(s.value) || 2000;
-  });
-
-  if (sitewideFreeShipping || subtotal >= freeShippingThreshold) {
-    shippingAmount = 0;
-  } else if (shippingMethod && typeof shippingMethod.rate === 'number') {
-    shippingAmount = shippingMethod.rate;
+  if (country !== 'India') {
+    // Flat international shipping rate or use frontend rate if provided securely
+    // But backend should enforce a minimum or flat rate for international
+    shippingAmount = 2000;
   } else {
-    const FLAT_SHIPPING_RATE = 99; // Default flat rate
-    shippingAmount = FLAT_SHIPPING_RATE;
+    // Fetch shipping settings
+    const settings = await Setting.find({ key: { $in: ['sitewideFreeShipping', 'freeShippingThreshold'] } }).lean();
+    let sitewideFreeShipping = false;
+    let freeShippingThreshold = 2000; // default
+    
+    settings.forEach(s => {
+      if (s.key === 'sitewideFreeShipping') sitewideFreeShipping = s.value === 'true';
+      if (s.key === 'freeShippingThreshold') freeShippingThreshold = Number(s.value) || 2000;
+    });
+
+    if (sitewideFreeShipping || subtotal >= freeShippingThreshold) {
+      shippingAmount = 0;
+    } else if (shippingMethod && typeof shippingMethod.rate === 'number') {
+      shippingAmount = shippingMethod.rate;
+    } else {
+      const FLAT_SHIPPING_RATE = 99; // Default flat rate
+      shippingAmount = FLAT_SHIPPING_RATE;
+    }
   }
 
   // 6. Grand total

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../lib/api';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Link as LinkIcon, Check } from 'lucide-react';
 
 export default function CmsPagesList() {
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [copiedSlug, setCopiedSlug] = useState(null);
 
   useEffect(() => {
     fetchPages();
@@ -30,6 +31,13 @@ export default function CmsPagesList() {
     } catch (error) {
       alert('Failed to delete page');
     }
+  };
+
+  const copyFrontendLink = (slug) => {
+    const baseUrl = import.meta.env.VITE_STOREFRONT_URL || 'http://localhost:5173';
+    navigator.clipboard.writeText(`${baseUrl}/pages/${slug}`);
+    setCopiedSlug(slug);
+    setTimeout(() => setCopiedSlug(null), 2000);
   };
 
   if (loading) return <div className="animate-pulse">Loading pages...</div>;
@@ -78,8 +86,16 @@ export default function CmsPagesList() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      <button 
+                        onClick={() => copyFrontendLink(page.slug)}
+                        title="Copy frontend link"
+                        className="p-2 text-charcoal/60 hover:text-brand transition-colors"
+                      >
+                        {copiedSlug === page.slug ? <Check className="w-4 h-4 text-green-500" /> : <LinkIcon className="w-4 h-4" />}
+                      </button>
                       <Link 
                         to={`/cms/${page._id}`}
+                        title="Edit page"
                         className="p-2 text-charcoal/60 hover:text-pink-primary transition-colors"
                       >
                         <Edit className="w-4 h-4" />

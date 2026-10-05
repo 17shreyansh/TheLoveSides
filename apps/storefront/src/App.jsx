@@ -9,6 +9,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import ScrollToTop from './components/layout/ScrollToTop';
 import WhatsAppButton from './components/layout/WhatsAppButton';
+import InitialLoader from './components/layout/InitialLoader';
 
 // Lazy load pages for code splitting
 const Home = lazy(() => import('./pages/Home'));
@@ -29,7 +30,10 @@ const ContactPage = lazy(() => import('./pages/ContactPage'));
 // A simple loading fallback
 const PageLoader = () => (
   <div className="flex justify-center items-center h-[60vh]">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900 dark:border-white"></div>
+    <div className="w-12 h-12 relative">
+      <div className="absolute inset-0 rounded-full border-2 border-gray-100 dark:border-gray-800"></div>
+      <div className="absolute inset-0 rounded-full border-2 border-gold border-t-transparent animate-spin"></div>
+    </div>
   </div>
 );
 
@@ -40,6 +44,7 @@ function App() {
         <WishlistProvider>
           <CartProvider>
           <FlyToCartProvider>
+          <InitialLoader>
           <BrowserRouter>
             <ScrollToTop />
             <div className="flex flex-col min-h-screen">
@@ -70,6 +75,7 @@ function App() {
             <WhatsAppButton />
           </div>
         </BrowserRouter>
+        </InitialLoader>
         </FlyToCartProvider>
         </CartProvider>
         </WishlistProvider>

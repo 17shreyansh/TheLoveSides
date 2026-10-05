@@ -20,7 +20,7 @@ export const initiateCheckoutSchema = z.object({
   customerNotes: z.string().max(500).optional(),
   email: z.string().email('Invalid email').optional(),
   shippingMethod: z.object({
-    courierId: z.number(),
+    courierId: z.union([z.number(), z.string()]),
     courierName: z.string(),
     rate: z.number()
   }).optional(),
