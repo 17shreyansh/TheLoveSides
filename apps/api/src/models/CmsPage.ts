@@ -39,7 +39,7 @@ const cmsPageSchema = new Schema<ICmsPage>(
     },
     content: { 
       type: String, 
-      required: function() { 
+      required: function(this: ICmsPage) { 
         return this.type !== 'product_collection'; 
       } 
     },
