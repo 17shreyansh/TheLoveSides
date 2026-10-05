@@ -201,9 +201,6 @@ export default function ThemeSettings() {
         navbar: navbarWithId(settingsMap['theme.navbar.links']),
         footer: footerWithId(settingsMap['theme.footer.links']),
         promo: withId(settingsMap['theme.promo.offers']),
-        promoBanners: withId(settingsMap['theme.home.promo_banners'] || (settingsMap['theme.home.promo_banner'] ? [settingsMap['theme.home.promo_banner']] : [
-          { title: 'Spring Sale Event', description: 'Refresh your home with up to <span class="text-charcoal font-bold">40% off</span> our premium bespoke curtains.', buttonText: 'Shop The Sale', buttonLink: '/products', isActive: true }
-        ])),
         features: withId(settingsMap['theme.home.features']),
         testimonials: withId(settingsMap['theme.home.testimonials']),
         socialFeed: (settingsMap['theme.home.social_feed'] || []).map(item => {
@@ -337,7 +334,6 @@ export default function ThemeSettings() {
         { key: 'theme.navbar.links', value: navbarWithoutId(settings.navbar) },
         { key: 'theme.footer.links', value: footerWithoutId(settings.footer) },
         { key: 'theme.promo.offers', value: withoutId(settings.promo) },
-        { key: 'theme.home.promo_banners', value: withoutId(settings.promoBanners) },
         { key: 'theme.home.features', value: withoutId(settings.features) },
         { key: 'theme.home.testimonials', value: withoutId(settings.testimonials) },
         { key: 'theme.home.social_feed', value: withoutId(settings.socialFeed) },
@@ -363,7 +359,6 @@ export default function ThemeSettings() {
     { id: 'hero', label: 'Hero Section' },
     { id: 'navbar', label: 'Navbar' },
     { id: 'promo', label: 'Promo Offers' },
-    { id: 'promoBanners', label: 'Promo Banners' },
     { id: 'features', label: 'Why Choose Us' },
     { id: 'testimonials', label: 'Testimonials' },
     { id: 'stats', label: 'Statistics' },
@@ -735,99 +730,6 @@ export default function ThemeSettings() {
                       <button type="button" onClick={() => setSettings(p => ({ ...p, promo: p.promo.filter((_, i) => i !== idx) }))} className="p-2 text-red-500 hover:bg-red-50 rounded-md">
                         <Trash2 className="w-4 h-4" />
                       </button>
-                    </div>
-                  </SortableItem>
-                ))}
-              </SortableContext>
-            </DndContext>
-          </div>
-        )}
-
-        {/* Promo Banners */}
-        {activeTab === 'promoBanners' && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-medium">Promo Banners (Home Page)</h2>
-              <button type="button" onClick={() => setSettings(p => ({ ...p, promoBanners: [...p.promoBanners, { _id: generateId(), title: '', description: '', buttonText: '', buttonLink: '', isActive: true }] }))} className="text-sm text-brand flex items-center gap-1"><Plus className="w-4 h-4"/> Add Banner</button>
-            </div>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleDragEnd(e, 'promoBanners')}>
-              <SortableContext items={settings.promoBanners.map(i => i._id)} strategy={verticalListSortingStrategy}>
-                {settings.promoBanners.map((banner, idx) => (
-                  <SortableItem key={banner._id} id={banner._id}>
-                    <div className="flex flex-col gap-3 bg-gray-50 p-4 rounded-lg border border-gray-100 relative">
-                      <button type="button" onClick={() => setSettings(p => ({ ...p, promoBanners: p.promoBanners.filter((_, i) => i !== idx) }))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-50 rounded-md">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                      <div className="flex items-center gap-2 mb-2">
-                        <label className="text-sm font-medium text-gray-700">Active:</label>
-                        <input
-                          type="checkbox"
-                          checked={banner.isActive !== false}
-                          onChange={(e) => {
-                            const newBanners = [...settings.promoBanners];
-                            newBanners[idx].isActive = e.target.checked;
-                            setSettings({ ...settings, promoBanners: newBanners });
-                          }}
-                          className="w-4 h-4 text-brand rounded border-gray-300 focus:ring-brand"
-                        />
-                      </div>
-                      <div className="space-y-4">
-                        <div className="space-y-1">
-                          <label className="text-sm text-gray-600">Title</label>
-                          <input
-                            type="text"
-                            value={banner.title}
-                            onChange={(e) => {
-                              const newBanners = [...settings.promoBanners];
-                              newBanners[idx].title = e.target.value;
-                              setSettings({ ...settings, promoBanners: newBanners });
-                            }}
-                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-sm text-gray-600">Description (HTML allowed)</label>
-                          <textarea
-                            value={banner.description}
-                            onChange={(e) => {
-                              const newBanners = [...settings.promoBanners];
-                              newBanners[idx].description = e.target.value;
-                              setSettings({ ...settings, promoBanners: newBanners });
-                            }}
-                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                            rows={2}
-                          />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-1">
-                            <label className="text-sm text-gray-600">Button Text</label>
-                            <input
-                              type="text"
-                              value={banner.buttonText}
-                              onChange={(e) => {
-                                const newBanners = [...settings.promoBanners];
-                                newBanners[idx].buttonText = e.target.value;
-                                setSettings({ ...settings, promoBanners: newBanners });
-                              }}
-                              className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="text-sm text-gray-600">Button Link</label>
-                            <input
-                              type="text"
-                              list="available-pages"
-                              value={banner.buttonLink}
-                              onChange={(e) => {
-                                const newBanners = [...settings.promoBanners];
-                                newBanners[idx].buttonLink = e.target.value;
-                                setSettings({ ...settings, promoBanners: newBanners });
-                              }}
-                              className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
-                            />
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   </SortableItem>
                 ))}
