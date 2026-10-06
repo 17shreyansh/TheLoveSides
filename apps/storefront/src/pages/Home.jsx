@@ -8,6 +8,7 @@ import img4 from '../assets/img4.PNG';
 import CategoryShowcase from '../components/home/CategoryShowcase';
 import CollectionShowcase from '../components/home/CollectionShowcase';
 import BestSellers from '../components/home/BestSellers';
+import NewArrivals from '../components/home/NewArrivals';
 import ShopByRoom from '../components/home/ShopByRoom';
 import WhyChooseUs from '../components/home/WhyChooseUs';
 import FeaturedProducts from '../components/home/FeaturedProducts';
@@ -36,6 +37,7 @@ export default function Home() {
       <div className="w-full">
         <img src={img3} alt="Additional Category Image" className="w-full h-auto object-cover" />
       </div>
+      <NewArrivals />
       <CollectionShowcase />
       <div className="w-full">
         <img src={img1} alt="Explore Our Collection Image" className="w-full h-auto object-cover" />
