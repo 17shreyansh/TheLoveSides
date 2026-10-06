@@ -321,7 +321,7 @@ ${itemsList}`;
 
       // 3. Open Razorpay Checkout
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_mock', // Fallback for testing
+        key: razorpayOrder.keyId || import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_mock', // Fallback for testing
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
         name: 'TheLoveSides',

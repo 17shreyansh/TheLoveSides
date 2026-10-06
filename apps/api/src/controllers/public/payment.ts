@@ -7,6 +7,7 @@ import { transitionOrderStatus } from '../../services/order.service.js';
 import { sendSuccess } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
 import { logger } from '../../utils/logger.js';
+import { env } from '../../config/env.js';
 
 /**
  * Creates a Razorpay Order ID for a pending order in our database.
@@ -43,6 +44,7 @@ export async function createRazorpayOrder(req: Request, res: Response, next: Nex
         id: rpOrder.id,
         amount: rpOrder.amount,
         currency: rpOrder.currency,
+        keyId: env.RAZORPAY_KEY_ID, // Provide the public key to the frontend
       },
     });
   } catch (error) {
