@@ -9,6 +9,7 @@ import {
   addOrderNote,
   getDashboardStats,
   createShipment,
+  downloadAdminInvoice,
 } from '../../controllers/admin/order.js';
 import { listCustomers, getCustomerById } from '../../controllers/admin/customer.js';
 
@@ -26,6 +27,7 @@ router.get('/dashboard/stats', authorize('orders.read'), getDashboardStats);
 // ========================================
 router.get('/orders', authorize('orders.read'), listOrders);
 router.get('/orders/:id', authorize('orders.read'), getOrderById);
+router.get('/orders/:id/invoice', authorize('orders.read'), downloadAdminInvoice);
 router.patch('/orders/:id/status', authorize('orders.update'), updateOrderStatus);
 router.post('/orders/:id/cancel', authorize('orders.cancel'), adminCancelOrder);
 router.patch('/orders/:id/notes', authorize('orders.update'), addOrderNote);

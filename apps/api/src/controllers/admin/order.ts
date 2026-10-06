@@ -5,6 +5,7 @@ import { Shipment } from '../../models/Shipment.js';
 import { Return } from '../../models/Return.js';
 import { Refund } from '../../models/Refund.js';
 import { transitionOrderStatus, cancelOrder } from '../../services/order.service.js';
+import { generateInvoicePDF } from '../../services/invoice.service.js';
 import { createAuditLog } from '../../services/audit.service.js';
 import { sendSuccess, sendPaginated } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
@@ -312,6 +313,28 @@ export async function createShipment(req: Request, res: Response, next: NextFunc
     });
 
     sendSuccess({ res, message: 'Shipment created successfully' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Admin downloads an order invoice.
+ */
+export async function downloadAdminInvoice(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const id = req.params.id as string;
+    
+    const order = await Order.findById(id).lean();
+    if (!order) {
+      throw ApiError.notFound('Order');
+    }
+
+    const pdfBuffer = await generateInvoicePDF(id);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="Invoice-${order.orderNumber}.pdf"`);
+    res.send(pdfBuffer);
   } catch (error) {
     next(error);
   }

@@ -4,7 +4,7 @@ import { api } from '../../lib/api';
 import { 
   Package, Truck, MapPin, CreditCard, Clock, 
   CheckCircle, XCircle, ArrowLeft, User, Phone, 
-  Calendar, RefreshCw, Box, ChevronDown, Activity, ShieldCheck
+  Calendar, RefreshCw, Box, ChevronDown, Activity, ShieldCheck, FileText
 } from 'lucide-react';
 
 export default function OrderDetails() {
@@ -99,6 +99,24 @@ export default function OrderDetails() {
     }
   };
 
+  const handleDownloadInvoice = async () => {
+    try {
+      const response = await api.get(`/admin/orders/${order._id}/invoice`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Invoice-${order.orderNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading invoice', error);
+      alert('Failed to download invoice');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
@@ -163,6 +181,17 @@ export default function OrderDetails() {
         </div>
 
         <div className="flex items-center gap-3 bg-white p-2 rounded-xl shadow-sm border border-charcoal/5">
+          <button
+            onClick={handleDownloadInvoice}
+            title="Download Invoice"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold bg-white border border-charcoal/10 text-charcoal rounded-lg hover:bg-ivory transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            Invoice
+          </button>
+          
+          <div className="w-px h-6 bg-charcoal/10"></div>
+          
           <span className="text-sm font-medium text-charcoal/60 px-2">Update Status:</span>
           <div className="relative">
             <select 
