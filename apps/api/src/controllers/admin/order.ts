@@ -6,7 +6,6 @@ import { Return } from '../../models/Return.js';
 import { Refund } from '../../models/Refund.js';
 import { transitionOrderStatus, cancelOrder } from '../../services/order.service.js';
 import { createAuditLog } from '../../services/audit.service.js';
-import { enqueueShipment } from '../../queues/index.js';
 import { sendSuccess, sendPaginated } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
 
@@ -260,17 +259,59 @@ export async function createShipment(req: Request, res: Response, next: NextFunc
       throw ApiError.badRequest('Order must be PAID or PROCESSING to create a shipment');
     }
 
-    await enqueueShipment(id);
+    // Process shipment creation synchronously
+    const { User } = await import('../../models/User.js');
+    const { createShiprocketOrder } = await import('../../integrations/shiprocket/shiprocket.service.js');
+    
+    const user = await User.findById(order.userId);
+    if (!user) {
+      throw ApiError.notFound('User associated with order not found');
+    }
+
+    let defaultWeight = 0.5;
+    try {
+      const { Setting } = await import('../../models/Setting.js');
+      const setting = await Setting.findOne({ key: 'shiprocket.default_weight' }).lean();
+      if (setting && setting.value) {
+        defaultWeight = parseFloat(String(setting.value)) || 0.5;
+      }
+    } catch (error) {
+      // Ignore db error for settings
+    }
+
+    const shiprocketResponse = await createShiprocketOrder(order, user.email, defaultWeight);
+
+    // Save Shipment record
+    await Shipment.create({
+      orderId: order._id,
+      shiprocketOrderId: shiprocketResponse.order_id.toString(),
+      shiprocketShipmentId: shiprocketResponse.shipment_id.toString(),
+      status: 'CREATED',
+      awbCode: shiprocketResponse.awb_code || null,
+      courierName: shiprocketResponse.courier_name || null,
+      courierId: shiprocketResponse.courier_company_id
+        ? parseInt(shiprocketResponse.courier_company_id)
+        : undefined,
+    });
+
+    if (order.status === 'PAID') {
+      await transitionOrderStatus(
+        order.id,
+        'PROCESSING',
+        `Shipment created at Shiprocket (Order ID: ${shiprocketResponse.order_id})`,
+        req.user?.id
+      );
+    }
 
     await createAuditLog({
       action: 'order.shipment_trigger',
       resource: 'Order',
       resourceId: id,
-      details: {},
+      details: { shiprocketOrderId: shiprocketResponse.order_id },
       req,
     });
 
-    sendSuccess({ res, message: 'Shipment creation queued successfully' });
+    sendSuccess({ res, message: 'Shipment created successfully' });
   } catch (error) {
     next(error);
   }

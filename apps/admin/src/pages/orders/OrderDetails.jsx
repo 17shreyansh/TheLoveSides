@@ -125,6 +125,15 @@ export default function OrderDetails() {
       RETURNED: 'bg-orange-100 text-orange-800 border-orange-200',
       REFUNDED: 'bg-lime-100 text-lime-800 border-lime-200',
       RTO: 'bg-rose-100 text-rose-800 border-rose-200',
+      // Shipment specific statuses
+      CREATED: 'bg-blue-50 text-blue-700 border-blue-100',
+      SHIPMENT_CREATED: 'bg-indigo-50 text-indigo-700 border-indigo-100',
+      AWB_ASSIGNED: 'bg-purple-50 text-purple-700 border-purple-100',
+      PICKED_UP: 'bg-teal-50 text-teal-700 border-teal-100',
+      IN_TRANSIT: 'bg-cyan-100 text-cyan-800 border-cyan-200',
+      UNDELIVERED: 'bg-orange-100 text-orange-800 border-orange-200',
+      LOST: 'bg-red-100 text-red-800 border-red-200',
+      DAMAGED: 'bg-red-100 text-red-800 border-red-200',
     };
     return colors[status] || 'bg-ivory text-charcoal border-charcoal/10';
   };
@@ -386,7 +395,7 @@ export default function OrderDetails() {
                           </button>
                         )}
                         
-                        {shipment.status === 'READY_TO_SHIP' && !shipment.pickupScheduled && (
+                        {['CREATED', 'SHIPMENT_CREATED', 'AWB_ASSIGNED'].includes(shipment.status) && !shipment.pickupScheduled && (
                           <button 
                             onClick={() => handleSchedulePickup(shipment._id)}
                             disabled={updating}
