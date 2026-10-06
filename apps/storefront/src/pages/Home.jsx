@@ -48,7 +48,7 @@ export default function Home() {
           rel="noopener noreferrer" 
           className="block w-full hover:opacity-95 transition-opacity duration-300"
         >
-          <img src={img4} alt="Contact us on WhatsApp" className="w-full h-auto object-cover" />
+          <img src={img4} alt="Banner" className="block w-full h-auto object-cover" />
         </a>
       </div>
       <ShopByRoom />

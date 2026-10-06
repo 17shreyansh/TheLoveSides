@@ -24,11 +24,13 @@ class EmailService {
     subject,
     text,
     html,
+    attachments,
   }: {
     to: string | string[];
     subject: string;
     text?: string;
     html?: string;
+    attachments?: any[];
   }) {
     const toArray = Array.isArray(to) ? to : [to];
 
@@ -39,6 +41,7 @@ class EmailService {
         subject,
         text: text || '',
         html: html || '',
+        attachments,
       });
 
       return info;

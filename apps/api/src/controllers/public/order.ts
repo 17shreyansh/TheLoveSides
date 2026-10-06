@@ -4,6 +4,7 @@ import { Payment } from '../../models/Payment.js';
 import { Shipment } from '../../models/Shipment.js';
 import { Return } from '../../models/Return.js';
 import { cancelOrder } from '../../services/order.service.js';
+import { generateInvoicePDF } from '../../services/invoice.service.js';
 import { sendSuccess, sendPaginated } from '../../utils/ApiResponse.js';
 import { ApiError } from '../../utils/ApiError.js';
 
@@ -99,6 +100,29 @@ export async function cancelMyOrder(req: Request, res: Response, next: NextFunct
     await cancelOrder(id, (reason as string) || 'Cancelled by customer');
 
     sendSuccess({ res, message: 'Order cancelled successfully' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Customer downloads their own order invoice.
+ */
+export async function downloadInvoice(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const id = req.params.id as string;
+    
+    // Verify ownership
+    const order = await Order.findOne({ _id: id, userId: req.user!.id });
+    if (!order) {
+      throw ApiError.notFound('Order');
+    }
+
+    const pdfBuffer = await generateInvoicePDF(id);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="Invoice-${order.orderNumber}.pdf"`);
+    res.send(pdfBuffer);
   } catch (error) {
     next(error);
   }

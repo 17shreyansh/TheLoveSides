@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticateCustomer } from '../middleware/auth.js';
-import { getMyOrders, getMyOrderById, cancelMyOrder } from '../controllers/public/order.js';
+import { getMyOrders, getMyOrderById, cancelMyOrder, downloadInvoice } from '../controllers/public/order.js';
 import { requestReturn } from '../controllers/public/return.js';
 import { trackMyShipment } from '../controllers/public/shipping.js';
 
@@ -11,6 +11,7 @@ router.use(authenticateCustomer);
 router.get('/', getMyOrders);
 router.get('/:id', getMyOrderById);
 router.post('/:id/cancel', cancelMyOrder);
+router.get('/:id/invoice', downloadInvoice);
 router.get('/:orderId/track', trackMyShipment);
 router.post('/:orderId/return', requestReturn);
 

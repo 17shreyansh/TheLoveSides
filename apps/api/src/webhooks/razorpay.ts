@@ -4,6 +4,8 @@ import { WebhookEvent } from '../models/WebhookEvent.js';
 import { Order } from '../models/Order.js';
 import { Payment } from '../models/Payment.js';
 import { transitionOrderStatus } from '../services/order.service.js';
+import { sendOrderConfirmationEmail } from '../services/invoice.service.js';
+import { User } from '../models/User.js';
 import { logger } from '../utils/logger.js';
 
 export async function razorpayWebhook(req: Request, res: Response, _next: NextFunction): Promise<void> {
@@ -100,6 +102,15 @@ async function processRazorpayEvent(event: any) {
             'PAID',
             'Payment verified via webhook'
           );
+
+          try {
+            const user = await User.findById(order.userId);
+            if (user?.email) {
+              await sendOrderConfirmationEmail(order.id, user.email);
+            }
+          } catch (err) {
+            logger.error({ err, orderId: order.id }, 'Error sending invoice email');
+          }
         }
       }
       break;

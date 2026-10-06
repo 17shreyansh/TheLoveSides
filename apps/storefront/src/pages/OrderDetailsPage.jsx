@@ -94,6 +94,24 @@ export default function OrderDetailsPage() {
     return daysSinceDelivery <= maxDays;
   };
 
+  const handleDownloadInvoice = async () => {
+    try {
+      const response = await api.get(`/orders/${order._id}/invoice`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Invoice-${order.orderNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading invoice', error);
+      alert('Failed to download invoice');
+    }
+  };
+
   return (
     <div className="bg-cream min-h-screen pt-32 md:pt-40 pb-16 md:pb-24">
       <div className="max-w-4xl mx-auto px-6 md:px-10">
@@ -112,7 +130,16 @@ export default function OrderDetailsPage() {
               Order <span className="font-mono text-charcoal font-medium">#{order.orderNumber}</span> • Placed on {new Date(order.createdAt).toLocaleDateString()}
             </p>
           </div>
-          <div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadInvoice}
+              className="text-charcoal border-charcoal/20 hover:bg-charcoal/5"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Invoice
+            </Button>
             <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium border ${getStatusColor(order.status)}`}>
               {order.status.replace(/_/g, ' ')}
             </span>
