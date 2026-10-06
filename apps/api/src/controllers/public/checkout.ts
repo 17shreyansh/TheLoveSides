@@ -69,6 +69,7 @@ export async function initiateCheckout(req: Request, res: Response, next: NextFu
 
     const order = await createOrderFromCart({
       userId: userId as string,
+      cartOwner: req.cartOwner,
       shippingAddress,
       billingAddress,
       couponCode,

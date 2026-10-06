@@ -113,7 +113,7 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
         { 
           $or: [
             { userId: order.userId },
-            { sessionId: req.cartOwner.id }
+            { guestId: req.cartOwner.id }
           ] 
         },
         { $set: { items: [], couponCode: null } }

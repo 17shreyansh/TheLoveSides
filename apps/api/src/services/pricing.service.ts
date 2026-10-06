@@ -55,11 +55,11 @@ export async function calculateCartPricing(
   }
 
   // 1. Fetch live variant data (prices may have changed since cart was created)
-  const variantIds = cartItems.map((item) => item.variantId);
+  const variantIds = cartItems.map((item) => item.variantId.toString());
   const variants = await ProductVariant.find({
     _id: { $in: variantIds },
     isActive: true,
-    deletedAt: null,
+    $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }]
   }).lean();
 
   const variantMap = new Map(
@@ -257,7 +257,7 @@ async function calculateCouponDiscount(
 export async function validateCartInventory(
   cartItems: ICartItem[],
 ): Promise<void> {
-  const variantIds = cartItems.map((item) => item.variantId);
+  const variantIds = cartItems.map((item) => item.variantId.toString());
   const inventories = await Inventory.find({
     variantId: { $in: variantIds },
   }).lean();

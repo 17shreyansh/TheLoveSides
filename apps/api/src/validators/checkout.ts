@@ -15,13 +15,13 @@ const addressSchema = z.object({
 
 export const initiateCheckoutSchema = z.object({
   shippingAddress: addressSchema,
-  billingAddress: addressSchema.optional(),
-  couponCode: z.string().trim().toUpperCase().optional(),
-  customerNotes: z.string().max(500).optional(),
-  email: z.string().email('Invalid email').optional(),
+  billingAddress: addressSchema.nullable().optional(),
+  couponCode: z.string().trim().toUpperCase().nullable().optional(),
+  customerNotes: z.string().max(500).nullable().optional(),
+  email: z.string().email('Invalid email').nullable().optional(),
   shippingMethod: z.object({
     courierId: z.union([z.number(), z.string()]),
     courierName: z.string(),
     rate: z.number()
-  }).optional(),
+  }).nullable().optional(),
 });

@@ -30,6 +30,7 @@ const VALID_TRANSITIONS: Record<string, OrderStatus[]> = {
 
 interface CreateOrderInput {
   userId: string;
+  cartOwner: { type: 'user' | 'guest'; id: string };
   shippingAddress: any;
   billingAddress?: any;
   couponCode?: string;
@@ -68,7 +69,11 @@ export async function createOrderFromCart(input: CreateOrderInput) {
 
   try {
     // 1. Fetch cart
-    const cart = await Cart.findOne({ userId: input.userId });
+    const cartOwnerQuery = input.cartOwner.type === 'user' 
+      ? { userId: input.cartOwner.id } 
+      : { guestId: input.cartOwner.id };
+
+    const cart = await Cart.findOne(cartOwnerQuery);
     if (!cart || !cart.items || cart.items.length === 0) {
       throw ApiError.badRequest('Cart is empty');
     }
