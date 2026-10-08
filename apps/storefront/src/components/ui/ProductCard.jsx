@@ -17,7 +17,12 @@ export default function ProductCard({ product, layout = 'auto' }) {
   
   const isWishlisted = isInWishlist(product.id || product._id);
   
-  const image = product.image || product.images?.[0] || product.variants?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500';
+  const baseImage = product.image || product.images?.[0] || product.variants?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500';
+  
+  // Calculate responsive sources if following the new scalable image naming convention
+  const isScalable = typeof baseImage === 'string' && baseImage.endsWith('-large.webp');
+  const imageThumb = isScalable ? baseImage.replace('-large.webp', '-thumbnail.webp') : baseImage;
+  const imageMedium = isScalable ? baseImage.replace('-large.webp', '-medium.webp') : baseImage;
   
   const inStock = product.variants?.length > 0 
     ? product.variants[0].isPurchasable !== false 
@@ -28,7 +33,7 @@ export default function ProductCard({ product, layout = 'auto' }) {
     try {
       await addToCart(product);
       if (imageRef.current) {
-        triggerFlyToCart(imageRef.current.getBoundingClientRect(), image);
+        triggerFlyToCart(imageRef.current.getBoundingClientRect(), imageThumb);
       }
       setAdded(true);
       setTimeout(() => {
@@ -46,8 +51,12 @@ export default function ProductCard({ product, layout = 'auto' }) {
           <Link to={`/product/${product.slug}`} className="cursor-pointer block h-full w-full">
             <img 
               ref={imageRef}
-              src={image} 
+              src={imageThumb} 
+              srcSet={isScalable ? `${imageThumb} 400w, ${imageMedium} 800w, ${baseImage} 1200w` : undefined}
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 400px"
               alt={product.name} 
+              loading="lazy"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           </Link>
@@ -133,8 +142,12 @@ export default function ProductCard({ product, layout = 'auto' }) {
         <Link to={`/product/${product.slug}`} className="cursor-pointer block h-full w-full">
           <img 
             ref={imageRef}
-            src={image} 
+            src={imageThumb} 
+            srcSet={isScalable ? `${imageThumb} 400w, ${imageMedium} 800w, ${baseImage} 1200w` : undefined}
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 400px"
             alt={product.name} 
+            loading="lazy"
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </Link>

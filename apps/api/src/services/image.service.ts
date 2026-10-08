@@ -13,17 +13,35 @@ if (!fs.existsSync(uploadDir)) {
  * Returns the generated filename and file size.
  */
 export async function optimizeAndSaveImage(buffer: Buffer, _originalName: string): Promise<{ filename: string, size: number }> {
-  // We'll generate a UUID and append -optimized.webp
-  const filename = `${uuidv4()}-optimized.webp`;
-  const filepath = path.join(uploadDir, filename);
+  const baseId = uuidv4();
+  const largeFilename = `${baseId}-large.webp`;
+  const mediumFilename = `${baseId}-medium.webp`;
+  const thumbFilename = `${baseId}-thumbnail.webp`;
+  
+  const largePath = path.join(uploadDir, largeFilename);
+  const mediumPath = path.join(uploadDir, mediumFilename);
+  const thumbPath = path.join(uploadDir, thumbFilename);
 
+  // Large image (for product details & zoom)
   const info = await sharp(buffer)
-    .resize({ width: 1920, height: 1920, fit: 'inside', withoutEnlargement: true })
-    .webp({ quality: 80 })
-    .toFile(filepath);
+    .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
+    .webp({ quality: 75, effort: 6 }) // high effort for better compression
+    .toFile(largePath);
+
+  // Medium image (for category pages & general content)
+  await sharp(buffer)
+    .resize({ width: 800, height: 800, fit: 'inside', withoutEnlargement: true })
+    .webp({ quality: 75, effort: 6 })
+    .toFile(mediumPath);
+
+  // Thumbnail image (for product cards & cart)
+  await sharp(buffer)
+    .resize({ width: 400, height: 400, fit: 'inside', withoutEnlargement: true })
+    .webp({ quality: 70, effort: 6 })
+    .toFile(thumbPath);
 
   return {
-    filename,
+    filename: largeFilename,
     size: info.size
   };
 }

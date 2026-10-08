@@ -60,11 +60,17 @@ export default function Hero() {
                   <img
                     src={slide.mobileImageUrl || slide.desktopImageUrl || HeroImageMobile}
                     alt=""
+                    loading={index === 0 ? "eager" : "lazy"}
+                    fetchpriority={index === 0 ? "high" : "auto"}
+                    decoding="async"
                     className="w-full h-full object-cover object-[85%_center] md:hidden"
                   />
                   <img
                     src={slide.desktopImageUrl || slide.mobileImageUrl || HeroImageDesktop}
                     alt=""
+                    loading={index === 0 ? "eager" : "lazy"}
+                    fetchpriority={index === 0 ? "high" : "auto"}
+                    decoding="async"
                     className="w-full h-full object-cover object-center hidden md:block"
                   />
                   {/* Overlay gradients */}
