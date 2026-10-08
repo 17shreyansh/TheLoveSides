@@ -58,9 +58,10 @@ export default function ProductsPage() {
 
   const updateParam = (key, value) => {
     setSearchParams(prev => {
-      if (value) prev.set(key, value);
-      else prev.delete(key);
-      return prev;
+      const newParams = new URLSearchParams(prev);
+      if (value) newParams.set(key, value);
+      else newParams.delete(key);
+      return newParams;
     });
   };
 
@@ -70,11 +71,12 @@ export default function ProductsPage() {
 
   const applyPriceFilter = () => {
     setSearchParams(prev => {
-      if (priceInput.min) prev.set('minPrice', priceInput.min);
-      else prev.delete('minPrice');
-      if (priceInput.max) prev.set('maxPrice', priceInput.max);
-      else prev.delete('maxPrice');
-      return prev;
+      const newParams = new URLSearchParams(prev);
+      if (priceInput.min) newParams.set('minPrice', priceInput.min);
+      else newParams.delete('minPrice');
+      if (priceInput.max) newParams.set('maxPrice', priceInput.max);
+      else newParams.delete('maxPrice');
+      return newParams;
     });
   };
 
