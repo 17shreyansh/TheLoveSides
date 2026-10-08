@@ -42,6 +42,7 @@ export default function Hero() {
   return (
     <section className="relative mt-[85px] md:mt-[136px] lg:mt-[108px] min-h-[calc(100vh-85px)] md:min-h-[calc(100vh-136px)] lg:min-h-[calc(100vh-108px)] flex items-center bg-gray-50">
       <Swiper
+        key={JSON.stringify(autoplayOptions)}
         modules={[Autoplay, EffectFade, Pagination, Navigation]}
         effect="fade"
         speed={1000}
