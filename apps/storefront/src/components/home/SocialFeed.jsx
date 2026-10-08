@@ -158,10 +158,10 @@ export default function SocialFeed() {
                   return (
                     <SwiperSlide key={item._id || idx} className="h-auto">
                       <div className="w-full h-full flex justify-center items-stretch">
-                        <div className="w-full max-w-[300px] bg-white rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 p-1 md:p-2 overflow-hidden flex flex-col">
+                        <div className="w-full max-w-[280px] bg-white rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 p-1 overflow-hidden flex flex-col">
                           <div
-                            className="w-full flex-grow flex justify-center overflow-y-auto custom-scrollbar"
-                            style={{ maxHeight: '480px' }}
+                            className="w-full flex-grow flex justify-center overflow-hidden"
+                            style={{ maxHeight: '420px' }}
                             dangerouslySetInnerHTML={{
                               __html: `
                                 <blockquote
@@ -221,7 +221,7 @@ export default function SocialFeed() {
                   return (
                     <SwiperSlide key={item._id || idx} className="h-auto">
                       <div className="w-full h-full flex justify-center items-stretch">
-                        <div className="w-full max-w-[300px] bg-white rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500 relative min-h-[420px] group flex flex-col">
+                        <div className="w-full max-w-[280px] bg-white rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500 relative min-h-[380px] group flex flex-col">
                           {postLink ? (
                             <a href={postLink} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-30">
                               <span className="sr-only">View Media</span>
