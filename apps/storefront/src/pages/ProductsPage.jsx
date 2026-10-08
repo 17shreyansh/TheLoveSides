@@ -56,28 +56,33 @@ export default function ProductsPage() {
     setPriceInput({ min: minPrice, max: maxPrice });
   }, [minPrice, maxPrice]);
 
-  const updateParam = (key, value) => {
+  const updateParams = (updates) => {
     setSearchParams(prev => {
       const newParams = new URLSearchParams(prev);
-      if (value) newParams.set(key, value);
-      else newParams.delete(key);
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value) newParams.set(key, value);
+        else newParams.delete(key);
+      });
       return newParams;
     });
+  };
+
+  const updateParam = (key, value) => {
+    updateParams({ [key]: value });
   };
 
   const removeFilter = (key) => {
     updateParam(key, '');
   };
 
+  const removeFilters = (keys) => {
+    const updates = {};
+    keys.forEach(k => updates[k] = '');
+    updateParams(updates);
+  };
+
   const applyPriceFilter = () => {
-    setSearchParams(prev => {
-      const newParams = new URLSearchParams(prev);
-      if (priceInput.min) newParams.set('minPrice', priceInput.min);
-      else newParams.delete('minPrice');
-      if (priceInput.max) newParams.set('maxPrice', priceInput.max);
-      else newParams.delete('maxPrice');
-      return newParams;
-    });
+    updateParams({ minPrice: priceInput.min, maxPrice: priceInput.max });
   };
 
   const { collections, loading: collectionsLoading } = useCollections();
@@ -175,7 +180,7 @@ export default function ProductsPage() {
         ) : (
           <div className="space-y-2">
             <button
-              onClick={() => { updateParam('category', ''); updateParam('subcategory', ''); }}
+              onClick={() => updateParams({ category: '', subcategory: '' })}
               className={clsx(
                 "block text-sm transition-colors text-left",
                 selectedCategory === '' ? "text-pink-primary font-medium" : "text-charcoal/70 hover:text-charcoal"
@@ -186,10 +191,7 @@ export default function ProductsPage() {
             {categories.map(category => (
               <button
                 key={category._id}
-                onClick={() => {
-                  updateParam('category', category.slug);
-                  updateParam('subcategory', '');
-                }}
+                onClick={() => updateParams({ category: category.slug, subcategory: '' })}
                 className={clsx(
                   "block text-sm transition-colors text-left",
                   selectedCategory === category.slug ? "text-pink-primary font-medium" : "text-charcoal/70 hover:text-charcoal"
@@ -376,7 +378,7 @@ export default function ProductsPage() {
                   </button>
                 )}
               </div>
-              <FilterSidebarContent />
+              {FilterSidebarContent()}
             </div>
           </div>
 
@@ -433,7 +435,7 @@ export default function ProductsPage() {
                   {selectedCategory && (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-charcoal/10 rounded-full text-charcoal">
                       Category: {categories?.find(c => c.slug === selectedCategory)?.name || selectedCategory}
-                      <button onClick={() => { removeFilter('category'); removeFilter('subcategory'); }} className="hover:text-pink-primary"><X className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => removeFilters(['category', 'subcategory'])} className="hover:text-pink-primary"><X className="w-3.5 h-3.5" /></button>
                     </span>
                   )}
                   {selectedSubcategory && (
@@ -451,7 +453,7 @@ export default function ProductsPage() {
                   {(minPrice || maxPrice) && (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-charcoal/10 rounded-full text-charcoal">
                       Price: {minPrice ? `₹${minPrice}` : '0'} - {maxPrice ? `₹${maxPrice}` : 'Any'}
-                      <button onClick={() => { removeFilter('minPrice'); removeFilter('maxPrice'); }} className="hover:text-pink-primary"><X className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => removeFilters(['minPrice', 'maxPrice'])} className="hover:text-pink-primary"><X className="w-3.5 h-3.5" /></button>
                     </span>
                   )}
                   {inStock && (
@@ -494,7 +496,7 @@ export default function ProductsPage() {
                 </div>
               </div>
               <div className="p-6 flex-1 overflow-y-auto">
-                <FilterSidebarContent />
+                {FilterSidebarContent()}
               </div>
               <div className="p-6 border-t border-charcoal/10 sticky bottom-0 bg-cream shrink-0">
                 <Button variant="primary" className="w-full" onClick={() => setIsFilterDrawerOpen(false)}>
